@@ -1,13 +1,19 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
-import { AppError } from "./utils/AppError.js";
+import { AppError } from "./common/utils/AppError.js";
+import router from "./routes/index.js";
 
 const app = express();
 const port = 3000;
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.get("/", (_: Request, res: Response) => {
   res.send("Hello, World!");
 });
+
+app.use("/api", router);
 
 // Global error handler
 app.use((err: Error, _: Request, res: Response, __: NextFunction) => {
