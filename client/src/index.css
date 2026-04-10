@@ -1,1 +1,51 @@
 @import "tailwindcss";
+
+@theme {
+  /* Font Style */
+  --font-sans: "Inter", sans-serif;
+  --font-body: "Mulish", sans-serif;
+
+  /* Colors Style */
+  /* Brand */
+  --color-primary: oklch(0.62 0.12 250);
+  --color-primary-dark: oklch(0.45 0.1 250);
+  --color-primary-light: oklch(0.82 0.08 250);
+  --color-primary-subtle: oklch(0.9 0.05 250);
+
+  /* State */
+  --color-error: oklch(56.77% 0.198 25.86);
+  --color-error-100: oklch(91.31% 0.043 24.36);
+  --color-error-200: oklch(73.53% 0.147 25.33);
+  --color-error-300: oklch(45.54% 0.179 26.24);
+
+  --color-warning: oklch(78.29% 0.187 77.01);
+  --color-warning-100: oklch(97.28% 0.08 107.03);
+  --color-warning-200: oklch(84.4% 0.143 83.17);
+  --color-warning-300: oklch(60.1% 0.149 71.49);
+
+  --color-info: oklch(62.6% 0.106 251.35);
+  --color-info-100: oklch(89.7% 0.026 244.75);
+  --color-info-200: oklch(74.49% 0.085 248.16);
+  --color-info-300: oklch(44.42% 0.088 255.43);
+
+  --color-success: oklch(63.42% 0.128 156.2);
+  --color-success-100: oklch(94.22% 0.046 151.78);
+  --color-success-200: oklch(79.79% 0.119 152.05);
+  --color-success-300: oklch(46.35% 0.082 160.17);
+
+  /* Dark / Neutral */
+  --color-neutral-900: oklch(0.2 0.02 260);
+  --color-neutral-800: oklch(0.3 0.02 260);
+  --color-neutral-700: oklch(0.4 0.02 260);
+  --color-neutral-600: oklch(0.55 0.02 260);
+
+  /* Light */
+  --color-neutral-100: oklch(0.97 0.01 260);
+  --color-neutral-200: oklch(0.94 0.01 260);
+  --color-neutral-300: oklch(0.91 0.01 260);
+  --color-neutral-400: oklch(0.98 0.01 260);
+
+  /* Additional */
+  --color-secondary: oklch(0.3 0.08 260);
+  --color-secondary-light: oklch(0.95 0.03 250);
+}
