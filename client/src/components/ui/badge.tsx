@@ -15,7 +15,7 @@ const badgeVariants = cva(
           "bg-success-100 text-success border-success-300 text-success-300",
       },
       size: {
-        sm: "px-2 py-0.5 text-xs",
+        sm: "px-2 py-1 text-xs",
         md: "px-3 py-1 text-sm",
         lg: "px-4 py-1.5 text-base",
       },
