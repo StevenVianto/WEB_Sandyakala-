@@ -4,6 +4,8 @@ import DashboardPage from "./pages/admin/DashboardPage";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import VerificationPage from "./pages/admin/VerificationPage";
+import ReportsPage from "./pages/admin/ReportsPage";
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         {/* Route for Admin */}
         <Route path="/admin">
           <Route path="dashboard" Component={DashboardPage} />
+          <Route path="verifikasi" Component={VerificationPage} />
+          <Route path="laporan" Component={ReportsPage} />
         </Route>
 
         <Route path="*" Component={NotFound} />
