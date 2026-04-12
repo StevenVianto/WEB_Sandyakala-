@@ -49,3 +49,14 @@
   --color-secondary: oklch(0.3 0.08 260);
   --color-secondary-light: oklch(0.95 0.03 250);
 }
+
+@layer base {
+  body {
+    @apply font-sans;
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+}
