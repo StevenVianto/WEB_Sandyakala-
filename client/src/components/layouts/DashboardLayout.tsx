@@ -1,6 +1,8 @@
 import { BiNotepad, BiSolidGridAlt, BiSolidUser } from "react-icons/bi";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
+import { Button } from "../ui/button";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 const menus = [
   { name: "Dashboard", icon: BiSolidGridAlt, to: "/admin/dashboard" },
@@ -34,13 +36,17 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
   description: string;
+  showBackButton?: boolean;
 }
 
 export default function DashboardLayout({
   children,
   title,
   description,
+  showBackButton = false,
 }: DashboardLayoutProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen flex bg-info-100/15">
       <aside className="w-64 bg-secondary text-white flex flex-col justify-between">
@@ -82,9 +88,20 @@ export default function DashboardLayout({
 
         {/* CONTENT */}
         <div className="p-6">
-          <div className="mb-4">
-            <h1 className="text-xl font-semibold">{title}</h1>
-            <p className="text-sm text-gray-500">{description}</p>
+          <div className="mb-4 flex items-center gap-3">
+            {showBackButton && (
+              <Button
+                onClick={() => navigate(-1)}
+                variant={"ghost"}
+                className="text-5xl"
+              >
+                <IoIosArrowRoundBack />
+              </Button>
+            )}
+            <div>
+              <h1 className="text-xl font-semibold">{title}</h1>
+              <p className="text-sm text-gray-500">{description}</p>
+            </div>
           </div>
 
           {children}

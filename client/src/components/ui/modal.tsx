@@ -1,0 +1,20 @@
+interface ModalProps {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+export function Modal({ open, onClose, children }: ModalProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
+        {children}
+      </div>
+    </div>
+  );
+}

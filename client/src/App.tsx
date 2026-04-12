@@ -6,6 +6,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import VerificationPage from "./pages/admin/VerificationPage";
 import ReportsPage from "./pages/admin/ReportsPage";
+import DetailVerificationPage from "./pages/admin/DetailVerificationPage";
 
 function App() {
   return (
@@ -22,6 +23,10 @@ function App() {
         <Route path="/admin">
           <Route path="dashboard" Component={DashboardPage} />
           <Route path="verifikasi" Component={VerificationPage} />
+          <Route
+            path="verifikasi/:namaUsaha"
+            Component={DetailVerificationPage}
+          />
           <Route path="laporan" Component={ReportsPage} />
         </Route>
 

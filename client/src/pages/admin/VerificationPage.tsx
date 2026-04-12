@@ -126,7 +126,7 @@ export default function VerificationPage() {
               </td>
               <td className="px-4 py-2 border border-info-100">
                 <Link
-                  to={""}
+                  to={"/admin/verifikasi/sambal-bakar-nusantara"}
                   className="text-center block font-semibold underline text-blue-600 cursor-pointer"
                 >
                   Detail
@@ -154,7 +154,7 @@ export default function VerificationPage() {
               </td>
               <td className="px-4 py-2 border border-info-100 ">
                 <Link
-                  to={""}
+                  to={"/admin/verifikasi/cendol-jaya"}
                   className="text-center block font-semibold underline text-blue-600 cursor-pointer"
                 >
                   Detail
