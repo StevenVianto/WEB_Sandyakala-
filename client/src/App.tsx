@@ -5,8 +5,9 @@ import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import VerificationPage from "./pages/admin/VerificationPage";
-import ReportsPage from "./pages/admin/ReportsPage";
 import DetailVerificationPage from "./pages/admin/DetailVerificationPage";
+import ReportPage from "./pages/admin/ReportPage";
+import DetailReportPage from "./pages/admin/DetailReportPage";
 
 function App() {
   return (
@@ -27,7 +28,8 @@ function App() {
             path="verifikasi/:namaUsaha"
             Component={DetailVerificationPage}
           />
-          <Route path="laporan" Component={ReportsPage} />
+          <Route path="laporan" Component={ReportPage} />
+          <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
         </Route>
 
         <Route path="*" Component={NotFound} />
