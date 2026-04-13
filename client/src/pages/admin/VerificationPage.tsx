@@ -1,9 +1,8 @@
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { StatCard } from "@/components/ui/stat-card";
-import { BiSearch } from "react-icons/bi";
 import { Link } from "react-router-dom";
 
 export default function VerificationPage() {
@@ -12,7 +11,7 @@ export default function VerificationPage() {
       title="Verifikasi Akun UMKM"
       description="Kelola dan verifikasi pengajuan akun baru"
     >
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-8 mb-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-8 mb-4">
         <StatCard
           variant={"blue"}
           title="Total Pengajuan"
@@ -46,36 +45,32 @@ export default function VerificationPage() {
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-7">
-        <div className="relative w-full max-w-md">
-          <Input
-            type="text"
-            placeholder="Cari nama atau perusahaan..."
-            className="w-full pl-4 pr-10 py-2 rounded-md border border-blue-300"
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-info-300">
-            <BiSearch className="h-6 w-6 fill-secondary" />
-          </span>
+      <div className="flex flex-col md:flex-row lg:items-center lg:justify-between gap-4 mb-7">
+        <div className="relative w-full md:max-w-xl lg:max-w-md">
+          <SearchInput placeholder="Cari nama atau perusahaan...." />
         </div>
 
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3">
           <Button className="rounded-full font-semibold" size={"sm"}>
             Semua
           </Button>
           <Button
-            className="rounded-full bg-info-100 hover:text-white text-black font-semibold border border-info-200"
+            variant={"soft"}
+            className="rounded-full font-semibold border border-info-200"
             size={"sm"}
           >
             Menunggu
           </Button>
           <Button
-            className="rounded-full bg-info-100 hover:text-white text-black font-semibold border border-info-200"
+            variant={"soft"}
+            className="rounded-full font-semibold border border-info-200"
             size={"sm"}
           >
             Terverifikasi
           </Button>
           <Button
-            className="rounded-full bg-info-100 hover:text-white text-black font-semibold border border-info-200"
+            variant={"soft"}
+            className="rounded-full font-semibold border border-info-200"
             size={"sm"}
           >
             Ditolak
@@ -83,79 +78,59 @@ export default function VerificationPage() {
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto mt-5 border border-info-100 rounded-lg">
-        <table className="w-full border border-info-100 overflow-hidden rounded-lg">
-          <thead className="bg-blue-100 text-sm ">
+      <div className=" rounded-lg overflow-x-scroll md:overflow-x-hidden overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-blue-100 text-sm overflow-hidden">
             <tr>
-              <th className="px-4 py-2 text-center border border-info-100 ">
-                No
-              </th>
-              <th className="px-4 py-2 text-center border border-info-100">
-                Nama Usaha
-              </th>
-              <th className="px-4 py-2 text-center border border-info-100">
-                Email
-              </th>
-              <th className="px-4 py-2 text-center border border-info-100">
-                Status
-              </th>
-              <th className="px-4 py-2 text-center border border-info-100">
-                Aksi
-              </th>
+              <th className="table-head">No</th>
+              <th className="table-head">Nama Usaha</th>
+              <th className="table-head">Email</th>
+              <th className="table-head">Status</th>
+              <th className="table-head">Aksi</th>
             </tr>
           </thead>
 
           <tbody className="text-sm">
             <tr className="bg-white">
-              <td className="px-4 py-2 border border-info-100 font-semibold">
-                1
-              </td>
-              <td className="px-4 py-2 border border-info-100 font-semibold">
-                Sambal Bakar Nusantara
-              </td>
-              <td className="px-4 py-2 border border-info-100 font-semibold">
-                mamat@mail.com
-              </td>
-              <td className="px-4 py-2 border border-info-100">
+              <td className="table-data">1</td>
+              <td className="table-data">Sambal Bakar Nusantara</td>
+              <td className="table-data">mamat@mail.com</td>
+              <td className="table-data">
                 <Badge
                   size={"sm"}
-                  className="border-none text-black font-semibold bg-primary "
+                  variant={"primary"}
+                  className="border-none text-black "
                 >
                   Verifikasi
                 </Badge>
               </td>
-              <td className="px-4 py-2 border border-info-100">
+              <td className="table-data ">
                 <Link
                   to={"/admin/verifikasi/sambal-bakar-nusantara"}
-                  className="text-center block font-semibold underline text-blue-600 cursor-pointer"
+                  className="text-center block underline text-blue-600 cursor-pointer"
                 >
                   Detail
                 </Link>
               </td>
             </tr>
 
-            <tr className="bg-gray-50">
-              <td className="px-4 py-2 border border-info-100 font-semibold">
-                2
-              </td>
-              <td className="px-4 py-2 border border-info-100 font-semibold">
-                Cendol Jaya
-              </td>
-              <td className="px-4 py-2 border border-info-100 font-semibold">
-                sarti@mail.com
-              </td>
-              <td className="px-4 py-2 border border-info-100 font-semibold">
+            <tr className="bg-white">
+              <td className="table-data">2</td>
+              <td className="table-data">Cendol Jaya</td>
+              <td className="table-data">sarti@mail.com</td>
+              <td className="table-data">
                 <Badge
                   size={"sm"}
-                  className="border-none text-black font-semibold bg-red-300 px-3"
+                  variant={"error"}
+                  className="border-none text-black  px-3"
                 >
                   Tolak
                 </Badge>
               </td>
-              <td className="px-4 py-2 border border-info-100 ">
+              <td className="table-data">
                 <Link
                   to={"/admin/verifikasi/cendol-jaya"}
-                  className="text-center block font-semibold underline text-blue-600 cursor-pointer"
+                  className="text-center block underline text-blue-600 cursor-pointer"
                 >
                   Detail
                 </Link>

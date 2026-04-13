@@ -25,7 +25,7 @@ export default function DetailVerificationPage() {
       <div className="flex justify-center">
         <Card className="max-w-2xl border-2 border-info-100">
           <CardHeader className=" flex justify-between items-center border-b-2 border-info-100">
-            <h1 className="text-md font-bold">Informasi Usaha</h1>
+            <h1 className="md:text-md text-base font-bold">Informasi Usaha</h1>
             <Button className="bg-orange-400 text-black font-semibold rounded-full text-xs py-1.5">
               Perlu ditinjau
             </Button>
@@ -40,7 +40,7 @@ export default function DetailVerificationPage() {
                 />
               </div>
               <div className="space-y-3">
-                <h2 className="font-extrabold text-3xl">
+                <h2 className="font-extrabold text-base md:text-3xl">
                   {namaUsahaFormatted}
                 </h2>
                 <p className="font-semibold text-sm">Kategori : Kuliner</p>

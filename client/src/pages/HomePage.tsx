@@ -3,8 +3,9 @@ import { Link } from "react-router";
 
 export default function HomePage() {
   return (
-    <>
-      <h1 className="text-primary font-body">Home Page</h1>
+    <div className="container">
+      <h1 className="text-primary">Home Page</h1>
+      <p className="text-h1 leading-base">Welcome to the Home Page!</p>
       <Link to="/admin/dashboard" className="font-sans">
         Go to Dashboard Admin
       </Link>
@@ -14,6 +15,6 @@ export default function HomePage() {
         <Badge variant="error">Error</Badge>
         <Badge variant="success">Success</Badge>
       </div>
-    </>
+    </div>
   );
 }

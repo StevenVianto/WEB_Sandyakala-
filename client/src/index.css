@@ -5,6 +5,22 @@
   --font-sans: "Inter", sans-serif;
   --font-body: "Mulish", sans-serif;
 
+  /* Typography Scale */
+  --text-h1: 48px;
+  --text-h2: 40px;
+  --text-h3: 32px;
+  --text-h4: 28px;
+  --text-h5: 24px;
+  --text-h6: 20px;
+
+  --text-title-1: 20px;
+  --text-title-2: 16px;
+
+  --text-body-1: 12px;
+  --text-body-2: 10px;
+
+  --leading-base: 1.4;
+
   /* Colors Style */
   /* Brand */
   --color-primary: oklch(0.62 0.12 250);
@@ -54,9 +70,44 @@
   body {
     @apply font-sans;
   }
+
+  h1 {
+    @apply font-bold text-h1 leading-base;
+  }
+
+  h2 {
+    @apply font-bold text-h2 leading-base;
+  }
+
+  h3 {
+    @apply font-semibold text-h3 leading-base;
+  }
+
+  h4 {
+    @apply font-semibold text-h4 leading-base;
+    @apply font-semibold;
+  }
+
+  h5 {
+    @apply font-semibold  text-h5 leading-base;
+  }
+
+  h6 {
+    @apply font-semibold  text-h6 leading-base;
+  }
 }
 
-@utility container {
-  margin-inline: auto;
-  padding-inline: 2rem;
+@layer utilities {
+  .container {
+    margin-inline: auto;
+    padding-inline: 2rem;
+  }
+
+  .table-head {
+    @apply px-4 py-2 text-center border border-info-100;
+  }
+
+  .table-data {
+    @apply px-4 py-2 border border-info-100 font-semibold;
+  }
 }

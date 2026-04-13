@@ -7,10 +7,10 @@ const statCardVariants = cva(
   {
     variants: {
       variant: {
-        green: "border-green-600",
-        blue: "border-info-300",
-        yellow: "border-yellow-500",
-        red: "border-red-500",
+        green: "border-success text-success",
+        blue: "border-info-300 text-info-300",
+        yellow: "border-warning text-warning",
+        red: "border-error text-error",
       },
     },
     defaultVariants: {
@@ -37,21 +37,11 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <div className={cn(statCardVariants({ variant }), className)}>
-      <p className="text-sm font-semibold">{title}</p>
+      <p className="text-sm font-semibold text-black">{title}</p>
 
-      <h2
-        className={cn(
-          "text-4xl font-semibold",
-          variant === "green" && "text-green-600",
-          variant === "blue" && "text-info-300",
-          variant === "yellow" && "text-yellow-500",
-          variant === "red" && "text-red-600",
-        )}
-      >
-        {value}
-      </h2>
+      <h2 className={cn("text-4xl font-semibold")}>{value}</h2>
 
-      <p className="text-xs font-semibold">{description}</p>
+      <p className="text-xs font-semibold text-black">{description}</p>
     </div>
   );
 }

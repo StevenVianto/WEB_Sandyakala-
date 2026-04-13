@@ -24,7 +24,7 @@ export default function DetailReportPage() {
       <div className="flex justify-center">
         <Card className="max-w-2xl border-2 border-info-100">
           <CardHeader className=" flex justify-between items-center border-b-2 border-info-100">
-            <h1 className="text-md font-bold">Informasi Laporan</h1>
+            <h1 className="md:text-md text-xl font-bold">Informasi Laporan</h1>
           </CardHeader>
           <CardBody>
             <h1 className="text-2xl mb-2 font-extrabold">
@@ -52,28 +52,28 @@ export default function DetailReportPage() {
             </h3>
           </CardBody>
           <CardFooter className="bg-info-100/30 flex gap-5 justify-between px-10 border-t-2 border-info-100">
-            <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2">
-              <Button className="bg-info-200 w-full border-info border text-info-300 hover:text-white hover:bg-info font-bold flex flex-col gap-1 text-xl">
-                <MdPauseCircleFilled className="h-10 w-10 fill-blue-600" />
+            <div className="grid w-full grid-cols-2 gap-6 md:grid-cols-2">
+              <Button className="bg-info-200 w-full border-info border text-info-300 hover:text-white hover:bg-info font-bold flex flex-col gap-1 lg:text-xl text-base">
+                <MdPauseCircleFilled className="h-7 w-7 lg:h-10 lg:w-10 fill-blue-600" />
                 Terima
                 <span className="text-xs">Akun dibekukan sementara waktu</span>
               </Button>
-              <Button className="bg-red-200 w-full border-red-500 border text-red-400 hover:text-white hover:bg-red-500 font-bold flex flex-col gap-1 text-xl">
-                <FaBan className="h-10 w-10 fill-red-400" />
+              <Button className="bg-red-200 w-full border-red-500 border text-red-400 hover:text-white hover:bg-red-500 font-bold flex flex-col gap-1 lg:text-xl text-base">
+                <FaBan className="h-7 w-7 lg:h-10 lg:w-10 fill-red-400" />
                 Ban Permanen
                 <span className="text-xs">
                   Akun dihapus & diblokir selamanya
                 </span>
               </Button>
-              <Button className="bg-orange-200 w-full border-orange-500 border text-orange-400 hover:text-white hover:bg-orange-500 font-bold flex flex-col gap-1 text-xl">
-                <PiWarningCircle className="h-10 w-10 fill-orange-400" />
+              <Button className="bg-orange-200 w-full border-orange-500 border text-orange-400 hover:text-white hover:bg-orange-500 font-bold flex flex-col gap-1 lg:text-xl text-base">
+                <PiWarningCircle className="h-7 w-7 lg:h-10 lg:w-10 fill-orange-400" />
                 Beri Peringatan
                 <span className="text-xs">
                   Kirim Notifikasi Pelanggaran Resmi
                 </span>
               </Button>
-              <Button className="bg-slate-200 w-full border-slate-500 border text-slate-600 hover:text-white hover:bg-slate-500 font-bold flex flex-col gap-1 text-xl">
-                <IoClose className="h-10 w-10 fill-slate-400" />
+              <Button className="bg-slate-200 w-full border-slate-500 border text-slate-600 hover:text-white hover:bg-slate-500 font-bold flex flex-col gap-1 lg:text-xl text-base">
+                <IoClose className="h-7 w-7 lg:h-10 lg:w-10 fill-slate-400" />
                 Abaikan
                 <span className="text-xs">
                   Laporan tidak terbukti, tutup kasus

@@ -7,12 +7,11 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-info-100 text-info border-info-300 text-info-300",
-        warning:
-          "bg-warning-100 text-warning border-warning-300 text-warning-300",
-        error: "bg-error-100 text-error border-error-300 text-error-300",
-        success:
-          "bg-success-100 text-success border-success-300 text-success-300",
+        primary: "bg-primary text-white border-primary",
+        info: "bg-info-100 text-info-300 border-info-300",
+        warning: "bg-warning-100 text-warning-300 border-warning-300",
+        error: "bg-error-200 text-error-300 border-error-300",
+        success: "bg-success-100 text-success-300 border-success-300",
       },
       size: {
         sm: "px-2 py-1 text-xs",
@@ -21,7 +20,7 @@ const badgeVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "md",
     },
   },

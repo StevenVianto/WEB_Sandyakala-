@@ -9,7 +9,7 @@ export default function LoginPage() {
         <Input type="email" placeholder="example@gmail.com" />
         <Input type="password" placeholder="********" />
 
-        <Button className="bg-info-300 w-full" size={"lg"}>
+        <Button className="w-full" variant={"primary-dark"} size={"lg"}>
           Masuk
         </Button>
       </form>
