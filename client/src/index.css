@@ -97,7 +97,17 @@
   }
 }
 
-@utility container {
-  margin-inline: auto;
-  padding-inline: 2rem;
+@layer utilities {
+  .container {
+    margin-inline: auto;
+    padding-inline: 2rem;
+  }
+
+  .table-head {
+    @apply px-4 py-2 text-center border border-info-100;
+  }
+
+  .table-data {
+    @apply px-4 py-2 border border-info-100 font-semibold;
+  }
 }

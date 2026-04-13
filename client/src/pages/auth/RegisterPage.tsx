@@ -11,7 +11,7 @@ export default function RegisterPage() {
         <Input type="password" placeholder="********" />
         <Input type="password" placeholder="********" />
 
-        <Button className="bg-info-300 w-full" size={"lg"}>
+        <Button className="w-full" variant={"primary-dark"} size={"lg"}>
           Register
         </Button>
       </form>
