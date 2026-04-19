@@ -8,6 +8,10 @@ import VerificationPage from "./pages/admin/VerificationPage";
 import DetailVerificationPage from "./pages/admin/DetailVerificationPage";
 import ReportPage from "./pages/admin/ReportPage";
 import DetailReportPage from "./pages/admin/DetailReportPage";
+import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
+import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
+import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
+import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
 
 function App() {
   return (
@@ -30,6 +34,14 @@ function App() {
           />
           <Route path="laporan" Component={ReportPage} />
           <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
+        </Route>
+
+        {/* Route for UMKM */}
+        <Route path="/umkm">
+          <Route path="home" Component={HomeUmkmPage} />
+          <Route path="dashboard" Component={DashboardUmkmPage} />
+          <Route path="lowongan" Component={LowonganUmkmPage} />
+          <Route path="profile" Component={ProfileUmkmPage} />
         </Route>
 
         <Route path="*" Component={NotFound} />
