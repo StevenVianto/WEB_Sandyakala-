@@ -4,6 +4,13 @@ import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import LogoFreshstart from "@/assets/images/Logo FreshStart.png";
 
+const navItems = [
+  { title: "Home", to: "/umkm/home" },
+  { title: "Dashboard", to: "/umkm/dashboard" },
+  { title: "Lowongan", to: "/umkm/lowongan" },
+  { title: "Profile", to: "/umkm/profile" },
+];
+
 const NavItem = ({
   to,
   children,
@@ -43,7 +50,7 @@ export default function DashboardUmkmLayout({
 
   return (
     <>
-      <nav className="py-2 bg-white shadow rounded-b-2xl fixed w-full top-0 z-40 transition-all">
+      <nav className="py-1 bg-white shadow rounded-b-2xl fixed w-full top-0 z-40 transition-all">
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
           <div className="flex gap-2 md:gap-3 items-center">
             <img
@@ -53,24 +60,17 @@ export default function DashboardUmkmLayout({
             />
             <Link
               to="/umkm/home"
-              className="text-lg md:text-base font-bold text-mint-300"
+              className="text-sm md:text-base font-bold text-mint-300"
             >
               FreshStart
             </Link>
           </div>
           <ul className="hidden md:flex gap-7 items-center">
-            <li>
-              <NavItem to="/umkm/home">Home</NavItem>
-            </li>
-            <li>
-              <NavItem to="/umkm/dashboard">Dashboard</NavItem>
-            </li>
-            <li>
-              <NavItem to="/umkm/lowongan">Lowongan</NavItem>
-            </li>
-            <li>
-              <NavItem to="/umkm/profile">Profile</NavItem>
-            </li>
+            {navItems.map((item) => (
+              <li key={item.title}>
+                <NavItem to={item.to}>{item.title}</NavItem>
+              </li>
+            ))}
 
             <div className="h-9 w-9 bg-gray-100 rounded-full shadow ms-6 border border-slate-300 overflow-hidden">
               <img
@@ -141,42 +141,17 @@ export default function DashboardUmkmLayout({
           </div>
 
           <ul className="flex flex-col gap-6">
-            <li>
-              <NavItem
-                to="/umkm/home"
-                isMobile
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Home
-              </NavItem>
-            </li>
-            <li>
-              <NavItem
-                to="/umkm/dashboard"
-                isMobile
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Dashboard
-              </NavItem>
-            </li>
-            <li>
-              <NavItem
-                to="/umkm/lowongan"
-                isMobile
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Lowongan
-              </NavItem>
-            </li>
-            <li>
-              <NavItem
-                to="/umkm/profile"
-                isMobile
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Profile
-              </NavItem>
-            </li>
+            {navItems.map((item) => (
+              <li key={item.title}>
+                <NavItem
+                  to={item.to}
+                  isMobile
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.title}
+                </NavItem>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
