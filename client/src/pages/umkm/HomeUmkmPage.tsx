@@ -1,5 +1,4 @@
-import LogoFreshstart from "@/assets/images/Logo FreshStart.png";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import ImgHero from "@/assets/images/Bg Image Home UMKM.png";
 import { RiUserSearchFill } from "react-icons/ri";
 import { IoIosArrowRoundForward } from "react-icons/io";
@@ -8,6 +7,7 @@ import { BiSolidNotepad } from "react-icons/bi";
 import { FaUserClock, FaUserPlus } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import { FiPlus } from "react-icons/fi";
+import DashboardUmkmLayout from "@/components/layouts/DashboardUmkmLayout";
 
 const dataCardBisnis = [
   {
@@ -69,7 +69,7 @@ const Header = ({
 }) => {
   return (
     <div>
-      <h5 className="uppercase font-semibold text-sm text-mint-200 mb-1.5">
+      <h5 className="uppercase font-semibold text-xs text-mint-200 mb-1.5">
         {title}
       </h5>
       <h3 className="font-extrabold text-xl">{description}</h3>
@@ -79,59 +79,29 @@ const Header = ({
 
 export default function HomeUmkmPage() {
   return (
-    <>
-      <nav className="py-3 bg-white shadow rounded-b-2xl">
-        <div className="container flex justify-between items-center">
-          <div className="flex gap-3 items-center">
-            <img
-              src={LogoFreshstart}
-              alt="Logo FreshStart"
-              className="h-10 w-10"
-            />
-            <h1 className="text-xl font-bold">FreshStart</h1>
-          </div>
-
-          <ul className="flex gap-7 items-center">
-            <li className="font-semibold">
-              <Link to="/umkm/home">Home</Link>
-            </li>
-            <li className="font-semibold">
-              <Link to="/umkm/dashboard">Dashboard</Link>
-            </li>
-            <li className="font-semibold">
-              <Link to="/umkm/lowongan">Lowongan</Link>
-            </li>
-            <li className="font-semibold">
-              <Link to="/umkm/profile">Profile</Link>
-            </li>
-
-            <div className="h-10 w-10 bg-white rounded-full shadow ms-6 border border-slate-300" />
-          </ul>
-        </div>
-      </nav>
-
+    <DashboardUmkmLayout>
       <section
-        className="bg-cover bg-center flex items-center min-h-[calc(100vh-64px)]"
+        className="bg-cover bg-center flex items-center min-h-screen relative pt-20"
         style={{ backgroundImage: `url(${ImgHero})` }}
       >
-        <div className="container">
-          <div className="w-1/2">
-            <h1 className="font-extrabold mb-2 text-white">
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="container mx-auto px-4 md:px-8 relative z-10">
+          <div className="w-full md:w-2/3 lg:w-1/2">
+            <h1 className="text-2xl md:text-4xl xl:text-5xl font-extrabold mb-4 text-white leading-tight">
               Tumbuh Bersama Talenta Muda Hebat Indonesia
             </h1>
-            <p className="text-white">
+            <p className="text-sm md:text-base lg:text-lg text-gray-100 mb-6 leading-relaxed">
               Berikan kesempatan proyek nyata bagi first-jobber, dan dapatkan
               bantuan operasional yang efisien untuk memajukan bisnis mikro
               Anda. Jangan khawatir, kolaborasi pasti aman dan progres dapat
               dipantau.
             </p>
-
-            <Link
+            <NavLink
               to="/umkm/dashboard"
-              className="px-5 py-2 mt-4 inline-block bg-white rounded-full text-primary-dark font-semibold"
+              className="px-4.5 py-1.5 md:px-6 md:py-3 text-sm md:text-base inline-block bg-white rounded-full text-mint font-bold shadow-lg hover:bg-mint-200 hover:text-white transition-all"
             >
               Mulai Kolaborasi
-            </Link>
+            </NavLink>
           </div>
         </div>
       </section>
@@ -183,7 +153,7 @@ export default function HomeUmkmPage() {
                 </div>
               </div>
               <Button
-                className="bg-mint-100 text-mint-300 w-max font-bold mt-5 px-6 py-1"
+                className="bg-mint-100 text-info-300 hover:text-white w-max font-bold mt-5 px-6 py-1"
                 size={"sm"}
               >
                 Berbasis Proyek
@@ -217,6 +187,6 @@ export default function HomeUmkmPage() {
           </Link>
         </div>
       </section>
-    </>
+    </DashboardUmkmLayout>
   );
 }
