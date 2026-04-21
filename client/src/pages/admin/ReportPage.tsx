@@ -48,7 +48,7 @@ export default function ReportPage() {
 
           <Button
             variant={"soft"}
-            className="text-sm w-max whitespace-nowrap font-semibold flex items-center gap-1"
+            className="text-sm w-max whitespace-nowrap rounded-md bg-white border font-semibold flex items-center gap-1"
           >
             Status Laporan
             <MdKeyboardArrowDown className="h-6 w-6" />
@@ -60,7 +60,7 @@ export default function ReportPage() {
         <table className="w-full">
           <thead className="bg-blue-100 text-sm ">
             <tr>
-              <th className="table-head ">No</th>
+              <th className="table-head">No</th>
               <th className="table-head">Nama Usaha</th>
               <th className="table-head">Kategori Pelanggaran</th>
               <th className="table-head">Alasan Pelaporan</th>
@@ -71,10 +71,10 @@ export default function ReportPage() {
 
           <tbody className="text-sm">
             <tr className="bg-white">
-              <td className="table-data">RPT-001</td>
-              <td className="table-data">Sambal Bakar Nusantara</td>
-              <td className="table-data">Penipuan</td>
-              <td className="table-data max-w-xs">
+              <td className="table-data font-medium">RPT-001</td>
+              <td className="table-data font-medium">Sambal Bakar Nusantara</td>
+              <td className="table-data font-medium">Penipuan</td>
+              <td className="table-data max-w-50 text-xs">
                 Pemilik usaha melakukan tindakan penipuan dengan memberikan
                 informasi yang menyesatkan dan berusaha memperoleh keuntungan
                 secara tidak sah.
@@ -102,7 +102,7 @@ export default function ReportPage() {
               <td className="table-data">RPT-002</td>
               <td className="table-data">Cendol Jaya</td>
               <td className="table-data">Data Palsu</td>
-              <td className="table-data max-w-xs">
+              <td className="table-data max-w-50 text-xs">
                 Pemilik usaha mengunggah atau menggunakan data palsu yang tidak
                 sesuai dengan fakta, sehingga berpotensi merugikan pihak lain.
               </td>

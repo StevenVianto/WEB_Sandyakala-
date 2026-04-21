@@ -109,10 +109,10 @@
   }
 
   .table-head {
-    @apply px-4 py-2 text-center border border-info-100;
+    @apply p-2 text-center text-sm border border-info-100;
   }
 
   .table-data {
-    @apply px-4 py-2 border border-info-100 font-semibold;
+    @apply p-2 border border-info-100 text-sm;
   }
 }

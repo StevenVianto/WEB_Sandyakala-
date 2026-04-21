@@ -20,7 +20,7 @@ const PopularUmkm = ({
     <div className="flex flex-col">
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-semibold ">{category}</p>
-        <p className="text-sm ">{count} UMKM</p>
+        <p className="text-sm text-gray-400">{count} UMKM</p>
       </div>
       <hr className={`py-1 border-none w-full ${color} rounded-full`} />
     </div>
@@ -49,17 +49,17 @@ const ActionCard = ({
 
   return (
     <div
-      className={`flex gap-3 justify-between items-center py-4 px-6 w-full rounded-3xl border-2 ${variants[variant]}`}
+      className={`flex gap-2 justify-between items-center py-4 px-3 w-full rounded-3xl border-2 ${variants[variant]}`}
     >
       {icon}
 
       <div className="flex flex-col flex-1">
-        <h1 className="font-bold mb-1 text-base">{title}</h1>
+        <h1 className=" mb-1 text-sm">{title}</h1>
         <p className="text-sm">{description}</p>
       </div>
 
       <Link to={to}>
-        <BiRightArrowAlt className="h-10 w-10" />
+        <BiRightArrowAlt className="h-8 w-8" />
       </Link>
     </div>
   );
@@ -134,14 +134,14 @@ export default function DashboardPage() {
               <ActionCard
                 title="Review Pengajuan"
                 description="3 Laporan aktif"
-                icon={<FaCircleCheck className="h-12 w-12 fill-secondary" />}
+                icon={<FaCircleCheck className="h-10 w-10 fill-secondary" />}
                 to="/admin/verifikasi"
               />
 
               <ActionCard
                 title="Tindakan Laporan"
                 description="3 Laporan aktif"
-                icon={<IoIosWarning className="h-12 w-12 fill-error" />}
+                icon={<IoIosWarning className="h-10 w-10 fill-error" />}
                 to="/admin/laporan"
                 variant="error"
               />

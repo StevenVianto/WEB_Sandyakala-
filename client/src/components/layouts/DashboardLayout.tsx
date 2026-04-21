@@ -108,11 +108,11 @@ export default function DashboardLayout({
               <BiMenu className="h-7 w-7" />
             </Button>
             <p className="text-sm hidden sm:block">
-              Selamat datang, <span className="font-extrabold">ADMIN</span>
+              Selamat datang, <span className="font-bold">ADMIN</span>
             </p>
           </div>
 
-          <div className="bg-secondary flex items-center gap-2 text-white px-3 py-1.5 lg:px-4 lg:py-1 rounded-full font-semibold text-xs lg:text-sm cursor-pointer hover:bg-secondary/90 transition-colors">
+          <div className="bg-secondary flex items-center gap-2 text-white px-3 py-1.5 lg:py-1 rounded-full font-base text-xs lg:text-sm cursor-pointer hover:bg-secondary/90 transition-colors">
             <span>Admin</span>
             <MdKeyboardArrowDown className="h-5 w-5 lg:h-6 lg:w-6" />
           </div>

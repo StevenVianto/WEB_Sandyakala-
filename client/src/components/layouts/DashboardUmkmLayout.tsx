@@ -28,7 +28,7 @@ const NavItem = ({
       onClick={onClick}
       className={({ isActive }) =>
         cn(
-          "font-semibold transition-all text-sm duration-300",
+          "font-medium transition-all text-xs duration-300",
           isMobile ? "block" : "pb-2 border-b-3",
           isActive
             ? "text-mint border-mint"
@@ -50,7 +50,7 @@ export default function DashboardUmkmLayout({
 
   return (
     <>
-      <nav className="py-1 bg-white shadow rounded-b-2xl fixed w-full top-0 z-40 transition-all">
+      <nav className="py-2.5 bg-white shadow rounded-b-2xl fixed w-full top-0 z-40 transition-all">
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
           <div className="flex gap-2 md:gap-3 items-center">
             <img
@@ -60,7 +60,7 @@ export default function DashboardUmkmLayout({
             />
             <Link
               to="/umkm/home"
-              className="text-sm md:text-base font-bold text-mint-300"
+              className="text-sm md:text-sm font-bold text-mint-300"
             >
               FreshStart
             </Link>

@@ -12,7 +12,7 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ title, value, colorClass }) => {
   return (
     <div className="bg-white rounded-xl shadow md:shadow-xl border border-gray-100 p-6 flex flex-col justify-center transition-transform hover:-translate-y-1 duration-300">
-      <h3 className={cn("text-sm font-extrabold mb-3", colorClass)}>{title}</h3>
+      <h3 className={cn("text-sm font-medium mb-3", colorClass)}>{title}</h3>
       <span className={cn("text-4xl md:text-5xl font-bold", colorClass)}>
         {value}
       </span>
@@ -186,7 +186,7 @@ export default function DashboardUmkmPage() {
               <div className="flex flex-wrap gap-3">
                 <button
                   className={cn(
-                    "md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all",
+                    "md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-base transition-all",
                     "bg-white text-mint-300", // State Aktif
                   )}
                 >
@@ -194,7 +194,7 @@ export default function DashboardUmkmPage() {
                 </button>
                 <button
                   className={cn(
-                    "md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all",
+                    "md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-base transition-all",
                     "border border-white/80 text-white hover:bg-white/20 hover:border-white", // State Inaktif
                   )}
                 >
@@ -202,7 +202,7 @@ export default function DashboardUmkmPage() {
                 </button>
                 <button
                   className={cn(
-                    "md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-all",
+                    "md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-base transition-all",
                     "border border-white/80 text-white hover:bg-white/20 hover:border-white", // State Inaktif
                   )}
                 >
@@ -212,17 +212,17 @@ export default function DashboardUmkmPage() {
 
               <Link
                 to={"/umkm/dashboard"}
-                className="md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full bg-white text-mint font-bold text-xs md:text-sm shadow-md hover:bg-gray-50 transition-colors w-fit"
+                className="md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full bg-white text-mint font-medium text-xs md:text-sm shadow-md hover:bg-gray-50 transition-colors w-fit"
               >
                 Seleksi Pelamar
               </Link>
             </div>
 
             <div className="md:mt-10 mt-5">
-              <h2 className="text-xl md:text-3xl font-bold text-white mb-2">
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
                 Status Lamaran Saat Ini
               </h2>
-              <p className="text-gray-200 text-sm md:text-base font-medium">
+              <p className="text-gray-200 text-sm font-medium">
                 Pantau rekrutmen dan seleksi talenta usahamu
               </p>
             </div>
@@ -260,12 +260,12 @@ export default function DashboardUmkmPage() {
           <div className="lg:col-span-7">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-sm md:text-xl font-extrabold text-primary-dark">
+                <h2 className="text-sm md:text-lg font-bold text-primary-dark">
                   Lamaran Terbaru
                 </h2>
                 <Link
                   to={"/umkm/dashboard"}
-                  className="px-4 py-1 md:py-1.5 rounded-xl border border-mint text-mint text-xs md:text-sm font-semibold hover:bg-mint-100 transition-colors"
+                  className="px-3 py-1 md:py-1.5 rounded-xl border border-mint text-mint text-xs md:text-sm font-semibold hover:bg-mint-100 transition-colors"
                 >
                   Seleksi Pelamar
                 </Link>
@@ -284,7 +284,7 @@ export default function DashboardUmkmPage() {
                         className="w-12 h-12 rounded-full object-cover bg-gray-100"
                       />
                       <div>
-                        <h3 className="font-bold text-gray-800 text-xs md:text-base">
+                        <h3 className="font-medium text-black text-xs md:text-base">
                           {item.name}
                         </h3>
                         <p className="text-gray-700 text-xs md:text-sm">
@@ -315,10 +315,10 @@ export default function DashboardUmkmPage() {
           <div className="lg:col-span-5 flex flex-col gap-6">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-sm md:text-xl font-bold text-info-300">
+                <h2 className="text-sm md:text-lg font-bold text-primary-dark">
                   Jadwal Wawancara
                 </h2>
-                <button className="px-4 py-1 md:py-1.5 rounded-xl border border-mint text-mint text-xs md:text-sm font-semibold hover:bg-mint-100 transition-colors">
+                <button className="px-3 py-1 md:py-1.5 rounded-xl border border-mint text-mint text-xs md:text-sm font-semibold hover:bg-mint-100 transition-colors">
                   Lihat Wawancara
                 </button>
               </div>
@@ -336,7 +336,7 @@ export default function DashboardUmkmPage() {
                       <p className="text-gray-500 text-xs">{item.role}</p>
                       <p className="text-gray-400 text-xs">{item.project}</p>
                     </div>
-                    <span className="bg-red-200 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
+                    <span className="bg-red-200 text-red-600 px-3 py-1 rounded-full text-xs font-base">
                       {item.date}
                     </span>
                   </div>
@@ -346,10 +346,10 @@ export default function DashboardUmkmPage() {
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-sm md:text-xl font-bold text-info-300">
+                <h2 className="text-sm md:text-lg font-bold text-primary-dark">
                   Daftar Lowongan
                 </h2>
-                <button className="px-4 py-1 md:py-1.5 rounded-xl border border-mint text-mint text-xs md:text-sm font-semibold hover:bg-mint-100 transition-colors">
+                <button className="px-3 py-1 md:py-1.5 rounded-xl border border-mint text-mint text-xs md:text-sm font-semibold hover:bg-mint-100 transition-colors">
                   Lihat Lowongan
                 </button>
               </div>
@@ -358,10 +358,10 @@ export default function DashboardUmkmPage() {
                 {daftarLowongan.map((item) => (
                   <div
                     key={item.id}
-                    className="flex justify-between items-center py-4 border-b border-gray-100 last:border-0"
+                    className="flex justify-between items-center py-4 border-b border-gray-800 last:border-0"
                   >
                     <div>
-                      <h3 className="font-bold text-gray-800 text-xs md:text-base">
+                      <h3 className="font-bold text-black text-xs md:text-base">
                         {item.role}
                       </h3>
                       <p className="text-gray-500 text-xs md:text-xs mt-0.5">

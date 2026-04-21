@@ -50,8 +50,8 @@ const CardBisnis = ({ title, description, Icon, link }: CardBisnisProps) => {
         <Icon className="h-10 w-10 fill-mint" />
       </div>
       <div className="my-4">
-        <h5 className="mb-1.5 text-xl font-extrabold">{title}</h5>
-        <p className="text-base text-slate-600">{description}</p>
+        <h5 className="mb-1.5 text-xl font-bold">{title}</h5>
+        <p className="text-sm text-slate-600">{description}</p>
       </div>
       <Link to={link} className="w-full flex justify-end">
         <IoIosArrowRoundForward className="h-10 w-10  fill-mint" />
@@ -72,7 +72,7 @@ const Header = ({
       <h5 className="uppercase font-semibold text-xs text-mint-200 mb-1.5">
         {title}
       </h5>
-      <h3 className="font-extrabold text-xl">{description}</h3>
+      <h3 className="font-bold text-xl">{description}</h3>
     </div>
   );
 };
@@ -98,7 +98,7 @@ export default function HomeUmkmPage() {
             </p>
             <NavLink
               to="/umkm/dashboard"
-              className="px-4.5 py-1.5 md:px-6 md:py-3 text-sm md:text-base inline-block bg-white rounded-full text-mint font-bold shadow-lg hover:bg-mint-200 hover:text-white transition-all"
+              className="px-4 py-1.5 md:px-6 md:py-2 text-sm md:text-base inline-block bg-white rounded-full text-mint font-base shadow-lg hover:bg-mint-200 hover:text-white transition-all"
             >
               Mulai Kolaborasi
             </NavLink>
@@ -148,19 +148,19 @@ export default function HomeUmkmPage() {
                   />
                 </div>
                 <div className="space-y-0.3">
-                  <h4 className="font-extrabold text-lg">Rizky Handoko</h4>
+                  <h4 className="font-bold text-lg">Rizky Handoko</h4>
                   <p className="text-gray-400">UI/UX Designer</p>
                 </div>
               </div>
               <Button
-                className="bg-mint-100 text-info-300 hover:text-white w-max font-bold mt-5 px-6 py-1"
+                className="bg-mint-100 text-info-300 hover:text-white w-max font-medium mt-5 px-6 py-1"
                 size={"sm"}
               >
                 Berbasis Proyek
               </Button>
 
               <div className="flex justify-between items-center mb-5 mt-9">
-                <p className="text-sm text-gray-400">Bergabung 1 Maret 2026</p>
+                <p className="text-xs text-gray-400">Bergabung 1 Maret 2026</p>
 
                 <Link
                   to={"/umkm/pekerja"}
@@ -179,7 +179,7 @@ export default function HomeUmkmPage() {
               <FiPlus className="w-10 h-10 text-mint" />
             </div>
             <div className="space-y-1 text-center">
-              <h4 className="text-xl font-extrabold">Tambah Pekerja</h4>
+              <h4 className="text-xl font-bold">Tambah Pekerja</h4>
               <p className="text-xs text-gray-500">
                 Seleksi Pelamar yang Melamar di UMKM Anda
               </p>
