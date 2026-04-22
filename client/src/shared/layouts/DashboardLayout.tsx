@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BiNotepad, BiSolidGridAlt, BiSolidUser, BiMenu } from "react-icons/bi";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router";
-import { Button } from "../ui/button";
+import { Button } from "../components/ui/button";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import LogoFreshstart from "@/assets/images/Logo FreshStart.png";
 

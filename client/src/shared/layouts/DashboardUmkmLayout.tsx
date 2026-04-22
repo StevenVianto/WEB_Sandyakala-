@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 import { Link, NavLink } from "react-router";
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
