@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useOutletContext, useNavigate } from "react-router-dom";
-import TaskLayout from "@/components/layouts/TaskLayout";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import TaskLayout from "@/shared/layouts/TaskLayout";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 import { GoX } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
-import SectionTask from "@/components/ui/section-task";
+import SectionTask from "@/features/umkm/components/ui/section-task";
 
 // agar button nya bisa ganti tipe
 interface AddShiftProps {

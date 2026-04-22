@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
-import Navbar from "@/components/layouts/Navbar";
+import Navbar from "@/shared/components/ui/Navbar";
 
 
 export default function UmkmLayout() {

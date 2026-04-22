@@ -1,5 +1,5 @@
-import { Route, Routes } from "react-router";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import NotFound from "./pages/NotFound";
@@ -12,9 +12,6 @@ import DetailReportPage from "./pages/admin/DetailReportPage";
 
 import AddShift from "./pages/umkm/AddShift";
 import AddProject from "./pages/umkm/AddProject";
-import UmkmLayout from "./pages/umkm/UmkmLayout";
-import HomepageAfterLogin from "./pages/umkm/HomepageAfterLogin";
-import Dashboard from "./pages/umkm/Dashboard";
 
 import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
 import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
@@ -23,6 +20,9 @@ import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
 
 
 function App() {
+  const [shifts, setShifts] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+
   return (
     <>
       <Routes>
@@ -37,40 +37,26 @@ function App() {
         <Route path="/admin">
           <Route path="dashboard" Component={DashboardPage} />
           <Route path="verifikasi" Component={VerificationPage} />
-          <Route
-            path="verifikasi/:namaUsaha"
-            Component={DetailVerificationPage}
-          />
+          <Route path="verifikasi/:namaUsaha" Component={DetailVerificationPage} />
           <Route path="laporan" Component={ReportPage} />
           <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
         </Route>
 
-
-        {/* umkm old */}
-        <Route path="/umkm" element={<UmkmLayout />}>
-          <Route path="homepage" element={<HomepageAfterLogin />} />
-
-          <Route path="dashboard-old" element={<Dashboard />}>
-            <Route
-              index
-              element={
-                <div className="mt-24 p-5">
-                  <h1>Dashboard</h1>
-                  <Link to="addshift">Go to addshift</Link>
-                </div>
-              }
-            />
-            <Route path="addshift" element={<AddShift type="pagi" />} />
-            <Route path="addproject" element={<AddProject />} />
-          </Route>
-        {/* umkm old */}
-          
         {/* Route for UMKM */}
         <Route path="/umkm">
           <Route path="home" Component={HomeUmkmPage} />
-          <Route path="dashboard" Component={DashboardUmkmPage} />
           <Route path="lowongan" Component={LowonganUmkmPage} />
           <Route path="profile" Component={ProfileUmkmPage} />
+
+        {/* Dashboard Area */}
+        <Route 
+          path="dashboard" 
+          element={<Outlet context={{ shifts, setShifts, projects, setProjects }} />}
+        >
+          <Route index element={<DashboardUmkmPage />} />
+          <Route path="addproject" element={<AddProject />} />
+          <Route path="addshift" element={<AddShift type="pagi" />} />
+        </Route>
         </Route>
 
         <Route path="*" Component={NotFound} />

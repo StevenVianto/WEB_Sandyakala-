@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { GoArrowLeft } from "react-icons/go";
+import { Button } from "@/shared/components/ui/button";import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
