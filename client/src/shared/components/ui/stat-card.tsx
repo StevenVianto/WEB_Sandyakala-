@@ -1,6 +1,5 @@
-// components/ui/stat-card.tsx
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 const statCardVariants = cva(
   " rounded-xl p-5 shadow-sm border-l-4 flex flex-col justify-between",

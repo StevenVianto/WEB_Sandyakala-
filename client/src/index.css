@@ -49,6 +49,11 @@
   --color-success-200: oklch(79.79% 0.119 152.05);
   --color-success-300: oklch(46.35% 0.082 160.17);
 
+  --color-mint: oklch(74.2% 0.148 171.2);
+  --color-mint-100: oklch(95.3% 0.04 170);
+  --color-mint-200: oklch(85.2% 0.115 170.8);
+  --color-mint-300: oklch(43.5% 0.087 172.5);
+
   /* Dark / Neutral */
   --color-neutral-900: oklch(0.2 0.02 260);
   --color-neutral-800: oklch(0.3 0.02 260);
@@ -104,10 +109,10 @@
   }
 
   .table-head {
-    @apply px-4 py-2 text-center border border-info-100;
+    @apply p-2 text-center text-sm border border-info-100;
   }
 
   .table-data {
-    @apply px-4 py-2 border border-info-100 font-semibold;
+    @apply p-2 border border-info-100 text-sm;
   }
 }
