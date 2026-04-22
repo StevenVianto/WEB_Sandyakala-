@@ -105,6 +105,7 @@ export default function HomeUmkm() {
         </div>
 
         <div className="grid my-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+          {/* Kasih kondisi, looping jika data tersedia */}
           {Array.from({ length: 5 }).map((_, index) => (
             <div
               key={index}
