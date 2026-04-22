@@ -2,7 +2,7 @@ import type { StatCardDataType, TabsType } from "../types/dashboard";
 import { tabs } from "../constants/mock-data";
 import { cn } from "@/shared/lib/utils";
 import { Link } from "react-router-dom";
-import StatCard from "./StatCard";
+import StatCard from "./ui/StatCard";
 
 interface HeroSectionProps {
   title?: string;

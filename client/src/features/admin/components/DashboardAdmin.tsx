@@ -1,8 +1,8 @@
 import DashboardLayout from "@/shared/layouts/DashboardLayout";
 import { Card, CardBody, CardHeader } from "@/shared/components/ui/card";
 import { StatCard } from "@/shared/components/ui/stat-card";
-import PopularUmkm from "./PopularUmkm";
-import ActionCard from "./ActionCard";
+import PopularUmkm from "./ui/PopularUmkm";
+import ActionCard from "./ui/ActionCard";
 import {
   dataActionCard,
   dataPopularUmkm,

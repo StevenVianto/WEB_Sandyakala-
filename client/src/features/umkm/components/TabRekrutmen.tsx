@@ -5,7 +5,7 @@ import {
 } from "../constants/mock-data";
 import { cn } from "@/shared/lib/utils";
 import { getBadgeStyle } from "../utils/badge-style";
-import { Card, CardHeader } from "./Card";
+import { Card, CardHeader } from "./ui/Card";
 
 export default function TabRekrutmen() {
   return (

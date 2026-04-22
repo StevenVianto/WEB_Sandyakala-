@@ -1,9 +1,9 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { Link } from "react-router-dom";
-import ProgressBar from "./ProgressBar";
+import ProgressBar from "./ui/ProgressBar";
 import { FaPlus } from "react-icons/fa6";
-import { Card } from "./Card";
-import TitleCard from "./TitleCard";
+import { Card } from "./ui/Card";
+import TitleCard from "./ui/TitleCard";
 
 export default function TabProject() {
   return (

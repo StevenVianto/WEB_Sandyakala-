@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { lamaranTerbaru } from "../constants/mock-data";
 import { cn } from "@/shared/lib/utils";
 import { getBadgeStyle } from "../utils/badge-style";
-import { Card } from "./Card";
-import TitleCard from "./TitleCard";
+import { Card } from "./ui/Card";
+import TitleCard from "./ui/TitleCard";
 
 export default function TabShift() {
   return (
