@@ -1,5 +1,5 @@
 import { cn } from "@/shared/lib/utils";
-import type { JobOpening } from "../../types/dashboard";
+import type { JobOpening } from "../../types/dashboard.types";
 import { getStatusStyles } from "../../utils/badge-style";
 
 export default function JobCard({ data }: { data: JobOpening }) {

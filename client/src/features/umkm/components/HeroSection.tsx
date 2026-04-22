@@ -1,4 +1,4 @@
-import type { StatCardDataType, TabsType } from "../types/dashboard";
+import type { StatCardDataType, TabsType } from "../types/dashboard.types";
 import { tabs } from "../constants/mock-data";
 import { cn } from "@/shared/lib/utils";
 import { Link } from "react-router-dom";

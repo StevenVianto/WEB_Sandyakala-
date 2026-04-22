@@ -1,4 +1,4 @@
-import type { JobStatus } from "../types/dashboard";
+import type { JobStatus } from "../types/dashboard.types";
 
 export const getBadgeStyle = (status: string) => {
   switch (status) {

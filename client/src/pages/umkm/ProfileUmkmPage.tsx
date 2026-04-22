@@ -1,7 +1,5 @@
+import ProfileUmkm from "@/features/umkm/components/ProfileUmkm";
+
 export default function ProfileUmkmPage() {
-  return (
-    <div>
-      <h1>Profile UMKM Page</h1>
-    </div>
-  );
+  return <ProfileUmkm />;
 }

@@ -2,7 +2,7 @@ import DashboardUmkmLayout from "@/shared/layouts/DashboardUmkmLayout";
 import TabRekrutmen from "./TabRekrutmen";
 import TabProject from "./TabProject";
 import TabShift from "./TabShift";
-import type { TabsType } from "../types/dashboard";
+import type { TabsType } from "../types/dashboard.types";
 import HeroSection from "./HeroSection";
 import { useState } from "react";
 import { dataStatCard } from "../constants/mock-data";

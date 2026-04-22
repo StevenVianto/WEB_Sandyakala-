@@ -1,10 +1,13 @@
 import { RiUserSearchFill } from "react-icons/ri";
 import type {
+  BenefitItem,
+  ContactItem,
   JobOpening,
   StatCard,
   StatCardDataType,
   TabsData,
-} from "../types/dashboard";
+  TestimonialItem,
+} from "../types/dashboard.types";
 import { FaUserClock, FaUserPlus } from "react-icons/fa6";
 import { BiSolidNotepad } from "react-icons/bi";
 
@@ -361,5 +364,54 @@ export const statCardDataLowongan: StatCardDataType[] = [
     title: "Total Pelamar",
     value: 0,
     colorClass: "text-primary",
+  },
+];
+
+export const mockContacts: ContactItem[] = [
+  { id: "1", label: "Website", value: "www.sambalbakarnusantara.com" },
+  { id: "2", label: "Email HRD", value: "hrd@sambalbakar.id" },
+  { id: "3", label: "Telepon", value: "+62 812-3456-7890" },
+  { id: "4", label: "Alamat", value: "Jl. Kemang Raya No. 45, Jaksel" },
+];
+
+export const mockBenefits: BenefitItem[] = [
+  {
+    id: "1",
+    title: "Gaji Kompetitif",
+    description: "Gaji pokok + bonus performa bulanan transparan",
+  },
+  {
+    id: "2",
+    title: "BPJS Lengkap",
+    description: "BPJS Kesehatan & Ketenagakerjaan ditanggung penuh",
+  },
+  {
+    id: "3",
+    title: "Makan Gratis",
+    description: "1x makan gratis setiap shift kerja berlangsung",
+  },
+];
+
+export const mockTestimonials: TestimonialItem[] = [
+  {
+    id: "1",
+    name: "Aris Setiawan",
+    quote:
+      "Lingkungan kerja sangat suportif. Saya belajar banyak tentang kuliner tradisional dan modernisasinya. Manajemen terbuka menerima masukan.",
+    rating: 5,
+  },
+  {
+    id: "2",
+    name: "Jane Doe",
+    quote:
+      "Rekan kerja sangat ramah dan saling membantu. Tempatnya bersih dan peralatannya lengkap. Sangat recommended!",
+    rating: 5,
+  },
+  {
+    id: "3",
+    name: "Jane Doe",
+    quote:
+      "Rekan kerja sangat ramah dan saling membantu. Tempatnya bersih dan peralatannya lengkap. Sangat recommended!",
+    rating: 5,
   },
 ];

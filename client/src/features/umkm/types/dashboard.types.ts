@@ -30,3 +30,22 @@ export type JobOpening = {
   applicantImages: string[];
   extraApplicants: number;
 };
+
+export interface ContactItem {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface BenefitItem {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface TestimonialItem {
+  id: string;
+  name: string;
+  quote: string;
+  rating: number;
+}
