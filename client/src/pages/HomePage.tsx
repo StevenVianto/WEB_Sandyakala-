@@ -8,6 +8,9 @@ export default function HomePage() {
       <p className="text-h1 leading-base">Welcome to the Home Page!</p>
       <Link to="/admin/dashboard" className="font-sans">
         Go to Dashboard Admin
+      </Link><br />
+      <Link to="/umkm/homepage" className="font-sans">
+      Go to Homepage UMKM
       </Link>
       <div className="flex gap-2 my-4">
         <Badge>Default</Badge>

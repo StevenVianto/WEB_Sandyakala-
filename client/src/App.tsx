@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import { Link } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import NotFound from "./pages/NotFound";
@@ -8,10 +9,18 @@ import VerificationPage from "./pages/admin/VerificationPage";
 import DetailVerificationPage from "./pages/admin/DetailVerificationPage";
 import ReportPage from "./pages/admin/ReportPage";
 import DetailReportPage from "./pages/admin/DetailReportPage";
+
+import AddShift from "./pages/umkm/AddShift";
+import AddProject from "./pages/umkm/AddProject";
+import UmkmLayout from "./pages/umkm/UmkmLayout";
+import HomepageAfterLogin from "./pages/umkm/HomepageAfterLogin";
+import Dashboard from "./pages/umkm/Dashboard";
+
 import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
 import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
 import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
+
 
 function App() {
   return (
@@ -36,6 +45,26 @@ function App() {
           <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
         </Route>
 
+
+        {/* umkm old */}
+        <Route path="/umkm" element={<UmkmLayout />}>
+          <Route path="homepage" element={<HomepageAfterLogin />} />
+
+          <Route path="dashboard-old" element={<Dashboard />}>
+            <Route
+              index
+              element={
+                <div className="mt-24 p-5">
+                  <h1>Dashboard</h1>
+                  <Link to="addshift">Go to addshift</Link>
+                </div>
+              }
+            />
+            <Route path="addshift" element={<AddShift type="pagi" />} />
+            <Route path="addproject" element={<AddProject />} />
+          </Route>
+        {/* umkm old */}
+          
         {/* Route for UMKM */}
         <Route path="/umkm">
           <Route path="home" Component={HomeUmkmPage} />
