@@ -1,3 +1,5 @@
+import type { JobStatus } from "../types/dashboard";
+
 export const getBadgeStyle = (status: string) => {
   switch (status) {
     case "Cek":
@@ -14,5 +16,31 @@ export const getBadgeStyle = (status: string) => {
       return "bg-white text-warning-200 border-warning-200";
     default:
       return "bg-gray-100 text-gray-600 border-transparent";
+  }
+};
+
+export const getStatusStyles = (status: JobStatus) => {
+  switch (status) {
+    case "Buka":
+      return {
+        topBorder: "border-t-success",
+        badgeBg: "bg-green-100",
+        badgeText: "text-green-700",
+        dotColor: "bg-green-500",
+      };
+    case "Segera Tutup":
+      return {
+        topBorder: "border-t-warning",
+        badgeBg: "bg-amber-100",
+        badgeText: "text-amber-700",
+        dotColor: "bg-amber-500",
+      };
+    case "Tutup":
+      return {
+        topBorder: "border-t-error",
+        badgeBg: "bg-red-100",
+        badgeText: "text-red-700",
+        dotColor: "bg-red-500",
+      };
   }
 };

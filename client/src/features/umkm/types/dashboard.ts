@@ -16,3 +16,17 @@ export type TabsData = {
   key: TabsType;
   label: string;
 };
+
+export type JobStatus = "Buka" | "Segera Tutup" | "Tutup";
+
+export type JobOpening = {
+  id: number;
+  title: string;
+  type: string;
+  status: JobStatus;
+  date: string;
+  iconStr: string;
+  iconBgClass: string;
+  applicantImages: string[];
+  extraApplicants: number;
+};

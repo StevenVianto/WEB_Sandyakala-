@@ -9,9 +9,10 @@ interface HeroSectionProps {
   description?: string;
   isShowTitleDescription?: boolean;
   isShowButtonRight?: boolean;
+  isShowTabs?: boolean;
   statCardData: StatCardDataType[];
-  activeTab: TabsType;
-  setActiveTab: (tab: TabsType) => void;
+  activeTab?: TabsType;
+  setActiveTab?: (tab: TabsType) => void;
   bgImage: string;
 }
 
@@ -25,6 +26,7 @@ export default function HeroSection(props: HeroSectionProps) {
     activeTab,
     setActiveTab,
     bgImage,
+    isShowTabs = true,
   } = props;
 
   return (
@@ -37,34 +39,38 @@ export default function HeroSection(props: HeroSectionProps) {
         {/* <div className="absolute inset-0 bg-black/50"></div> */}
 
         <div className="relative z-10 container px-4 md:px-8 pt-18 h-full flex flex-col">
-          <div className="flex flex-col md:flex-row justify-between md:items-center gap-5">
-            <div className="flex flex-wrap gap-3">
-              {tabs.map((tab) => (
-                <button
-                  onClick={() => setActiveTab(tab.key)}
-                  className={cn(
-                    "md:px-5 cursor-pointer px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-base transition-all",
-                    activeTab === tab.key
-                      ? "bg-white text-mint-300" // State Aktif
-                      : "border border-white/80 text-white hover:bg-white/20 hover:border-white", // State Inaktif
-                  )}
+          {isShowTabs && (
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-5">
+              {isShowTabs && (
+                <div className="flex flex-wrap gap-3">
+                  {tabs.map((tab) => (
+                    <button
+                      onClick={() => setActiveTab && setActiveTab(tab.key)}
+                      className={cn(
+                        "md:px-5 cursor-pointer px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-base transition-all",
+                        activeTab === tab.key
+                          ? "bg-white text-mint-300" // State Aktif
+                          : "border border-white/80 text-white hover:bg-white/20 hover:border-white", // State Inaktif
+                      )}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {isShowButtonRight && (
+                <Link
+                  to={"/umkm/dashboard"}
+                  className="md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full bg-white text-mint font-medium text-xs md:text-sm shadow-md hover:bg-gray-50 transition-colors w-fit"
                 >
-                  {tab.label}
-                </button>
-              ))}
+                  Seleksi Pelamar
+                </Link>
+              )}
             </div>
+          )}
 
-            {isShowButtonRight && (
-              <Link
-                to={"/umkm/dashboard"}
-                className="md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full bg-white text-mint font-medium text-xs md:text-sm shadow-md hover:bg-gray-50 transition-colors w-fit"
-              >
-                Seleksi Pelamar
-              </Link>
-            )}
-          </div>
-
-          <div className="md:mt-10 mt-5">
+          <div className={cn("md:mt-10 mt-5", !isShowTabs && "md:mt-25 mt-27")}>
             {isShowTitleDescription ? (
               <>
                 <h2 className="text-xl md:text-2xl font-bold text-white mb-2">

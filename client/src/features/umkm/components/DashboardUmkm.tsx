@@ -26,9 +26,10 @@ export default function DashboardUmkm() {
         />
       ) : activeTab === "project" ? (
         <HeroSection
+          title="Status Proyek Saat Ini"
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          description="Kelola proyek dan pantau progresnya dengan mudah"
+          description="Pantau tugas proyek dari pekerja mu"
           isShowButtonRight={false}
           statCardData={dataStatCard.project}
           bgImage={BgImgTabProject}

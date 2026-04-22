@@ -1,5 +1,10 @@
 import { RiUserSearchFill } from "react-icons/ri";
-import type { StatCard, TabsData } from "../types/dashboard";
+import type {
+  JobOpening,
+  StatCard,
+  StatCardDataType,
+  TabsData,
+} from "../types/dashboard";
 import { FaUserClock, FaUserPlus } from "react-icons/fa6";
 import { BiSolidNotepad } from "react-icons/bi";
 
@@ -240,5 +245,121 @@ export const dataCardBisnis = [
     description: "Atur jadwal & konfirmasi kehadiran",
     Icon: FaUserClock,
     link: "/umkm/proyek",
+  },
+];
+
+export const mockJobOpenings: JobOpening[] = [
+  {
+    id: 1,
+    title: "UI/UX Designer",
+    type: "Berbasis Proyek",
+    status: "Buka",
+    date: "12 Maret 2026",
+    iconStr: "🎨",
+    iconBgClass: "bg-teal-50",
+    applicantImages: [
+      "https://i.pravatar.cc/150?u=1",
+      "https://i.pravatar.cc/150?u=2",
+      "https://i.pravatar.cc/150?u=3",
+    ],
+    extraApplicants: 1,
+  },
+  {
+    id: 2,
+    title: "Web Designer",
+    type: "Berbasis Proyek",
+    status: "Segera Tutup",
+    date: "12 Maret 2026",
+    iconStr: "💻",
+    iconBgClass: "bg-orange-50",
+    applicantImages: [
+      "https://i.pravatar.cc/150?u=4",
+      "https://i.pravatar.cc/150?u=5",
+      "https://i.pravatar.cc/150?u=6",
+    ],
+    extraApplicants: 1,
+  },
+  {
+    id: 3,
+    title: "Data Analyst",
+    type: "Berbasis Proyek",
+    status: "Buka",
+    date: "12 Maret 2026",
+    iconStr: "📊",
+    iconBgClass: "bg-blue-50",
+    applicantImages: [
+      "https://i.pravatar.cc/150?u=7",
+      "https://i.pravatar.cc/150?u=8",
+      "https://i.pravatar.cc/150?u=9",
+    ],
+    extraApplicants: 1,
+  },
+  {
+    id: 4,
+    title: "Back End Dev",
+    type: "Berbasis Proyek",
+    status: "Buka",
+    date: "13 Maret 2026",
+    iconStr: "⚙️",
+    iconBgClass: "bg-teal-50",
+    applicantImages: [
+      "https://i.pravatar.cc/150?u=10",
+      "https://i.pravatar.cc/150?u=11",
+      "https://i.pravatar.cc/150?u=12",
+    ],
+    extraApplicants: 1,
+  },
+  {
+    id: 5,
+    title: "Barista",
+    type: "Berbasis Proyek",
+    status: "Tutup",
+    date: "12 Maret 2026",
+    iconStr: "☕",
+    iconBgClass: "bg-red-50",
+    applicantImages: [
+      "https://i.pravatar.cc/150?u=13",
+      "https://i.pravatar.cc/150?u=14",
+      "https://i.pravatar.cc/150?u=15",
+    ],
+    extraApplicants: 1,
+  },
+  {
+    id: 6,
+    title: "Barista",
+    type: "Berbasis Proyek",
+    status: "Tutup",
+    date: "12 Maret 2026",
+    iconStr: "☕",
+    iconBgClass: "bg-red-50",
+    applicantImages: [
+      "https://i.pravatar.cc/150?u=16",
+      "https://i.pravatar.cc/150?u=17",
+      "https://i.pravatar.cc/150?u=18",
+    ],
+    extraApplicants: 1,
+  },
+];
+
+export const statCardDataLowongan: StatCardDataType[] = [
+  {
+    title: "Posisi Buka",
+    value: 0,
+    colorClass: "text-success",
+  },
+  {
+    title: "Segera Tutup",
+    value: 0,
+    colorClass: "text-warning",
+  },
+  {
+    title: "Sudah Tutup",
+    value: 0,
+    colorClass: "text-error",
+  },
+  {
+    title: "Total Pelamar",
+    value: 0,
+    colorClass: "text-primary",
   },
 ];
