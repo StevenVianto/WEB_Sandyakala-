@@ -1,25 +1,27 @@
 import { useState } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import TaskLayout from "@/components/layouts/TaskLayout";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 import { GoX } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
 import SectionTask from "@/components/ui/section-task";
+import type { Shift } from "../types/dashboard.types";
 
-// agar button nya bisa ganti tipe
 interface AddShiftProps {
   type: "pagi" | "siang" | "malam";
+  shifts: Shift[];
+  setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
 }
 
-export default function AddShift({ type }: AddShiftProps) {
+export default function AddShift({ type, shifts, setShifts }: AddShiftProps) {
   // ini kalo button jenis shiftnya dipencet
   const [activeType, setActiveType] = useState<"pagi" | "siang" | "malam">(
     type,
   );
 
   // untuk form inputan
-  const [shift, setShift] = useState({
+  const [shift, setShift] = useState<Shift>({
     id: "",
     nama_shift: "",
     nama_pekerja_shift: "",
@@ -29,12 +31,6 @@ export default function AddShift({ type }: AddShiftProps) {
     list_tugas_shift: [""],
   });
 
-  type OutletContextType = {
-    shifts: any[];
-    setShifts: React.Dispatch<React.SetStateAction<any[]>>;
-  };
-
-  const { shifts, setShifts } = useOutletContext<OutletContextType>();
   const navigate = useNavigate();
 
   const handleChange = (
@@ -85,7 +81,7 @@ export default function AddShift({ type }: AddShiftProps) {
 
     setShifts([...shifts, newShift]);
 
-    navigate("/homepage");
+    navigate("/umkm/home");
   };
 
   return (

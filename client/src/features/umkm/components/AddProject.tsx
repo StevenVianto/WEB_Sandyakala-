@@ -1,15 +1,21 @@
 import { useState } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import TaskLayout from "@/components/layouts/TaskLayout";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
 import { GoX } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
 import SectionTask from "@/components/ui/section-task";
+import type { Project } from "@/features/umkm/types/dashboard.types";
 
-export default function AddProject() {
+interface AddProjectProps {
+  projects: Project[];
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+}
+
+export default function AddProject({ projects, setProjects }: AddProjectProps) {
   // untuk form inputan
-  const [project, setProject] = useState({
+  const [project, setProject] = useState<Project>({
     id: "",
     nama_project: "",
     deskripsi_project: "",
@@ -20,12 +26,6 @@ export default function AddProject() {
     penanggung_jawab_project: "",
   });
 
-  type OutletContextType = {
-    projects: any[];
-    setProjects: React.Dispatch<React.SetStateAction<any[]>>;
-  };
-
-  const { projects, setProjects } = useOutletContext<OutletContextType>();
   const navigate = useNavigate();
 
   const handleChange = (
@@ -76,15 +76,13 @@ export default function AddProject() {
 
     setProjects([...projects, newProject]);
 
-    navigate("/homepage");
+    navigate("/umkm/home");
   };
 
   return (
     <div>
       <TaskLayout type="project" onSubmit={handleAdd}>
-
         <SectionTask title="Detail Project">
-
           {/* inputan */}
           {/* nama tugas project */}
           <label htmlFor="">
@@ -148,7 +146,6 @@ export default function AddProject() {
 
         {/* milestone */}
         <SectionTask title="Milestone & Tahapan">
-
           {/* buat masukin milestone & tahapan project */}
           <label htmlFor="" className="flex flex-col">
             <ol>
@@ -187,11 +184,12 @@ export default function AddProject() {
 
         {/* tim pekerja */}
         <SectionTask title="Tim Pekerja">
-
           {/* pilih pekerja */}
           <div className="mt-3">
             <label htmlFor="">
-              <span className="text-sm leading-base">Tambahkan Anggota Tim</span>
+              <span className="text-sm leading-base">
+                Tambahkan Anggota Tim
+              </span>
               <Input
                 name="anggota_tim_project"
                 value={project.anggota_tim_project}
@@ -201,7 +199,9 @@ export default function AddProject() {
               />
             </label>
             <label htmlFor="">
-              <span className="text-sm leading-base">Penanggung Jawab Utama</span>
+              <span className="text-sm leading-base">
+                Penanggung Jawab Utama
+              </span>
               <Input
                 name="penanggung_jawab_project"
                 value={project.penanggung_jawab_project}

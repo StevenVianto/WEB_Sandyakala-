@@ -49,3 +49,26 @@ export interface TestimonialItem {
   quote: string;
   rating: number;
 }
+
+// Add Shift Types
+export type Shift = {
+  id: string;
+  nama_shift: string;
+  nama_pekerja_shift: string;
+  waktu_mulai_shift: string;
+  waktu_selesai_shift: string;
+  jenis_shift: "" | "pagi" | "siang" | "malam";
+  list_tugas_shift: string[];
+};
+
+// Add Project Types
+export type Project = {
+  id: string;
+  nama_project: string;
+  deskripsi_project: string;
+  tanggal_mulai_project: string;
+  tanggal_selesai_project: string;
+  list_tugas_project: string[];
+  anggota_tim_project: string;
+  penanggung_jawab_project: string;
+};
