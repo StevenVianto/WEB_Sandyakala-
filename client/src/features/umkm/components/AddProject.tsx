@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TaskLayout from "@/components/layouts/TaskLayout";
+import TaskLayout from "@/shared/layouts/TaskLayout";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { GoX } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
-import SectionTask from "@/components/ui/section-task";
+import SectionTask from "@/shared/components/ui/section-task";
 import type { Project } from "@/features/umkm/types/dashboard.types";
 
 interface AddProjectProps {
