@@ -14,6 +14,8 @@ import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
 import AddShiftPage from "./pages/umkm/AddShiftPage";
 import AddProjectPage from "./pages/umkm/AddProjectPage";
+import VerificationFgPage from "./pages/admin/VerificationFg";
+import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
 
 function App() {
   return (
@@ -29,11 +31,23 @@ function App() {
         {/* Route for Admin */}
         <Route path="/admin">
           <Route path="dashboard" Component={DashboardPage} />
-          <Route path="verifikasi" Component={VerificationPage} />
+
+          {/* Route for verification umkm */}
+          <Route path="verifikasi-umkm" Component={VerificationPage} />
           <Route
-            path="verifikasi/:namaUsaha"
+            path="verifikasi-umkm/:namaUsaha"
             Component={DetailVerificationPage}
           />
+
+          <Route
+            path="verifikasi-freshgraduate"
+            Component={VerificationFgPage}
+          />
+          <Route
+            path="verifikasi-freshgraduate/:email"
+            Component={DetailVerificationFgPage}
+          />
+
           <Route path="laporan" Component={ReportPage} />
           <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
         </Route>

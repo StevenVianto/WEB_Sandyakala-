@@ -5,10 +5,23 @@ import { NavLink, useNavigate } from "react-router";
 import { Button } from "../components/ui/button";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import LogoFreshstart from "@/assets/images/Logo FreshStart.png";
+import Dropdown from "../components/dropdown";
 
 const menus = [
   { name: "Dashboard", icon: BiSolidGridAlt, to: "/admin/dashboard" },
-  { name: "Verifikasi", icon: BiSolidUser, to: "/admin/verifikasi" },
+
+  {
+    name: "Verifikasi",
+    icon: BiSolidUser,
+    subItems: [
+      { name: "Akun UMKM", to: "/admin/verifikasi-umkm/" },
+      {
+        name: "Akun Lulusan Baru",
+        to: "/admin/verifikasi-freshgraduate/",
+      },
+    ],
+  },
+
   { name: "Laporan", icon: BiNotepad, to: "/admin/laporan" },
 ];
 
@@ -39,7 +52,7 @@ const MenuItem = ({ name, icon: Icon, to, onClick }: MenuItemProps) => {
 interface DashboardLayoutProps {
   children: React.ReactNode;
   title: string;
-  description: string;
+  description?: string;
   showBackButton?: boolean;
 }
 
@@ -77,15 +90,28 @@ export default function DashboardLayout({
           </div>
 
           <nav className="p-4 space-y-2.5 overflow-y-auto">
-            {menus.map((menu) => (
-              <MenuItem
-                key={menu.name}
-                name={menu.name}
-                icon={menu.icon}
-                to={menu.to}
-                onClick={() => setIsSidebarOpen(false)}
-              />
-            ))}
+            {menus.map((menu) => {
+              if (menu.subItems) {
+                return (
+                  <Dropdown
+                    key={menu.name}
+                    title={menu.name}
+                    icon={menu.icon}
+                    subItems={menu.subItems}
+                  />
+                );
+              }
+
+              return (
+                <MenuItem
+                  key={menu.name}
+                  name={menu.name}
+                  icon={menu.icon}
+                  to={menu.to}
+                  onClick={() => setIsSidebarOpen(false)}
+                />
+              );
+            })}
           </nav>
         </div>
 
@@ -133,9 +159,11 @@ export default function DashboardLayout({
               <h1 className="text-lg lg:text-xl font-semibold text-gray-800">
                 {title}
               </h1>
-              <p className="text-xs lg:text-sm text-gray-500 mt-1">
-                {description}
-              </p>
+              {description && (
+                <p className="text-xs lg:text-sm text-gray-500 mt-1">
+                  {description}
+                </p>
+              )}
             </div>
           </div>
 
