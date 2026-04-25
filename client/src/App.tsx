@@ -14,6 +14,7 @@ import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
 import AddShiftPage from "./pages/umkm/AddShiftPage";
 import AddProjectPage from "./pages/umkm/AddProjectPage";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
@@ -48,6 +49,8 @@ function App() {
           <Route path="addshift" element={<AddShiftPage />} />
           <Route path="addproject" element={<AddProjectPage />} />
         </Route>
+
+        <Route path="/chat" Component={ChatPage} />
 
         <Route path="*" Component={NotFound} />
       </Routes>
