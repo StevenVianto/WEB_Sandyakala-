@@ -5,6 +5,8 @@ import { cn } from "@/shared/lib/utils";
 import { getBadgeStyle } from "../utils/badge-style";
 import { Card } from "./ui/Card";
 import TitleCard from "./ui/TitleCard";
+import { EmptyData } from "./ui/EmptyData";
+import ImgEmptyData from "@/assets/images/Img Empty Data - Tab Shift.png";
 
 export default function TabShift() {
   return (
@@ -24,95 +26,108 @@ export default function TabShift() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-3">
-          <TitleCard title="Status Pekerjaan Hari Ini" link="/umkm/projects" />
+      {lamaranTerbaru.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <TitleCard
+              title="Status Pekerjaan Hari Ini"
+              link="/umkm/projects"
+            />
 
-          <Card>
-            <div className="flex flex-col">
-              {lamaranTerbaru.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between py-4 border-b last:border-0"
-                >
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={item.avatar}
-                      alt={item.name}
-                      className="w-12 h-12 rounded-full object-cover bg-gray-100"
-                    />
-                    <div>
-                      <h3 className="font-medium text-black text-xs md:text-base">
-                        {item.name}
-                      </h3>
-                      <p className="text-gray-700 text-xs md:text-sm">
-                        {item.role}
-                      </p>
+            <Card>
+              <div className="flex flex-col">
+                {lamaranTerbaru.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between py-4 border-b last:border-0"
+                  >
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={item.avatar}
+                        alt={item.name}
+                        className="w-12 h-12 rounded-full object-cover bg-gray-100"
+                      />
+                      <div>
+                        <h3 className="font-medium text-black text-xs md:text-base">
+                          {item.name}
+                        </h3>
+                        <p className="text-gray-700 text-xs md:text-sm">
+                          {item.role}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-2">
+                      <span
+                        className={cn(
+                          "px-3 md:px-6 py-1 rounded-full text-[11px] md:text-xs font-semibold border",
+                          getBadgeStyle(item.status),
+                        )}
+                      >
+                        {item.status}
+                      </span>
+                      <span className="text-xs text-gray-400 font-medium">
+                        {item.date}
+                      </span>
                     </div>
                   </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+          <div className="space-y-3">
+            <TitleCard title="Perlu Konfirmasi" link="/umkm/projects" />
+            <Card>
+              <div className="flex flex-col">
+                {lamaranTerbaru.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between py-4 border-b last:border-0"
+                  >
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={item.avatar}
+                        alt={item.name}
+                        className="w-12 h-12 rounded-full object-cover bg-gray-100"
+                      />
+                      <div>
+                        <h3 className="font-medium text-black text-xs md:text-base">
+                          {item.name}
+                        </h3>
+                        <p className="text-gray-700 text-xs md:text-sm">
+                          {item.role}
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="flex flex-col items-end gap-2">
-                    <span
-                      className={cn(
-                        "px-3 md:px-6 py-1 rounded-full text-[11px] md:text-xs font-semibold border",
-                        getBadgeStyle(item.status),
-                      )}
-                    >
-                      {item.status}
-                    </span>
-                    <span className="text-xs text-gray-400 font-medium">
-                      {item.date}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-        <div className="space-y-3">
-          <TitleCard title="Perlu Konfirmasi" link="/umkm/projects" />
-          <Card>
-            <div className="flex flex-col">
-              {lamaranTerbaru.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between py-4 border-b last:border-0"
-                >
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={item.avatar}
-                      alt={item.name}
-                      className="w-12 h-12 rounded-full object-cover bg-gray-100"
-                    />
-                    <div>
-                      <h3 className="font-medium text-black text-xs md:text-base">
-                        {item.name}
-                      </h3>
-                      <p className="text-gray-700 text-xs md:text-sm">
-                        {item.role}
-                      </p>
+                    <div className="flex flex-col items-end gap-2">
+                      <span
+                        className={cn(
+                          "px-3 md:px-6 py-1 rounded-full text-[11px] md:text-xs font-semibold border",
+                          getBadgeStyle(item.status),
+                        )}
+                      >
+                        {item.status}
+                      </span>
+                      <span className="text-xs text-gray-400 font-medium">
+                        {item.date}
+                      </span>
                     </div>
                   </div>
-
-                  <div className="flex flex-col items-end gap-2">
-                    <span
-                      className={cn(
-                        "px-3 md:px-6 py-1 rounded-full text-[11px] md:text-xs font-semibold border",
-                        getBadgeStyle(item.status),
-                      )}
-                    >
-                      {item.status}
-                    </span>
-                    <span className="text-xs text-gray-400 font-medium">
-                      {item.date}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
-      </div>
+      ) : (
+        <EmptyData
+          title="Belum Ada Jadwal Shift"
+          description="Atur pembagian tugas harian agar operasional bisnis berjalan lancar. Klik tombol di bawah untuk menambah shift."
+          actionLabel="Tambah Shift Sekarang"
+          actionTo="/umkm/dashboard"
+          image={ImgEmptyData}
+        />
+      )}
     </section>
   );
 }

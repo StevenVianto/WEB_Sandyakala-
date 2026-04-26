@@ -30,7 +30,7 @@ export default function HeroSection(props: HeroSectionProps) {
   } = props;
 
   return (
-    <section className="w-full min-h-screen pt-7 md:pt-12 bg-white">
+    <section className="w-full pt-7 md:pt-12 bg-white">
       <div
         className="relative bg-cover bg-center h-87.5 w-full"
         style={{ backgroundImage: `url(${bgImage})` }}

@@ -72,3 +72,13 @@ export type Project = {
   anggota_tim_project: string;
   penanggung_jawab_project: string;
 };
+
+export type StatusType = "Draft" | "Review" | "Revisi" | "Selesai";
+
+export type TaskListType = {
+  title: string;
+  assignee: string;
+  project: string;
+  deadline: string;
+  status: StatusType;
+};
