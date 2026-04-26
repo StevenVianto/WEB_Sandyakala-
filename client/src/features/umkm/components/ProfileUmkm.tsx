@@ -4,9 +4,9 @@ import { Card } from "./ui/Card";
 import { FiTrash } from "react-icons/fi";
 import { IoLocationSharp, IoPeople } from "react-icons/io5";
 import { MdStore, MdVerified } from "react-icons/md";
-import { BiSolidBriefcaseAlt } from "react-icons/bi";
-import { HiViewGridAdd } from "react-icons/hi";
-import { FaStar } from "react-icons/fa6";
+import { BiSolidBriefcaseAlt, BiSolidContact } from "react-icons/bi";
+import { HiOutlineMenuAlt2, HiViewGridAdd } from "react-icons/hi";
+import { FaGift, FaStar } from "react-icons/fa6";
 import InfoBadge from "./ui/InfoBadge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -14,6 +14,10 @@ import {
   mockContacts,
   mockTestimonials,
 } from "../constants/mock-data";
+import type { IconType } from "react-icons";
+import { cn } from "@/shared/lib/utils";
+// import { EmptyData } from "./ui/EmptyData";
+// import ImgEmptyData from "@/assets/images/Img Empty Data - Profile Umkm.png";
 
 const SectionHeader: React.FC<{
   title: string;
@@ -43,18 +47,53 @@ const ForkKnifeIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+type EmptySectionProps = {
+  icon: IconType;
+  title: string;
+  actionLabel?: string;
+  className?: string;
+};
+
+export const EmptySection = ({
+  icon: Icon,
+  title,
+  actionLabel,
+  className,
+}: EmptySectionProps) => {
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-4 items-center w-full text-center",
+        className,
+      )}
+    >
+      <div className="h-12 w-12 bg-gray-100 flex justify-center items-center p-2 rounded-full">
+        <Icon className="h-full w-full text-mint" />
+      </div>
+
+      <p className="text-sm md:text-base text-gray-400">{title}</p>
+
+      {actionLabel && (
+        <Button variant="mint" size={"sm"} className="rounded-md">
+          {actionLabel}
+        </Button>
+      )}
+    </div>
+  );
+};
+
 export default function ProfileUmkm() {
   return (
     <DashboardUmkmLayout>
-      <section className="w-full min-h-screen pt-7 md:pt-12 bg-white">
+      <section className="w-full pt-7 md:pt-12 bg-white">
         <div
           className="relative bg-cover bg-center h-70 w-full"
           style={{ backgroundImage: `url(${BgImgRekrutmen})` }}
         />
 
         <div className="relative z-20 container mx-auto md:px-8 md:-mt-19 -mt-15 sm:-mt-20 pb-12">
-          <Card className="w-full flex flex-col md:flex-row items-start md:items-center gap-6 relative">
-            <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-[#FFEDD5] flex items-center justify-center shrink-0">
+          <Card className="w-full flex flex-col md:h-60 md:flex-row items-start md:items-center gap-6 relative">
+            <div className="w-24 h-24 md:w-34 md:h-34 rounded-full bg-[#FFEDD5] flex items-center justify-center shrink-0">
               <ForkKnifeIcon className="w-10 h-10 md:w-12 md:h-12 text-[#EA580C]" />
             </div>
 
@@ -102,7 +141,7 @@ export default function ProfileUmkm() {
             <div className="lg:col-span-8 flex flex-col gap-6">
               <Card>
                 <SectionHeader title="Tentang Kami" actionText="Ubah" />
-                <div className="text-gray-700 text-sm leading-relaxed">
+                {/* <div className="text-gray-700 text-sm leading-relaxed">
                   <p>
                     <strong>Sambal Bakar Nusantara</strong> adalah UMKM kuliner
                     yang menghadirkan berbagai hidangan khas Indonesia dengan
@@ -116,7 +155,13 @@ export default function ProfileUmkm() {
                     memberikan pelayanan terbaik. Tim kami terdiri dari individu
                     berdedikasi yang mencintai kuliner Nusantara.
                   </p>
-                </div>
+                </div> */}
+
+                <EmptySection
+                  icon={HiOutlineMenuAlt2}
+                  title="Belum ada deskripsi usaha"
+                  actionLabel="Tambah Deskripsi"
+                />
               </Card>
 
               <Card>
@@ -124,53 +169,77 @@ export default function ProfileUmkm() {
                   title="Keuntungan & Fasilitas"
                   actionText="Tambah"
                 />
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {mockBenefits.map((benefit) => (
-                    <div
-                      key={benefit.id}
-                      className="bg-neutral-100 rounded-xl p-4 flex flex-col justify-between relative group"
-                    >
-                      <div>
-                        <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                          {benefit.title}
-                        </h3>
-                        <p className="text-xs text-gray-500 leading-relaxed pr-4">
-                          {benefit.description}
-                        </p>
+                {mockBenefits.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {mockBenefits.map((benefit) => (
+                      <div
+                        key={benefit.id}
+                        className="bg-neutral-100 rounded-xl p-4 flex flex-col justify-between relative group"
+                      >
+                        <div>
+                          <h3 className="font-semibold text-gray-900 text-sm mb-1">
+                            {benefit.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 leading-relaxed pr-4">
+                            {benefit.description}
+                          </p>
+                        </div>
+                        <div className="absolute bottom-4 right-4 opacity-50 hover:opacity-100 hover:text-error">
+                          <FiTrash />
+                        </div>
                       </div>
-                      <div className="absolute bottom-4 right-4 opacity-50 hover:opacity-100 hover:text-error">
-                        <FiTrash />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptySection
+                    icon={FaGift}
+                    title="Belum ada informasi fasilitas"
+                    actionLabel="Tambah Fasilitas"
+                  />
+                )}
               </Card>
             </div>
 
             <div className="lg:col-span-4">
               <Card className="h-full">
                 <SectionHeader title="Kontak Kami" actionText="Ubah" />
-                <div className="space-y-3">
-                  {mockContacts.map((contact) => (
-                    <div
-                      key={contact.id}
-                      className="bg-neutral-100 rounded-xl p-4"
-                    >
-                      <span className="block text-xs font-medium text-info-300 mb-1">
-                        {contact.label}
-                      </span>
-                      <span className="block text-sm font-medium text-gray-800">
-                        {contact.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                {mockContacts.length > 0 ? (
+                  <div className="space-y-3">
+                    {mockContacts.map((contact) => (
+                      <div
+                        key={contact.id}
+                        className="bg-neutral-100 rounded-xl p-4"
+                      >
+                        <span className="block text-xs font-medium text-info-300 mb-1">
+                          {contact.label}
+                        </span>
+                        <span className="block text-sm font-medium text-gray-800">
+                          {contact.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptySection
+                    icon={BiSolidContact}
+                    title="Belum ada kontak tersedia"
+                    actionLabel="Tambah Kontak"
+                  />
+                )}
               </Card>
             </div>
           </div>
 
           <Card>
             <SectionHeader title="Kata Karyawan Kami" />
+
+            {/* <EmptyData
+              className="border-none"
+              title="Belum ada testimoni karyawan"
+              description="Belum ada ulasan dari tim. Testimoni karyawan akan muncul di sini sebagai cerminan lingkungan kerja."
+              image={ImgEmptyData}
+            /> */}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {mockTestimonials.map((testimoni) => (
                 <div

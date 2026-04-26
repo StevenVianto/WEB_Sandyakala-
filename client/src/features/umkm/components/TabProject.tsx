@@ -4,6 +4,19 @@ import ProgressBar from "./ui/ProgressBar";
 import { FaPlus } from "react-icons/fa6";
 import { Card } from "./ui/Card";
 import TitleCard from "./ui/TitleCard";
+import ImgEmptyData from "@/assets/images/Img Empty Data - Tab Project.png";
+import type { StatusType } from "../types/dashboard.types";
+import { projectProgress, taskList } from "../constants/mock-data";
+import { EmptyData } from "./ui/EmptyData";
+
+type StatusVariantType = "info" | "warning" | "error" | "success";
+
+const statusVariantMap: Record<StatusType, StatusVariantType> = {
+  Draft: "info",
+  Review: "warning",
+  Revisi: "error",
+  Selesai: "success",
+};
 
 export default function TabProject() {
   return (
@@ -23,87 +36,96 @@ export default function TabProject() {
         </Link>
       </div>
 
-      <TitleCard title="Proyek Terbaru" link="/umkm/projects" />
-
-      <Card className="mb-10">
-        {Array(3)
-          .fill(0)
-          .map((_, index) => (
-            <div
-              key={index}
-              className="rounded-md shadow-md px-6 pt-3.5 bg-neutral-100"
-            >
-              <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-semibold">
-                    Redesign Website Toko
-                  </h3>
-                  <p className="tetx-xs text-gray-400">
-                    UI/UX Designer - 7/11 task deadline 28 Maret 2026
-                  </p>
-                </div>
-                <Badge variant={"warning"} size={"sm"}>
-                  Review
-                </Badge>
-              </div>
-              <ProgressBar percentage={70} />
-            </div>
-          ))}
-      </Card>
-
-      <TitleCard title="Task Aktif" link="/umkm/projects" className="mb-3" />
-
-      <Card>
-        <div className="flex gap-3 mb-6">
-          <button className="px-4 py-2 text-sm bg-mint rounded-full text-white">
-            Semua
-          </button>
-          <button className="px-4 py-2 text-sm border border-mint rounded-full">
-            Draft
-          </button>
-          <button className="px-4 py-2 text-sm border border-mint rounded-full">
-            Review
-          </button>
-          <button className="px-4 py-2 text-sm border border-mint rounded-full">
-            Revisi
-          </button>
-          <button className="px-4 py-2 text-sm border border-mint rounded-full">
-            Selesai
-          </button>
-        </div>
-
-        <div className="space-y-2">
-          {Array(4)
-            .fill(0)
-            .map((_, index) => (
-              <div key={index} className="pb-3 border-b">
+      {projectProgress.length === 0 && taskList.length === 0 ? (
+        <EmptyData
+          title="Belum Ada Task"
+          description="Tambahkan task baru untuk mulai mengelola pekerjaan tim kamu."
+          actionLabel="Tambah Task"
+          actionTo="/umkm/dashboard"
+          image={ImgEmptyData}
+        />
+      ) : (
+        <>
+          <TitleCard title="Proyek Terbaru" link="/umkm/projects" />
+          <Card className="mb-10">
+            {projectProgress.map((item, index) => (
+              <div
+                key={index}
+                className="rounded-md shadow-md px-6 pt-3.5 bg-neutral-100"
+              >
                 <div className="flex justify-between items-center">
-                  <div className="space-y-0.5">
-                    <h3 className="font-medium text-lg">
-                      Wireframe Halaman Utama
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      Rizki Handoko - Redesign Web Toko
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-semibold">{item.title}</h3>
+                    <p className="text-xs text-gray-400">
+                      {item.role} - {item.taskInfo} deadline {item.deadline}
                     </p>
                   </div>
-
-                  <div className="flex gap-4">
-                    <Badge
-                      variant={"error"}
-                      size={"sm"}
-                      className="py-2 px-5 bg-white"
-                    >
-                      28-03-2026
-                    </Badge>
-                    <Badge variant={"info"} size={"sm"} className="py-2 px-5">
-                      Draft
-                    </Badge>
-                  </div>
+                  <Badge variant={"warning"} size={"sm"}>
+                    {item.status}
+                  </Badge>
                 </div>
+                <ProgressBar percentage={item.progress} />
               </div>
             ))}
-        </div>
-      </Card>
+          </Card>
+          <TitleCard
+            title="Task Aktif"
+            link="/umkm/projects"
+            className="mb-3"
+          />
+          <Card>
+            <div className="flex gap-3 mb-6">
+              <button className="px-4 py-2 text-sm bg-mint rounded-full text-white">
+                Semua
+              </button>
+              <button className="px-4 py-2 text-sm border border-mint rounded-full">
+                Draft
+              </button>
+              <button className="px-4 py-2 text-sm border border-mint rounded-full">
+                Review
+              </button>
+              <button className="px-4 py-2 text-sm border border-mint rounded-full">
+                Revisi
+              </button>
+              <button className="px-4 py-2 text-sm border border-mint rounded-full">
+                Selesai
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {taskList.map((task, index) => (
+                <div key={index} className="pb-3 border-b">
+                  <div className="flex justify-between items-center">
+                    <div className="space-y-0.5">
+                      <h3 className="font-medium text-lg">{task.title}</h3>
+                      <p className="text-xs text-gray-500">
+                        {task.assignee} - {task.project}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <Badge
+                        variant={"error"}
+                        size={"sm"}
+                        className="py-2 px-5 bg-white"
+                      >
+                        {task.deadline}
+                      </Badge>
+                      <Badge
+                        variant={statusVariantMap[task.status]}
+                        size={"sm"}
+                        className="py-2 px-5"
+                      >
+                        {task.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </>
+      )}
     </section>
   );
 }

@@ -6,6 +6,7 @@ import type {
   StatCard,
   StatCardDataType,
   TabsData,
+  TaskListType,
   TestimonialItem,
 } from "../types/dashboard.types";
 import { FaUserClock, FaUserPlus } from "react-icons/fa6";
@@ -413,5 +414,63 @@ export const mockTestimonials: TestimonialItem[] = [
     quote:
       "Rekan kerja sangat ramah dan saling membantu. Tempatnya bersih dan peralatannya lengkap. Sangat recommended!",
     rating: 5,
+  },
+];
+
+export const projectProgress = [
+  {
+    title: "Redesign Website Toko",
+    role: "UI/UX Designer",
+    taskInfo: "7/11 task",
+    deadline: "28 Maret 2026",
+    status: "Review",
+    progress: 70,
+  },
+  {
+    title: "Redesign Website Toko",
+    role: "UI/UX Designer",
+    taskInfo: "7/11 task",
+    deadline: "28 Maret 2026",
+    status: "Review",
+    progress: 70,
+  },
+  {
+    title: "Redesign Website Toko",
+    role: "UI/UX Designer",
+    taskInfo: "7/11 task",
+    deadline: "28 Maret 2026",
+    status: "Review",
+    progress: 70,
+  },
+];
+
+export const taskList: TaskListType[] = [
+  {
+    title: "Wireframe Halaman Utama",
+    assignee: "Rizki Handoko",
+    project: "Redesign Web Toko",
+    deadline: "28-03-2026",
+    status: "Draft",
+  },
+  {
+    title: "Wireframe Halaman Utama",
+    assignee: "Rizki Handoko",
+    project: "Redesign Web Toko",
+    deadline: "28-03-2026",
+    status: "Draft",
+  },
+  {
+    title: "Wireframe Halaman Utama",
+    assignee: "Rizki Handoko",
+    project: "Redesign Web Toko",
+    deadline: "28-03-2026",
+    status: "Selesai",
+  },
+  {
+    title: "Wireframe Halaman Utama",
+    assignee: "Rizki Handoko",
+    project: "Redesign Web Toko",
+    deadline: "28-03-2026",
+    status: "Draft",
   },
 ];
