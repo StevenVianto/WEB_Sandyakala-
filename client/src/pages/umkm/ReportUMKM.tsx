@@ -72,9 +72,9 @@ export default function ReportUMKM() {
     <div className="w-full bg-white min-h-screen relative pb-20">
       {/* Floating Switcher for Dev */}
       <div className="fixed bottom-6 right-6 z-50 flex gap-2 bg-white/90 backdrop-blur p-2 rounded-full shadow-lg border border-gray-200">
-        <Button size="sm" variant={status === 'warning' ? 'default' : 'outline'} onClick={() => setStatus('warning')} className="rounded-full text-xs">Warning</Button>
-        <Button size="sm" variant={status === 'inactive' ? 'default' : 'outline'} onClick={() => setStatus('inactive')} className="rounded-full text-xs">Inactive</Button>
-        <Button size="sm" variant={status === 'disabled' ? 'default' : 'outline'} onClick={() => setStatus('disabled')} className="rounded-full text-xs">Disabled</Button>
+        <Button size="sm" variant={status === 'warning' ? 'primary' : 'outline'} onClick={() => setStatus('warning')} className="rounded-full text-xs">Warning</Button>
+        <Button size="sm" variant={status === 'inactive' ? 'primary' : 'outline'} onClick={() => setStatus('inactive')} className="rounded-full text-xs">Inactive</Button>
+        <Button size="sm" variant={status === 'disabled' ? 'primary' : 'outline'} onClick={() => setStatus('disabled')} className="rounded-full text-xs">Disabled</Button>
       </div>
 
       <section className="w-full">
