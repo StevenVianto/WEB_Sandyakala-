@@ -15,6 +15,7 @@ import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
 import AddShiftPage from "./pages/umkm/AddShiftPage";
 import AddProjectPage from "./pages/umkm/AddProjectPage";
 import ChatPage from "./pages/ChatPage";
+import ReportUMKM from "./pages/umkm/ReportUMKM";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="dashboard" Component={DashboardUmkmPage} />
           <Route path="lowongan" Component={LowonganUmkmPage} />
           <Route path="profile" Component={ProfileUmkmPage} />
+          <Route path="report" Component={ReportUMKM} />
 
           <Route path="addshift" element={<AddShiftPage />} />
           <Route path="addproject" element={<AddProjectPage />} />
