@@ -12,6 +12,7 @@ export default function AddProject() {
   const [project, setProject] = useState({
     id: "",
     nama_project: "",
+    divisi_project: "",
     deskripsi_project: "",
     tanggal_mulai_project: "",
     tanggal_selesai_project: "",
@@ -94,6 +95,18 @@ export default function AddProject() {
               value={project.nama_project}
               onChange={handleChange}
               placeholder="Nama project yang ingin diberikan"
+              className="rounded-lg mt-2 mb-2"
+            />
+          </label>
+
+          {/* divisi project */}
+          <label htmlFor="">
+            <span className="text-sm leading-base mb-2">Divisi Project</span>
+            <Input
+              name="nama_project"
+              value={project.divisi_project}
+              onChange={handleChange}
+              placeholder="Divisi: Design, Development, QA"
               className="rounded-lg mt-2 mb-2"
             />
           </label>
