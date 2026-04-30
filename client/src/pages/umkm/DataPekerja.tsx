@@ -148,7 +148,7 @@ export default function DataPekerja() {
                     colSpan={10}
                     className="text-center py-5 text-neutral-500"
                   >
-                    Tidak ada data proyek
+                    Tidak ada data pekerja
                   </td>
                 </tr>
               )}
