@@ -1,4 +1,5 @@
-import { Button } from "@/shared/components/ui/button";import { GoArrowLeft } from "react-icons/go";
+import { Button } from "@/shared/components/ui/button";
+import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -19,7 +20,7 @@ export default function TaskLayout({
   const [activeType, setActiveType] = useState<"shift" | "project">(type);
 
   return (
-    <div className="bg-neutral-400 p-25 flex justify-center">
+    <div className="bg-neutral-400 p-15 flex justify-center">
       <div className="bg-white w-3xl items-center mt-10 px-12 py-6 rounded-lg shadow-md">
         {/* HEADER */}
         <div className="flex flex-row p-5 items-center">
@@ -49,7 +50,7 @@ export default function TaskLayout({
                 : "bg-white border-primary-dark text-primary-dark hover:bg-teal-100"
             }`}
           >
-          Shift Harian
+            Shift Harian
           </Button>
 
           <Button
@@ -64,7 +65,7 @@ export default function TaskLayout({
                 : "bg-white border-primary-dark text-primary-dark hover:bg-teal-100"
             }`}
           >
-          Project
+            Project
           </Button>
         </div>
 

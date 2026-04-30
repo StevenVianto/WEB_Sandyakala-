@@ -11,6 +11,7 @@ const buttonVariants = cva(
         soft: "bg-info-100 text-info-300 hover:bg-info-200",
 
         outline: "border border-neutral-300 hover:bg-neutral-100",
+        mint: "border border-mint text-mint bg-mint-100 hover:bg-mint-200 hover:text-mint-300",
         ghost: "hover:bg-neutral-100",
       },
       size: {

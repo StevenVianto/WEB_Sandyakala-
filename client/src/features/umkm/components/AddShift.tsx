@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import TaskLayout from "@/shared/layouts/TaskLayout";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
@@ -11,12 +11,13 @@ interface AddShiftProps {
   type: "pagi" | "siang" | "malam";
 }
 
-type OutletContextType = {
+interface AddShiftProps {
+  type: "pagi" | "siang" | "malam";
   shifts: any[];
   setShifts: React.Dispatch<React.SetStateAction<any[]>>;
-};
+}
 
-export default function AddShift({ type }: AddShiftProps) {
+export default function AddShift({ type,shifts,setShifts }: AddShiftProps) {
   const [activeType, setActiveType] = useState<"pagi" | "siang" | "malam">(
     type,
   );
@@ -31,7 +32,6 @@ export default function AddShift({ type }: AddShiftProps) {
     list_tugas_shift: [""],
   });
 
-  const { shifts, setShifts } = useOutletContext<OutletContextType>();
   const navigate = useNavigate();
 
   const handleChange = (
