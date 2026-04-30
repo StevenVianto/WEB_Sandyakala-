@@ -1,45 +1,31 @@
-import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
 import { useOutletContext } from "react-router-dom";
-
-type Shift = {
-  id: number;
-  nama_shift: string;
-  nama_pekerja_shift: string;
-  list_tugas_shift: string;
-  waktu_mulai_shift: string;
-  waktu_selesai_shift: string;
-  jenis_shift: string;
-  tanggal_shift: string;
-  jamMasuk: string;
-  jamPulang: string;
-  status_shift: "Disetujui" | "Proses" | "Review";
-};
+import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
+import type {Project}  from "@/features/umkm/types/dashboard.types"
 
 type OutletContextType = {
-  shifts: Shift[];
-  setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
+  projects: Project[];
+  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
 };
 
-export default function DataShift() {
-  const { shifts } = useOutletContext<OutletContextType>();
-  // ini agar button muncul saat status nya review, revisi, proses
-  const showDetailButtonShift = ["Review", "Disetujui", "Proses"];
+export default function DataProject() {
+  const { projects } = useOutletContext<OutletContextType>();
+  const showDetailButtonProject = ["Review", "Revisi", "Selesai"];
 
-  // ini buat atur status nya
-  const getStatusBadgeShift = (status_shift: Shift["status_shift"]) => {
-    const classesShift: Record<string, string> = {
-      disetujui: "bg-success-100 text-success-300",
-      proses: "bg-neutral-600/25 text-neutral-800",
+  // Atur status project
+  const getStatusBadgeProject = (status_project: Project["status_project"]) => {
+    const classesProject: Record<string, string> = {
+      revisi: "bg-error-100 text-error",
       review: "bg-warning-200/50 text-warning-300",
+      selesai: "bg-primary/50 text-primary-dark",
     };
-    return classesShift[status_shift.toLowerCase()] ?? "";
+    return classesProject[status_project.toLowerCase()] ?? "";
   };
 
   return (
     <DataTaskLayout
       title="Data Tugas Pekerja"
       description="Kelola semua tugas pekerja dalam satu tampilan"
-      activeTab="dataShift"
+      activeTab="dataProject"
       tabs={[
         {
           label: "Proyek Masuk",
@@ -52,7 +38,7 @@ export default function DataShift() {
           key: "dataShift",
         },
       ]}
-      statusOptions={["Disetujui", "Proses", "Review"]}
+      statusOptions={["Review", "Revisi", "Selesai"]}
     >
       <div className="w-full px-6">
         <div className="border border-neutral-200 rounded-lg overflow-hidden">
@@ -61,23 +47,16 @@ export default function DataShift() {
               <tr className="bg-mint/15 text-center">
                 <th className="border px-3 py-2">No</th>
                 <th className="border px-3 py-2 whitespace-nowrap">
-                  Nama Pekerja
-                </th>
-                <th className="border px-3 py-2">Tugas</th>
-                <th className="border px-3 py-2 whitespace-nowrap">
-                  Waktu Shift
+                  Nama Proyek
                 </th>
                 <th className="border px-3 py-2 whitespace-nowrap">
-                  Jenis Shift
+                  PJ Proyek
                 </th>
                 <th className="border px-3 py-2 whitespace-nowrap">
-                  Tanggal Shift
+                  Tanggal Proyek
                 </th>
                 <th className="border px-3 py-2 whitespace-nowrap">
-                  Jam Masuk
-                </th>
-                <th className="border px-3 py-2 whitespace-nowrap">
-                  Jam Pulang
+                  Deadline Proyek
                 </th>
                 <th className="border px-3 py-2">Status</th>
                 <th className="border px-3 py-2">Aksi</th>
@@ -85,10 +64,10 @@ export default function DataShift() {
             </thead>
 
             <tbody>
-              {shifts.length > 0 ? (
-                shifts.map((shift, index) => (
+              {projects.length > 0 ? (
+                projects.map((project, index) => (
                   <tr
-                    key={shift.id ?? index}
+                    key={project.id ?? index}
                     className="hover:bg-neutral-100 transition text-center text-xs"
                   >
                     <td className="border px-3 py-2">{index + 1}</td>
@@ -96,46 +75,41 @@ export default function DataShift() {
                     <td className="border px-3 py-2">
                       <div className="flex flex-col">
                         <span className="text-sm font-semibold whitespace-nowrap">
-                          {shift.nama_pekerja_shift}
+                          {project.nama_project}
                         </span>
                         <span className="text-xs text-neutral-500">
-                          {shift.nama_shift}
+                          {project.divisi_project} -{" "}
+                          {project.anggota_tim_project}
                         </span>
                       </div>
                     </td>
 
                     <td className="border px-3 py-2 max-w-160px truncate">
-                      {shift.list_tugas_shift}
-                    </td>
-
-                    <td className="border px-3 py-2 whitespace-nowrap">
-                      {shift.waktu_mulai_shift} - {shift.waktu_selesai_shift}
+                      {project.penanggung_jawab_project}
                     </td>
 
                     <td className="border px-3 py-2 capitalize">
-                      {shift.jenis_shift}
+                      {project.tanggal_mulai_project}
                     </td>
 
                     <td className="border px-3 py-2 whitespace-nowrap">
-                      {shift.tanggal_shift}
+                      {project.tanggal_selesai_project}
                     </td>
-
-                    <td className="border px-3 py-2">{shift.jamMasuk}</td>
-
-                    <td className="border px-3 py-2">{shift.jamPulang}</td>
 
                     <td className="border px-3 py-2">
                       <span
-                        className={`px-2 py-1 rounded-md text-xs font-semibold ${getStatusBadgeShift(
-                          shift.status_shift,
+                        className={`px-2 py-1 rounded-md text-xs font-semibold ${getStatusBadgeProject(
+                          project.status_project,
                         )}`}
                       >
-                        {shift.status_shift}
+                        {project.status_project}
                       </span>
                     </td>
 
                     <td className="border px-3 py-2">
-                      {showDetailButtonShift.includes(shift.status_shift) && (
+                      {showDetailButtonProject.includes(
+                        project.status_project,
+                      ) && (
                         <button className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer">
                           Detail
                         </button>
@@ -149,7 +123,7 @@ export default function DataShift() {
                     colSpan={10}
                     className="text-center py-5 text-neutral-500"
                   >
-                    Tidak ada data shift
+                    Tidak ada data proyek
                   </td>
                 </tr>
               )}

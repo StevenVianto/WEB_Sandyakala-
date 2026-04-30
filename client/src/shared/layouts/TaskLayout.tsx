@@ -83,7 +83,7 @@ export default function TaskLayout({
               Batal
             </Button>
 
-            <Button type="submit" className="bg-primary-dark text-white ml-7">
+            <Button type="submit" className="bg-primary-dark text-white ml-7" >
               Kirim Tugas {type === "shift" ? "Shift" : "Project"}
             </Button>
           </div>

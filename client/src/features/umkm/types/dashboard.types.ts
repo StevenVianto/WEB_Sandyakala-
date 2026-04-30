@@ -59,18 +59,32 @@ export type Shift = {
   waktu_selesai_shift: string;
   jenis_shift: "" | "pagi" | "siang" | "malam";
   list_tugas_shift: string[];
+  status_shift: "Proses" | "Review" | "Disetujui";
 };
+
+// data pekerja
+export type Employee = {
+  id: string;
+  nama_pekerja: string;
+  posisi_pekerja: string;
+  jenis_penugasan_pekerja: string;
+  no_hp_pekerja: string;
+  tanggal_masuk_pekerja: string;
+  status_pekerja: "Aktif" | "Nonaktif";
+}
 
 // Add Project Types
 export type Project = {
   id: string;
   nama_project: string;
+  divisi_project: string,
   deskripsi_project: string;
   tanggal_mulai_project: string;
   tanggal_selesai_project: string;
   list_tugas_project: string[];
   anggota_tim_project: string;
   penanggung_jawab_project: string;
+  status_project: "Selesai" | "Review" | "Revisi";
 };
 
 export type StatusType = "Draft" | "Review" | "Revisi" | "Selesai";

@@ -23,7 +23,7 @@ export default function TabProject() {
     <section className="container pb-10">
       <div className="flex gap-2 mb-8">
         <Link
-          to="/umkm/dashboard"
+          to="/umkm/dashboard/addproject"
           className="flex items-center gap-2 px-4 py-2.5 border hover:bg-mint-200 transition-all duration-100 hover:text-white cursor-pointer border-mint text-mint bg-mint-200/50 text-sm rounded-md"
         >
           <FaPlus className=" text-xl" /> Tambah Project

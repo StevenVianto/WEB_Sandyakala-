@@ -9,7 +9,7 @@ export default function HomePage() {
       <Link to="/admin/dashboard" className="font-sans">
         Go to Dashboard Admin
       </Link><br />
-      <Link to="/umkm/homepage" className="font-sans">
+      <Link to="/umkm/home" className="font-sans">
       Go to Homepage UMKM
       </Link>
       <div className="flex gap-2 my-4">
