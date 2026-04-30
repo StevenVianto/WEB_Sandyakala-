@@ -1,22 +1,9 @@
 import { useOutletContext } from "react-router-dom";
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
-
-interface StatCardItem {
-  title: string;
-  value: number | string;
-  description: string;
-  variant?: "green" | "blue" | "yellow" | "red";
-}
-
-type Employee = {
-  id: number;
-  nama_pekerja: string;
-  posisi_pekerja: string;
-  jenis_penugasan_pekerja: string;
-  no_hp_pekerja: string;
-  tanggal_masuk_pekerja: string;
-  status_pekerja: "Aktif" | "Nonaktif";
-};
+import type {
+  Employee,
+  StatCardDataType,
+} from "@/features/umkm/types/dashboard.types";
 
 type OutletContextType = {
   employees: Employee[];
@@ -38,24 +25,21 @@ export default function DataPekerja() {
     return classesEmployee[status_pekerja.toLowerCase()] ?? "";
   };
 
-  const statCardDataPekerja: StatCardItem[] = [
+  const StatCardData: StatCardDataType[] = [
     {
       title: "Pekerja Aktif",
       value: employees.filter((e) => e.status_pekerja === "Aktif").length,
-      description: "Sedang bekerja",
-      variant: "green",
+      colorClass: "text-success-300",
     },
     {
       title: "Pekerja Nonaktif",
       value: employees.filter((e) => e.status_pekerja === "Nonaktif").length,
-      description: "Tidak aktif",
-      variant: "red",
+      colorClass: "text-error-300",
     },
     {
       title: "Total Pekerja",
       value: employees.length,
-      description: "Jumlah seluruh pekerja",
-      variant: "blue",
+      colorClass: "text-neutral-700",
     },
   ];
 
@@ -64,7 +48,7 @@ export default function DataPekerja() {
       title="Data Pekerja"
       description="Kelola semua pekerja dalam satu tampilan"
       statusOptions={["Aktif", "Nonaktif"]}
-      statCardData={statCardDataPekerja}
+      statCardData={StatCardData}
     >
       <div className="w-full px-6">
         <div className="border border-neutral-200 rounded-lg overflow-hidden">

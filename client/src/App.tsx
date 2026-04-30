@@ -85,8 +85,8 @@ function App() {
           <Route path="data-shift" element={<DataShift />} />
           <Route path="data-project" element={<DataProject />} />
           <Route path="data-pekerja" element={<DataPekerja />} />
-          <Route path="dashboard/addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />}/>
-          <Route path="dashboard/addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />}/>
+          <Route path="addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />}/>
+          <Route path="addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />}/>
         </Route>
       </Route>
 

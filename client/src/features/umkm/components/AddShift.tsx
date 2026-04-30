@@ -6,10 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 import { GoX } from "react-icons/go";
 import { GoPlus } from "react-icons/go";
 import SectionTask from "@/features/umkm/components/ui/section-task";
-
-interface AddShiftProps {
-  type: "pagi" | "siang" | "malam";
-}
+import type { Shift } from "@/features/umkm/types/dashboard.types";
 
 interface AddShiftProps {
   type: "pagi" | "siang" | "malam";
@@ -30,6 +27,7 @@ export default function AddShift({ type,shifts,setShifts }: AddShiftProps) {
     waktu_selesai_shift: "",
     jenis_shift: type,
     list_tugas_shift: [""],
+    status_shift:"",
   });
 
   const navigate = useNavigate();
@@ -66,17 +64,14 @@ export default function AddShift({ type,shifts,setShifts }: AddShiftProps) {
   const handleAdd = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const newShift = {
+  const filteredTasksShift = shift.list_tugas_shift.filter(
+      (t) => t.trim() !== "",
+    );
+
+    const newShift: Shift = {
+      ...shift,
       id: String(shifts.length + 1),
-      nama_shift: shift.nama_shift,
-      nama_pekerja_shift: shift.nama_pekerja_shift,
-      tanggal_shift: shift.tanggal_shift,
-      waktu_mulai_shift: shift.waktu_mulai_shift,
-      waktu_selesai_shift: shift.waktu_selesai_shift,
-      jenis_shift: shift.jenis_shift,
-      list_tugas_shift: shift.list_tugas_shift.filter((t) => t.trim() !== ""),
-      jamMasuk: "-",
-      jamPulang: "-",
+      list_tugas_shift: filteredTasksShift,
       status_shift: "Proses" as "Disetujui" | "Proses" | "Review",
     };
 

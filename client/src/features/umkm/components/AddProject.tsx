@@ -5,29 +5,18 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { GoX, GoPlus } from "react-icons/go";
 import SectionTask from "@/features/umkm/components/ui/section-task";
+import type {Project}  from "@/features/umkm/types/dashboard.types"
 
-type Project = {
-  id: string;
-  nama_project: string;
-  divisi_project: string;
-  deskripsi_project: string;
-  tanggal_mulai_project: string;
-  tanggal_selesai_project: string;
-  list_tugas_project: string[];
-  anggota_tim_project: string;
-  penanggung_jawab_project: string;
-  status_project: "Review" | "Revisi" | "Selesai";
-};
 
 type AddProjectProps = {
-  projects: Project[];
-  setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+  projects: any[];
+  setProjects: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
 export default function AddProject({ projects, setProjects }: AddProjectProps) {
   const navigate = useNavigate();
 
-  const [project, setProject] = useState<Project>({
+  const [project, setProject] = useState({
     id: "",
     nama_project: "",
     divisi_project: "",
@@ -37,7 +26,7 @@ export default function AddProject({ projects, setProjects }: AddProjectProps) {
     list_tugas_project: [""],
     anggota_tim_project: "",
     penanggung_jawab_project: "",
-    status_project: "Review",
+    status_project: "",
   });
 
   const handleChange = (
@@ -71,15 +60,15 @@ export default function AddProject({ projects, setProjects }: AddProjectProps) {
   const handleAdd = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const filteredTasks = project.list_tugas_project.filter(
+    const filteredTasksProject = project.list_tugas_project.filter(
       (t) => t.trim() !== "",
     );
 
     const newProject: Project = {
       ...project,
       id: String(projects.length + 1),
-      list_tugas_project: filteredTasks,
-      status_project: "Review",
+      list_tugas_project: filteredTasksProject,
+      status_project: "Review" as "Selesai" | "Revisi" | "Review",
     };
 
     setProjects((prev) => [...prev, newProject]);

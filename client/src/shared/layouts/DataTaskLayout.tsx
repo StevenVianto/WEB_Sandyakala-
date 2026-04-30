@@ -1,15 +1,8 @@
 import { SearchInput } from "@/shared/components/ui/search-input";
 import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { StatCard } from "@/shared/components/ui/stat-card";
-
-interface StatCardItem {
-  title: string;
-  value: number | string;
-  description: string;
-  variant?: "green" | "blue" | "yellow" | "red";
-}
-
+import type { StatCardDataType } from "@/features/umkm/types/dashboard.types";
+import StatCard from "@/features/umkm/components/ui/StatCard";
 
 interface DataTaskLayoutProps {
   children: React.ReactNode;
@@ -22,10 +15,10 @@ interface DataTaskLayoutProps {
   }[];
   activeTab?: string;
   statusOptions?: string[];
-  statCardData?: StatCardItem[];
+  statCardData?: StatCardDataType[];
 }
 
-export default function DataTaskLayout ({
+export default function DataTaskLayout({
   children,
   title,
   description,
@@ -39,7 +32,6 @@ export default function DataTaskLayout ({
   return (
     <div className="bg-neutral-400 min-h-screen p-25 flex justify-center">
       <div className="bg-white w-6xl px-12 py-6 rounded-lg shadow-md">
-
         {/* HEADER */}
         <div className="flex flex-row p-5 items-center">
           <GoArrowLeft
@@ -52,20 +44,19 @@ export default function DataTaskLayout ({
           </div>
         </div>
 
-        {/* statcard */}
+        {/* STAT CARD */}
         {statCardData && statCardData.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 mt-4">
-          {statCardData.map((item, index) => (
-            <StatCard
-              key={index}
-              title={item.title}
-              value={item.value}
-              description={item.description}
-              variant={item.variant}
-            />
-          ))}
-        </div>
-      )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 mt-4">
+            {statCardData.map((item, index) => (
+              <StatCard
+                key={index}
+                title={item.title}
+                value={item.value}
+                colorClass={item.colorClass}
+              />
+            ))}
+          </div>
+        )}
 
         {/* TABS (optional) */}
         {tabs.length > 0 && (
@@ -93,8 +84,11 @@ export default function DataTaskLayout ({
           <SearchInput placeholder="Cari..." />
 
           {statusOptions.length > 0 && (
-            <select className="border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-mint-100/15">
-              <option selected disabled >
+            <select
+              defaultValue="Pilih Status"
+              className="border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-mint-100/15"
+            >
+              <option disabled value="Pilih Status">
                 Pilih Status
               </option>
 

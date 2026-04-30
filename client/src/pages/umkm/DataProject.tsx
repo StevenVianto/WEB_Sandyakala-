@@ -1,17 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
-
-type Project = {
-  id: number;
-  nama_project: string;
-  divisi_project: string;
-  tanggal_mulai_project: string;
-  tanggal_selesai_project: string;
-  list_tugas_project: [string];
-  anggota_tim_project: string;
-  penanggung_jawab_project: string;
-  status_project: "Selesai" | "Revisi" | "Review";
-};
+import type {Project}  from "@/features/umkm/types/dashboard.types"
 
 type OutletContextType = {
   projects: Project[];
