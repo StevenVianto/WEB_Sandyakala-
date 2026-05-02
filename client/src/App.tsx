@@ -12,6 +12,7 @@ import ReportPage from "./pages/admin/ReportPage";
 import DetailReportPage from "./pages/admin/DetailReportPage";
 
 import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
+import LandingPage from "./pages/umkm/LandingPage";
 import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
 import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
@@ -62,6 +63,7 @@ function App() {
       {/* UMKM */}
       <Route path="/umkm">
         <Route path="home" Component={HomeUmkmPage} />
+        <Route path="landing" Component={LandingPage} />
         <Route path="lowongan" Component={LowonganUmkmPage} />
         <Route path="profile" Component={ProfileUmkmPage} />
 
