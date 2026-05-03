@@ -20,8 +20,9 @@ export default function AddShift({ type,shifts,setShifts }: AddShiftProps) {
   );
 
   const [shift, setShift] = useState({
-    nama_shift: "",
+    divisi_shift: "",
     nama_pekerja_shift: "",
+    nama_shift: "",
     tanggal_shift: "",
     waktu_mulai_shift: "",
     waktu_selesai_shift: "",
@@ -84,13 +85,13 @@ export default function AddShift({ type,shifts,setShifts }: AddShiftProps) {
       <SectionTask title="Detail Shift Harian">
         {/* Nama Tugas Shift */}
         <label htmlFor="nama_shift" className="flex flex-col">
-          <span className="text-sm leading-base mb-2">Nama Tugas Shift</span>
+          <span className="text-sm leading-base mb-2">Divisi Shift</span>
           <Input
-            id="nama_shift"
-            name="nama_shift"
-            value={shift.nama_shift}
+            id="divisi_shift"
+            name="divisi_shift"
+            value={shift.divisi_shift}
             onChange={handleChange}
-            placeholder="Nama Shift"
+            placeholder="Developer / QA / UI Designer"
             className="rounded-lg mt-2"
           />
         </label>
@@ -105,6 +106,21 @@ export default function AddShift({ type,shifts,setShifts }: AddShiftProps) {
               value={shift.nama_pekerja_shift}
               onChange={handleChange}
               placeholder="Tambah pekerja yang ditugaskan pada shift tersebut"
+              className="rounded-lg mt-2"
+            />
+          </label>
+        </div>
+
+        {/* Tugas Shift Pekerja */}
+        <div className="mt-3">
+          <label htmlFor="nama_pekerja_shift" className="flex flex-col">
+            <span className="text-sm leading-base">Nama Tugas Shift</span>
+            <Input
+              id="nama_shift"
+              name="nama_shift"
+              value={shift.nama_shift}
+              onChange={handleChange}
+              placeholder="Tugas shift yang akan diberikan kepada pekerja"
               className="rounded-lg mt-2"
             />
           </label>

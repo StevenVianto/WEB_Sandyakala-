@@ -1,11 +1,15 @@
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
+import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
+import { ModalShift } from "@/shared/components/ui/modal-shift";
+import { DetailShiftContent } from "@/features/umkm/components/DetailShiftContent";
 
 type Shift = {
   id: number;
-  nama_shift: string;
+  divisi_shift: string;
   nama_pekerja_shift: string;
-  list_tugas_shift: string;
+  nama_shift: string;
+  list_tugas_shift: string[];
   waktu_mulai_shift: string;
   waktu_selesai_shift: string;
   jenis_shift: string;
@@ -34,6 +38,9 @@ export default function DataShift() {
     };
     return classesShift[status_shift.toLowerCase()] ?? "";
   };
+
+  const [open, setOpen] = useState(false);
+  const [selectedShift, setSelectedShift] = useState(shifts[0]);
 
   return (
     <DataTaskLayout
@@ -96,16 +103,16 @@ export default function DataShift() {
                     <td className="border px-3 py-2">
                       <div className="flex flex-col">
                         <span className="text-sm font-semibold whitespace-nowrap">
-                          {shift.nama_pekerja_shift}
+                          {shift.divisi_shift}
                         </span>
                         <span className="text-xs text-neutral-500">
-                          {shift.nama_shift}
+                          {shift.nama_pekerja_shift}
                         </span>
                       </div>
                     </td>
 
                     <td className="border px-3 py-2 max-w-160px truncate">
-                      {shift.list_tugas_shift}
+                      {shift.nama_shift}
                     </td>
 
                     <td className="border px-3 py-2 whitespace-nowrap">
@@ -136,7 +143,13 @@ export default function DataShift() {
 
                     <td className="border px-3 py-2">
                       {showDetailButtonShift.includes(shift.status_shift) && (
-                        <button className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer">
+                        <button
+                          onClick={() => {
+                            setSelectedShift(shift);
+                            setOpen(true);
+                          }}
+                          className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer"
+                        >
                           Detail
                         </button>
                       )}
@@ -156,6 +169,18 @@ export default function DataShift() {
             </tbody>
           </table>
         </div>
+
+        {/* modal detail shift */}
+        <ModalShift
+          open={open}
+          onClose={() => setOpen(false)}
+          title="Detail Shift"
+          subtitle={selectedShift?.nama_pekerja_shift}
+          subtitle2={selectedShift?.divisi_shift}
+          status={selectedShift?.status_shift}
+        >
+          {selectedShift && <DetailShiftContent shift={selectedShift} onClose={() => setOpen(false)} />}
+        </ModalShift>
       </div>
     </DataTaskLayout>
   );
