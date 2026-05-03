@@ -1,4 +1,4 @@
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
 import type {Project}  from "@/features/umkm/types/dashboard.types"
 
@@ -19,6 +19,12 @@ export default function DataProject() {
       selesai: "bg-primary/50 text-primary-dark",
     };
     return classesProject[status_project.toLowerCase()] ?? "";
+  };
+
+  const navigate = useNavigate();
+
+  const navigateToRevisi = () => {
+    navigate('/umkm/dashboard/revisi');
   };
 
   return (
@@ -110,7 +116,7 @@ export default function DataProject() {
                       {showDetailButtonProject.includes(
                         project.status_project,
                       ) && (
-                        <button className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer">
+                        <button onClick={navigateToRevisi} className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer">
                           Detail
                         </button>
                       )}

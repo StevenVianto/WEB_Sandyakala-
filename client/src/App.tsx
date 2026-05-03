@@ -26,6 +26,7 @@ import AddProjectPage from "./pages/umkm/AddProjectPage";
 
 import VerificationFgPage from "./pages/admin/VerificationFg";
 import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
+import RevisiTugas from "./features/umkm/components/RevisiTugas";
 
 function App() {
   const [shifts, setShifts] = useState<any[]>([]);
@@ -87,8 +88,17 @@ function App() {
           <Route path="data-shift" element={<DataShift />} />
           <Route path="data-project" element={<DataProject />} />
           <Route path="data-pekerja" element={<DataPekerja />} />
-          <Route path="addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />}/>
-          <Route path="addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />}/>
+          <Route path="revisi" element={<RevisiTugas />} />
+          <Route
+            path="addshift"
+            element={<AddShiftPage shifts={shifts} setShifts={setShifts} />}
+          />
+          <Route
+            path="addproject"
+            element={
+              <AddProjectPage projects={projects} setProjects={setProjects} />
+            }
+          />
         </Route>
       </Route>
 
