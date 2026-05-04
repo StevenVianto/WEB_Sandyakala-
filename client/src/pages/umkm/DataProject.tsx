@@ -1,6 +1,8 @@
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
-import type {Project}  from "@/features/umkm/types/dashboard.types"
+import type { Project } from "@/features/umkm/types/dashboard.types";
+import RevisiTugas from "@/features/umkm/components/RevisiTugas";
+import { useState } from "react";
 
 type OutletContextType = {
   projects: Project[];
@@ -10,6 +12,11 @@ type OutletContextType = {
 export default function DataProject() {
   const { projects } = useOutletContext<OutletContextType>();
   const showDetailButtonProject = ["Review", "Revisi", "Selesai"];
+  const [showRevisi, setShowRevisi] = useState(false);
+
+  if (showRevisi) {
+    return <RevisiTugas onBack={() => setShowRevisi(false)} />;
+  }
 
   // Atur status project
   const getStatusBadgeProject = (status_project: Project["status_project"]) => {
@@ -21,11 +28,6 @@ export default function DataProject() {
     return classesProject[status_project.toLowerCase()] ?? "";
   };
 
-  const navigate = useNavigate();
-
-  const navigateToRevisi = () => {
-    navigate('/umkm/dashboard/revisi');
-  };
 
   return (
     <DataTaskLayout
@@ -116,7 +118,10 @@ export default function DataProject() {
                       {showDetailButtonProject.includes(
                         project.status_project,
                       ) && (
-                        <button onClick={navigateToRevisi} className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer">
+                        <button
+                          onClick={() => setShowRevisi(true)}
+                          className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer"
+                        >
                           Detail
                         </button>
                       )}

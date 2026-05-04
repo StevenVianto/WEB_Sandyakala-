@@ -1,17 +1,22 @@
-import { useOutletContext } from "react-router-dom";
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
 import type { Employee } from "@/features/umkm/types/dashboard.types";
 import { useState } from "react";
 import { ModalPekerja } from "@/shared/components/ui/modal-pekerja";
 import { DetailPekerjaContent } from "@/features/umkm/components/DetailPekerjaContent";
 
-type OutletContextType = {
-  employees: Employee[];
-  setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>;
-};
+const employees: Employee[] = [
+  {
+    id: "1",
+    nama_pekerja: "Budi Santoso",
+    posisi_pekerja: "UI/UX Designer",
+    jenis_penugasan_pekerja: "Berbasis Proyek",
+    no_hp_pekerja: "081234567890",
+    tanggal_masuk_pekerja: "2024-01-10",
+    status_pekerja: "Aktif",
+  },
+];
 
 export default function DataPekerja() {
-  const { employees } = useOutletContext<OutletContextType>();
   const showDetailButtonEmployee = ["Aktif", "Nonaktif"];
 
   const [open, setOpen] = useState(false);
