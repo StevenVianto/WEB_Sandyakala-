@@ -30,6 +30,7 @@ import RevisiTugas from "./features/umkm/components/RevisiTugas";
 
 import DataLamaranMasuk from "./pages/umkm/DataLamaranMasuk";
 import DataDalamSeleksi from "./pages/umkm/DataDalamSeleksi";
+import DataPosisiTerbuka from "./pages/umkm/DataPosisiTerbuka";
 
 function App() {
   const [shifts, setShifts] = useState<any[]>([]);
@@ -95,6 +96,7 @@ function App() {
           <Route path="data-pekerja" element={<DataPekerja />} />
           <Route path="lamaran-masuk" element={<DataLamaranMasuk />} />
           <Route path="dalam-seleksi" element={<DataDalamSeleksi />} />
+          <Route path="posisi-terbuka" element={<DataPosisiTerbuka />} />
           <Route path="revisi" element={<RevisiTugas />} />
           <Route path="addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />} />
           <Route path="addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />} />
