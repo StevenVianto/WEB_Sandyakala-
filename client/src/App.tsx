@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Route, Routes, Outlet } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import NotFound from "./pages/NotFound";
@@ -10,23 +10,16 @@ import DetailVerificationPage from "./pages/admin/DetailVerificationPage";
 import ReportPage from "./pages/admin/ReportPage";
 import DetailReportPage from "./pages/admin/DetailReportPage";
 import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
-import LandingPage from "./pages/umkm/LandingPage";
 import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
 import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
-import DataShift from "./pages/umkm/DataShift";
-import DataProject from "./pages/umkm/DataProject";
-import DataPekerja from "./pages/umkm/DataPekerja";
-
 import AddShiftPage from "./pages/umkm/AddShiftPage";
 import AddProjectPage from "./pages/umkm/AddProjectPage";
 import ChatPage from "./pages/ChatPage";
 import ReportUMKM from "./pages/umkm/ReportUMKM";
 import AddLowonganPage from "./pages/umkm/AddLowonganPage";
-
 import VerificationFgPage from "./pages/admin/VerificationFg";
 import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
-import RevisiTugas from "./features/umkm/components/RevisiTugas";
 
 function App() {
   const [shifts, setShifts] = useState<any[]>([]);
@@ -70,8 +63,8 @@ function App() {
           <Route path="report" Component={ReportUMKM} />
           <Route path="add-lowongan" Component={AddLowonganPage} />
 
-          <Route path="addshift" element={<AddShiftPage />} />
-          <Route path="addproject" element={<AddProjectPage />} />
+          <Route path="addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />} />
+          <Route path="addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />} />
         </Route>
 
         <Route path="/chat" Component={ChatPage} />
