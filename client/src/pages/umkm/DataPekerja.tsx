@@ -1,9 +1,9 @@
 import { useOutletContext } from "react-router-dom";
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
-import type {
-  Employee,
-  StatCardDataType,
-} from "@/features/umkm/types/dashboard.types";
+import type { Employee } from "@/features/umkm/types/dashboard.types";
+import { useState } from "react";
+import { ModalPekerja } from "@/shared/components/ui/modal-pekerja";
+import { DetailPekerjaContent } from "@/features/umkm/components/DetailPekerjaContent";
 
 type OutletContextType = {
   employees: Employee[];
@@ -13,6 +13,11 @@ type OutletContextType = {
 export default function DataPekerja() {
   const { employees } = useOutletContext<OutletContextType>();
   const showDetailButtonEmployee = ["Aktif", "Nonaktif"];
+
+  const [open, setOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null,
+  );
 
   // Atur status project
   const getStatusBadgeEmployee = (
@@ -25,30 +30,50 @@ export default function DataPekerja() {
     return classesEmployee[status_pekerja.toLowerCase()] ?? "";
   };
 
-  const StatCardData: StatCardDataType[] = [
-    {
-      title: "Pekerja Aktif",
-      value: employees.filter((e) => e.status_pekerja === "Aktif").length,
-      colorClass: "text-success-300",
-    },
-    {
-      title: "Pekerja Nonaktif",
-      value: employees.filter((e) => e.status_pekerja === "Nonaktif").length,
-      colorClass: "text-error-300",
-    },
-    {
-      title: "Total Pekerja",
-      value: employees.length,
-      colorClass: "text-neutral-700",
-    },
-  ];
+  const statCardSlot = (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 mb-4">
+      {[
+        {
+          title: "Pekerja Aktif",
+          value: employees.filter((e) => e.status_pekerja === "Aktif").length,
+          colorClass: "text-success-300",
+          borderClass: "border-l-4 border-l-success-300",
+        },
+        {
+          title: "Pekerja Nonaktif",
+          value: employees.filter((e) => e.status_pekerja === "Nonaktif")
+            .length,
+          colorClass: "text-error",
+          borderClass: "border-l-4 border-l-error",
+        },
+        {
+          title: "Total Pekerja",
+          value: employees.length,
+          colorClass: "text-neutral-700",
+          borderClass: "border-l-4 border-l-neutral-600",
+        },
+      ].map((card, index) => (
+        <div
+          key={index}
+          className={`bg-white rounded-xl border border-gray-100 shadow p-6 flex flex-col justify-center ${card.borderClass}`}
+        >
+          <h3 className={`text-sm font-medium mb-3 ${card.colorClass}`}>
+            {card.title}
+          </h3>
+          <span className={`text-4xl font-bold ${card.colorClass}`}>
+            {card.value || 0}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <DataTaskLayout
       title="Data Pekerja"
       description="Kelola semua pekerja dalam satu tampilan"
       statusOptions={["Aktif", "Nonaktif"]}
-      statCardData={StatCardData}
+      statCardSlot={statCardSlot}
     >
       <div className="w-full px-6">
         <div className="border border-neutral-200 rounded-lg overflow-hidden">
@@ -119,7 +144,13 @@ export default function DataPekerja() {
                       {showDetailButtonEmployee.includes(
                         Employee.status_pekerja,
                       ) && (
-                        <button className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer">
+                        <button
+                          onClick={() => {
+                            setSelectedEmployee(Employee);
+                            setOpen(true);
+                          }}
+                          className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer"
+                        >
                           Detail
                         </button>
                       )}
@@ -139,6 +170,21 @@ export default function DataPekerja() {
             </tbody>
           </table>
         </div>
+
+        {/* modal detail pekerja */}
+        <ModalPekerja
+          open={open}
+          onClose={() => setOpen(false)}
+          title="Detail Pekerja"
+          status={selectedEmployee?.status_pekerja}
+        >
+          {selectedEmployee && (
+            <DetailPekerjaContent
+              employee={selectedEmployee}
+              onClose={() => setOpen(false)}
+            />
+          )}
+        </ModalPekerja>
       </div>
     </DataTaskLayout>
   );

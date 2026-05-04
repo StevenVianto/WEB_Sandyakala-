@@ -31,7 +31,17 @@ import RevisiTugas from "./features/umkm/components/RevisiTugas";
 function App() {
   const [shifts, setShifts] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([
+    {
+    id: "1",
+    nama_pekerja: "Budi Santoso",
+    posisi_pekerja: "UI/UX Designer",
+    jenis_penugasan_pekerja: "Berbasis Proyek",
+    no_hp_pekerja: "081234567890",
+    tanggal_masuk_pekerja: "2024-01-10",
+    status_pekerja: "Aktif",
+  }
+  ]);
 
   return (
     <Routes>

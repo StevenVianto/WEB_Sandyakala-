@@ -2,7 +2,6 @@ import { SearchInput } from "@/shared/components/ui/search-input";
 import { GoArrowLeft } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import type { StatCardDataType } from "@/features/umkm/types/dashboard.types";
-import StatCard from "@/features/umkm/components/ui/StatCard";
 
 interface DataTaskLayoutProps {
   children: React.ReactNode;
@@ -16,6 +15,7 @@ interface DataTaskLayoutProps {
   activeTab?: string;
   statusOptions?: string[];
   statCardData?: StatCardDataType[];
+  statCardSlot?: React.ReactNode;
 }
 
 export default function DataTaskLayout({
@@ -25,7 +25,8 @@ export default function DataTaskLayout({
   tabs = [],
   activeTab,
   statusOptions = [],
-  statCardData,
+  statCardSlot,
+
 }: DataTaskLayoutProps) {
   const navigate = useNavigate();
 
@@ -45,18 +46,9 @@ export default function DataTaskLayout({
         </div>
 
         {/* STAT CARD */}
-        {statCardData && statCardData.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 mt-4">
-            {statCardData.map((item, index) => (
-              <StatCard
-                key={index}
-                title={item.title}
-                value={item.value}
-                colorClass={item.colorClass}
-              />
-            ))}
-          </div>
-        )}
+        {statCardSlot && (
+      <div className="px-6 mt-4">{statCardSlot}</div>
+    )}
 
         {/* TABS (optional) */}
         {tabs.length > 0 && (
