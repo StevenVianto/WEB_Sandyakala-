@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardUmkmLayout from "@/shared/layouts/DashboardUmkmLayout";
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
 import { MdVerified, MdStore } from "react-icons/md";
@@ -69,7 +70,8 @@ export default function ReportUMKM() {
   };
 
   return (
-    <div className="w-full bg-white min-h-screen relative pb-20">
+    <DashboardUmkmLayout>
+      <div className="w-full bg-white min-h-screen relative pb-20 pt-[60px]">
       {/* Floating Switcher for Dev */}
       <div className="fixed bottom-6 right-6 z-50 flex gap-2 bg-white/90 backdrop-blur p-2 rounded-full shadow-lg border border-gray-200">
         <Button size="sm" variant={status === 'warning' ? 'primary' : 'outline'} onClick={() => setStatus('warning')} className="rounded-full text-xs">Warning</Button>
@@ -253,5 +255,6 @@ export default function ReportUMKM() {
         )}
       </div>
     </div>
+    </DashboardUmkmLayout>
   );
 }

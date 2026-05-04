@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardUmkmLayout from "@/shared/layouts/DashboardUmkmLayout";
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
 import { FiArrowLeft, FiArrowRight, FiCalendar, FiClock, FiX } from "react-icons/fi";
@@ -306,7 +307,8 @@ export default function AddLowonganPage() {
   );
 
   return (
-    <div className="w-full min-h-screen bg-[#F8FAFC]">
+    <DashboardUmkmLayout>
+      <div className="w-full min-h-screen bg-[#F8FAFC] pt-[60px]">
       {/* Top Header Background */}
       <div className="bg-[#E2E8F0] pt-10 pb-20 px-4 md:px-8">
         <div className="container mx-auto max-w-5xl">
@@ -357,5 +359,6 @@ export default function AddLowonganPage() {
 
       </div>
     </div>
+    </DashboardUmkmLayout>
   );
 }
