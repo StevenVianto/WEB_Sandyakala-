@@ -18,6 +18,7 @@ import AddProjectPage from "./pages/umkm/AddProjectPage";
 import ChatPage from "./pages/ChatPage";
 import ReportUMKM from "./pages/umkm/ReportUMKM";
 import AddLowonganPage from "./pages/umkm/AddLowonganPage";
+import VerificationUMKM from "./pages/umkm/VerificationUMKM";
 import VerificationFgPage from "./pages/admin/VerificationFg";
 import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
 
@@ -62,6 +63,7 @@ function App() {
           <Route path="profile" Component={ProfileUmkmPage} />
           <Route path="report" Component={ReportUMKM} />
           <Route path="add-lowongan" Component={AddLowonganPage} />
+          <Route path="verification" Component={VerificationUMKM} />
 
           <Route path="addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />} />
           <Route path="addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />} />
