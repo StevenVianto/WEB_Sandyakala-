@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Route, Routes, Outlet } from "react-router-dom";
-
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import NotFound from "./pages/NotFound";
@@ -10,19 +9,20 @@ import VerificationPage from "./pages/admin/VerificationPage";
 import DetailVerificationPage from "./pages/admin/DetailVerificationPage";
 import ReportPage from "./pages/admin/ReportPage";
 import DetailReportPage from "./pages/admin/DetailReportPage";
-
 import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
 import LandingPage from "./pages/umkm/LandingPage";
 import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
 import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
-
 import DataShift from "./pages/umkm/DataShift";
 import DataProject from "./pages/umkm/DataProject";
 import DataPekerja from "./pages/umkm/DataPekerja";
 
 import AddShiftPage from "./pages/umkm/AddShiftPage";
 import AddProjectPage from "./pages/umkm/AddProjectPage";
+import ChatPage from "./pages/ChatPage";
+import ReportUMKM from "./pages/umkm/ReportUMKM";
+import AddLowonganPage from "./pages/umkm/AddLowonganPage";
 
 import VerificationFgPage from "./pages/admin/VerificationFg";
 import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
@@ -61,46 +61,20 @@ function App() {
         <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
       </Route>
 
-      {/* UMKM */}
-      <Route path="/umkm">
-        <Route path="home" Component={HomeUmkmPage} />
-        <Route path="landing" Component={LandingPage} />
-        <Route path="lowongan" Component={LowonganUmkmPage} />
-        <Route path="profile" Component={ProfileUmkmPage} />
+        {/* Route for UMKM */}
+        <Route path="/umkm">
+          <Route path="home" Component={HomeUmkmPage} />
+          <Route path="dashboard" Component={DashboardUmkmPage} />
+          <Route path="lowongan" Component={LowonganUmkmPage} />
+          <Route path="profile" Component={ProfileUmkmPage} />
+          <Route path="report" Component={ReportUMKM} />
+          <Route path="add-lowongan" Component={AddLowonganPage} />
 
-        {/* Dashboard */}
-        <Route
-          path="dashboard"
-          element={
-            <Outlet
-              context={{
-                shifts,
-                setShifts,
-                projects,
-                setProjects,
-                employees,
-                setEmployees,
-              }}
-            />
-          }
-        >
-          <Route index element={<DashboardUmkmPage />} />
-          <Route path="data-shift" element={<DataShift />} />
-          <Route path="data-project" element={<DataProject />} />
-          <Route path="data-pekerja" element={<DataPekerja />} />
-          <Route path="revisi" element={<RevisiTugas />} />
-          <Route
-            path="addshift"
-            element={<AddShiftPage shifts={shifts} setShifts={setShifts} />}
-          />
-          <Route
-            path="addproject"
-            element={
-              <AddProjectPage projects={projects} setProjects={setProjects} />
-            }
-          />
+          <Route path="addshift" element={<AddShiftPage />} />
+          <Route path="addproject" element={<AddProjectPage />} />
         </Route>
-      </Route>
+
+        <Route path="/chat" Component={ChatPage} />
 
       <Route path="*" Component={NotFound} />
     </Routes>
