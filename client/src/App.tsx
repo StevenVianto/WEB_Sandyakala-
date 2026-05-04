@@ -26,7 +26,6 @@ import AddProjectPage from "./pages/umkm/AddProjectPage";
 
 import VerificationFgPage from "./pages/admin/VerificationFg";
 import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
-import RevisiTugas from "./features/umkm/components/RevisiTugas";
 
 import DataLamaranMasuk from "./pages/umkm/DataLamaranMasuk";
 import DataDalamSeleksi from "./pages/umkm/DataDalamSeleksi";
@@ -35,17 +34,6 @@ import DataPosisiTerbuka from "./pages/umkm/DataPosisiTerbuka";
 function App() {
   const [shifts, setShifts] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
-  const [employees, setEmployees] = useState<any[]>([
-    {
-    id: "1",
-    nama_pekerja: "Budi Santoso",
-    posisi_pekerja: "UI/UX Designer",
-    jenis_penugasan_pekerja: "Berbasis Proyek",
-    no_hp_pekerja: "081234567890",
-    tanggal_masuk_pekerja: "2024-01-10",
-    status_pekerja: "Aktif",
-  }
-  ]);
 
   return (
     <Routes>
@@ -84,8 +72,6 @@ function App() {
                 setShifts,
                 projects,
                 setProjects,
-                employees,
-                setEmployees,
               }}
             />
           }
@@ -97,7 +83,6 @@ function App() {
           <Route path="lamaran-masuk" element={<DataLamaranMasuk />} />
           <Route path="dalam-seleksi" element={<DataDalamSeleksi />} />
           <Route path="posisi-terbuka" element={<DataPosisiTerbuka />} />
-          <Route path="revisi" element={<RevisiTugas />} />
           <Route path="addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />} />
           <Route path="addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />} />
         </Route>

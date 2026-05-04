@@ -4,11 +4,12 @@ import { FcFile } from "react-icons/fc";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { GoCheckCircle } from "react-icons/go";
-import { useNavigate } from "react-router-dom";
 
-export default function RevisiTugas() {
-  const navigate = useNavigate();
+type RevisiTugasProps = {
+  onBack: () => void;
+};
 
+export default function RevisiTugas({ onBack }: RevisiTugasProps) {
   return (
     <div className="bg-neutral-400 min-h-screen p-25 flex justify-center">
       <div className="bg-white w-5xl px-12 py-6 rounded-lg shadow-md">
@@ -16,7 +17,7 @@ export default function RevisiTugas() {
         <div className="flex flex-row p-5 items-center">
           <GoArrowLeft
             className="text-3xl mr-5 cursor-pointer"
-            onClick={() => navigate("/umkm/dashboard/data-project")}
+            onClick={onBack}
           />
           <div>
             <h3 className="font-extrabold text-h5">Revisi Hasil Kerja</h3>
