@@ -1,3 +1,6 @@
+import { ModalNotification } from "@/shared/components/ui/modal-notification";
+import { useState } from "react";
+
 type Shift = {
   nama_pekerja_shift: string;
   list_tugas_shift: string[];
@@ -24,13 +27,21 @@ export function DetailShiftContent({ shift, onClose }: Props) {
 
   const completed = isDisetujui ? checklist.length : 0;
 
+  const [modalConfig, setModalConfig] = useState<{
+    visible: boolean;
+    type: "setuju";
+  }>({ visible: false, type: "setuju" });
+
+
   return (
     <div className="flex flex-col gap-5">
       {/* GRID DETAIL */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-neutral-100 rounded-lg p-3">
           <p className="text-xs text-neutral-500 mb-2">Tanggal Shift</p>
-          <p className="font-semibold text-sm text-primary-dark">{shift.tanggal_shift}</p>
+          <p className="font-semibold text-sm text-primary-dark">
+            {shift.tanggal_shift}
+          </p>
         </div>
 
         <div className="bg-neutral-100 rounded-lg p-3">
@@ -42,12 +53,16 @@ export function DetailShiftContent({ shift, onClose }: Props) {
 
         <div className="bg-neutral-100 rounded-lg p-3">
           <p className="text-xs text-neutral-500 mb-2">Jam Masuk</p>
-          <p className="font-semibold text-sm text-primary-dark">{shift.jamMasuk}</p>
+          <p className="font-semibold text-sm text-primary-dark">
+            {shift.jamMasuk}
+          </p>
         </div>
 
         <div className="bg-neutral-100 rounded-lg p-3">
           <p className="text-xs text-neutral-500 mb-2">Jam Pulang</p>
-          <p className="font-semibold text-sm text-primary-dark">{shift.jamPulang || "--:--"}</p>
+          <p className="font-semibold text-sm text-primary-dark">
+            {shift.jamPulang || "--:--"}
+          </p>
         </div>
       </div>
 
@@ -98,15 +113,39 @@ export function DetailShiftContent({ shift, onClose }: Props) {
       {/* BUTTON */}
       <div className="mt-4">
         {isReview && (
-          <button className="w-full bg-primary-dark text-white py-2 rounded-md">
+          <button
+            onClick={() => setModalConfig({ visible: true, type: "setuju" })}
+            className="w-full bg-primary-dark text-white py-2 rounded-md"
+          >
             Setujui
           </button>
         )}
 
         {(isProses || isDisetujui) && (
-          <button onClick={onClose} className="w-full border border-neutral-500 py-2 rounded-md cursor-pointer hover:bg-neutral-500/25">Kembali</button>
+          <button
+            onClick={onClose}
+            className="w-full border border-neutral-500 py-2 rounded-md cursor-pointer hover:bg-neutral-500/25"
+          >
+            Kembali
+          </button>
         )}
       </div>
+
+      {/* Modal Konfirmasi */}
+      <ModalNotification
+        visible={modalConfig.visible}
+        title="Persetujuan shift telah berhasil dilakukan!"
+        subtitle="Status tugas pekerja ini kini tercatat sebagai selesai."
+        button={{
+          type: "single",
+          label: "Lihat Shift Lainnya",
+          onPress: () => {
+            setModalConfig((prev) => ({ ...prev, visible: false }));
+            onClose();
+          },
+        }}
+        onClose={() => setModalConfig((prev) => ({ ...prev, visible: false }))}
+      />
     </div>
   );
 }

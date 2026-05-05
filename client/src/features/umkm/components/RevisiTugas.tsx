@@ -4,12 +4,53 @@ import { FcFile } from "react-icons/fc";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { GoCheckCircle } from "react-icons/go";
+import { useState } from "react";
+import { GoX } from "react-icons/go";
+import { ModalNotification } from "@/shared/components/ui/modal-notification";
+import { useNavigate } from "react-router-dom";
 
 type RevisiTugasProps = {
   onBack: () => void;
+  onClose: () => void;
 };
 
-export default function RevisiTugas({ onBack }: RevisiTugasProps) {
+type PopupState =
+  | { type: "none" }
+  | { type: "pilih_tindakan" }
+  | { type: "minta_revisi" };
+
+type ModalState =
+  | { visible: false }
+  | { visible: true; type: "setuju" | "revisi" };
+
+export default function RevisiTugas({ onBack, onClose }: RevisiTugasProps) {
+  const [popup, setPopup] = useState<PopupState>({ type: "none" });
+  const [catatanRevisi, setCatatanRevisi] = useState("");
+  const [modal, setModal] = useState<ModalState>({ visible: false });
+
+  const handleSetujui = () => {
+    setPopup({ type: "none" });
+    setModal({ visible: true, type: "setuju" });
+  };
+
+  const handleKirimRevisi = () => {
+    setPopup({ type: "none" });
+    setCatatanRevisi("");
+    setModal({ visible: true, type: "revisi" });
+  };
+
+  const handleModalClose = () => {
+    setModal({ visible: false });
+    onClose();
+  };
+
+  const navigate = useNavigate();
+
+  const handleGoToDataProject = () => {
+    setModal({ visible: false });
+    navigate("/umkm/dashboard/data-project");
+  };
+
   return (
     <div className="bg-neutral-400 min-h-screen p-25 flex justify-center">
       <div className="bg-white w-5xl px-12 py-6 rounded-lg shadow-md">
@@ -19,9 +60,7 @@ export default function RevisiTugas({ onBack }: RevisiTugasProps) {
             className="text-3xl mr-5 cursor-pointer"
             onClick={onBack}
           />
-          <div>
-            <h3 className="font-extrabold text-h5">Revisi Hasil Kerja</h3>
-          </div>
+          <h3 className="font-extrabold text-h5">Revisi Hasil Kerja</h3>
         </div>
 
         {/* CONTENT */}
@@ -29,8 +68,7 @@ export default function RevisiTugas({ onBack }: RevisiTugasProps) {
           {/* ISI */}
           <div className="flex flex-col gap-10">
             {/* DETAIL TUGAS */}
-            <div className=" flex flex-col gap-5 border border-neutral-300 rounded-lg w-xl px-10 py-5 ">
-              {/* Content 1 */}
+            <div className="flex flex-col gap-5 border border-neutral-300 rounded-lg w-xl px-10 py-5">
               <div className="flex flex-col gap-5 border-b pb-5">
                 <div className="flex flex-row justify-between">
                   <h4 className="text-primary-dark text-lg">DETAIL TUGAS</h4>
@@ -49,7 +87,6 @@ export default function RevisiTugas({ onBack }: RevisiTugasProps) {
                 </p>
               </div>
 
-              {/* Content 2 */}
               <table className="gap-5">
                 <tr className="flex justify-between mb-2">
                   <th className="text-neutral-600 text-xs">Dikerjakan Oleh</th>
@@ -69,10 +106,10 @@ export default function RevisiTugas({ onBack }: RevisiTugasProps) {
                 </tr>
               </table>
             </div>
+
             {/* CEK HASIL PEKERJAAN */}
-            <div className=" flex flex-col gap-5 border border-neutral-300 rounded-lg w-xl px-10 py-5 ">
+            <div className="flex flex-col gap-5 border border-neutral-300 rounded-lg w-xl px-10 py-5">
               <h4 className="text-primary-dark text-lg">CEK HASIL PEKERJAAN</h4>
-              {/* hasil kerja pekerja */}
               <div className="flex flex-row border justify-between border-neutral-300 py-3 px-5 rounded-md">
                 <div className="flex gap-3 items-center">
                   <FcFile className="text-lg" />
@@ -87,69 +124,136 @@ export default function RevisiTugas({ onBack }: RevisiTugasProps) {
                 </Button>
               </div>
 
-              {/* CATATAN PEKERJA */}
               <p className="text-xs font-bold">Catatan dari pekerja</p>
-              <div className="flex flex-row border  border-neutral-300 py-3 px-3 rounded-md">
+              <div className="flex flex-row border border-neutral-300 py-3 px-3 rounded-md">
                 <Input
                   className="border-none text-xs p-2 placeholder:text-neutral-950"
                   placeholder="Desain telah diperbarui dengan memperbaiki layout dan konsistensi warna"
                 />
               </div>
 
-              {/* BUTTON AMBIL TINDAKAN */}
-              <Button className="bg-primary-dark hover:bg-primary-dark/90">
+              <Button
+                onClick={() => setPopup({ type: "pilih_tindakan" })}
+                className="bg-primary-dark hover:bg-primary-dark/90"
+              >
                 Ambil Tindakan
               </Button>
             </div>
           </div>
+
           {/* RIWAYAT PERUBAHAN */}
-          <div className=" flex flex-col gap-5 border border-neutral-300 rounded-lg w-xl px-5 py-5 h-fit">
+          <div className="flex flex-col gap-5 border border-neutral-300 rounded-lg w-xl px-5 py-5 h-fit">
             <h4 className="text-primary-dark text-lg">RIWAYAT PERUBAHAN</h4>
-
-            {/* content 1*/}
-            <div className="flex flex-row items-start gap-3">
-              <GoCheckCircle className="text-2xl" />
-              <div className="flex flex-col gap-1">
-                <h6 className="text-sm">Revisi</h6>
-                <p className="text-xs">25 Februari 2025, 16:00</p>
-                <div className="bg-neutral-200 p-3 rounded-lg mr-6">
-                  <p className="text-[9px]">
-                    Perbaikan pada tampilan sesuai feedback yang diberikan.
-                  </p>
+            {[1, 2, 3].map((_, i) => (
+              <div key={i} className="flex flex-row items-start gap-3">
+                <GoCheckCircle className="text-2xl" />
+                <div className="flex flex-col gap-1">
+                  <h6 className="text-sm">Revisi</h6>
+                  <p className="text-xs">25 Februari 2025, 16:00</p>
+                  <div className="bg-neutral-200 p-3 rounded-lg mr-6">
+                    <p className="text-[9px]">
+                      Perbaikan pada tampilan sesuai feedback yang diberikan.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* content 2*/}
-            <div className="flex flex-row items-start gap-3">
-              <GoCheckCircle className="text-2xl" />
-              <div className="flex flex-col gap-1">
-                <h6 className="text-sm">Revisi</h6>
-                <p className="text-xs">25 Februari 2025, 16:00</p>
-                <div className="bg-neutral-200 p-3 rounded-lg mr-6">
-                  <p className="text-[9px]">
-                    Perbaikan pada tampilan sesuai feedback yang diberikan.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* content 3*/}
-            <div className="flex flex-row items-start gap-3">
-              <GoCheckCircle className="text-2xl" />
-              <div className="flex flex-col gap-1">
-                <h6 className="text-sm">Revisi</h6>
-                <p className="text-xs">25 Februari 2025, 16:00</p>
-                <div className="bg-neutral-200 p-3 rounded-lg mr-6">
-                  <p className="text-[9px]">
-                    Perbaikan pada tampilan sesuai feedback yang diberikan.
-                  </p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* Pilih Tindakan */}
+      {popup.type === "pilih_tindakan" && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setPopup({ type: "none" })}
+        >
+          <div
+            className="bg-white rounded-xl shadow-lg p-6 w-130 flex flex-col gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-row justify-between items-center w-full mb-1">
+              <p className="font-semibold text-xl">Pilih Tindakan</p>
+              <GoX
+                onClick={() => setPopup({ type: "none" })}
+                className="text-xl cursor-pointer text-neutral-500 hover:text-neutral-800"
+              />
+            </div>
+
+            <button
+              className="w-full bg-primary-dark text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-dark/90 cursor-pointer"
+              onClick={handleSetujui}
+            >
+              Setujui Hasil Kerja
+            </button>
+
+            <button
+              className="w-full border border-error text-error py-2.5 rounded-lg text-sm font-medium hover:bg-error/5 cursor-pointer"
+              onClick={() => setPopup({ type: "minta_revisi" })}
+            >
+              Minta Revisi
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Minta Revisi */}
+      {popup.type === "minta_revisi" && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setPopup({ type: "none" })}
+        >
+          <div
+            className="bg-white rounded-xl shadow-lg p-6 w-150 flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="font-semibold text-xl text-error">Revisi Tugas</p>
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-neutral-900">
+                Tulis feedback atau catatan untuk pekerja
+              </p>
+              <textarea
+                className="border border-neutral-300 rounded-md p-3 text-xs resize-none h-28 focus:outline-none focus:ring-1 focus:ring-primary-dark"
+                placeholder="Tulis catatan revisi di sini..."
+                value={catatanRevisi}
+                onChange={(e) => setCatatanRevisi(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end">
+              <button
+                className="bg-primary-dark text-white px-6 py-2 rounded-lg text-sm hover:bg-primary-dark/90 cursor-pointer disabled:opacity-50"
+                onClick={handleKirimRevisi}
+                disabled={!catatanRevisi.trim()}
+              >
+                Kirim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL NOTIFIKASI SETUJU */}
+      <ModalNotification
+        visible={modal.visible && modal.type === "setuju"}
+        title="Konfirmasi persetujuan tugas telah dikirimkan kepada pekerja."
+        button={{
+          type: "single",
+          label: "Lihat Tugas Lainnya",
+          onPress: handleGoToDataProject,
+        }}
+      />
+
+      {/* MODAL NOTIFIKASI REVISI */}
+      <ModalNotification
+        visible={modal.visible && modal.type === "revisi"}
+        title="Pekerja akan segera menerima instruksi revisimu."
+        subtitle="Cek berkala untuk melihat hasil pembaruannya."
+        button={{
+          type: "single",
+          label: "Lihat Tugas Lainnya",
+          onPress: handleGoToDataProject,
+        }}
+      />
     </div>
   );
 }
