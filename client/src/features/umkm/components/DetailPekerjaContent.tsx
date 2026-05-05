@@ -1,12 +1,28 @@
+import { useState } from "react";
 import type { Employee } from "../types/dashboard.types";
 import { FcBusinessman } from "react-icons/fc";
+import { ModalNotification } from "@/shared/components/ui/modal-notification";
 
 type Props = {
   employee: Employee;
   onClose: () => void;
 };
 
-export function DetailPekerjaContent({ employee }: Props) {
+export function DetailPekerjaContent({ employee, onClose }: Props) {
+  const [modalConfig, setModalConfig] = useState<{
+    visible: boolean;
+    type: "aktifkan" | "nonaktifkan";
+  }>({ visible: false, type: "aktifkan" });
+
+  const handleKonfirmasi = () => {
+    if (modalConfig.type === "aktifkan") {
+      console.log("Pekerja diaktifkan");
+    } else {
+      console.log("Pekerja dinon-aktifkan");
+    }
+    setModalConfig({ visible: false, type: "aktifkan" });
+    onClose();
+  };
 
   return (
     <div className="flex flex-col gap-6 ">
@@ -47,10 +63,43 @@ export function DetailPekerjaContent({ employee }: Props) {
       </div>
       {/* button */}
       <div className="flex flex-row justify-evenly gap-7 border-t pt-5">
-        <button className="bg-error-100 p-3 border text-error-300 border-error-300 rounded-lg w-45 cursor-pointer hover:bg-error-200/45">Non Aktifkan</button>
-        <button className="bg-success-100 border border-success-300 text-success-300 p-3 rounded-lg w-45 cursor-pointer hover:bg-success-200/45">Aktifkan</button>
+        <button
+          onClick={() => setModalConfig({ visible: true, type: "nonaktifkan" })}
+          className="bg-error-100 p-3 border text-error-300 border-error-300 rounded-lg w-45 cursor-pointer hover:bg-error-200/45"
+        >
+          Non Aktifkan
+        </button>
+        <button
+          onClick={() => setModalConfig({ visible: true, type: "aktifkan" })}
+          className="bg-success-100 border border-success-300 text-success-300 p-3 rounded-lg w-45 cursor-pointer hover:bg-success-200/45"
+        >
+          Aktifkan
+        </button>
       </div>
+
+      {/* Modal Konfirmasi */}
+      <ModalNotification
+        visible={modalConfig.visible}
+        title={
+          modalConfig.type === "aktifkan"
+            ? "Aktifkan pekerja ini?"
+            : "Tandai pekerja sebagai tidak aktif?"
+        }
+        subtitle={
+          modalConfig.type === "aktifkan"
+            ? "Pekerja akan langsung bisa mengakses sistem kembali."
+            : "Pekerja dapat diaktifkan kembali kapan saja."
+        }
+        button={{
+          type: "double",
+          cancelLabel: "Tidak",
+          confirmLabel: "Ya",
+          onCancel: () =>
+            setModalConfig((prev) => ({ ...prev, visible: false })),
+          onConfirm: handleKonfirmasi,
+        }}
+        onClose={() => setModalConfig((prev) => ({ ...prev, visible: false }))}
+      />
     </div>
-    
   );
 }

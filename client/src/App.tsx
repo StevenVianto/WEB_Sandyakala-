@@ -48,9 +48,15 @@ function App() {
       <Route path="/admin">
         <Route path="dashboard" Component={DashboardPage} />
         <Route path="verifikasi-umkm" Component={VerificationPage} />
-        <Route path="verifikasi-umkm/:namaUsaha" Component={DetailVerificationPage} />
+        <Route
+          path="verifikasi-umkm/:namaUsaha"
+          Component={DetailVerificationPage}
+        />
         <Route path="verifikasi-freshgraduate" Component={VerificationFgPage} />
-        <Route path="verifikasi-freshgraduate/:email" Component={DetailVerificationFgPage} />
+        <Route
+          path="verifikasi-freshgraduate/:email"
+          Component={DetailVerificationFgPage}
+        />
         <Route path="laporan" Component={ReportPage} />
         <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
       </Route>
@@ -83,8 +89,16 @@ function App() {
           <Route path="lamaran-masuk" element={<DataLamaranMasuk />} />
           <Route path="dalam-seleksi" element={<DataDalamSeleksi />} />
           <Route path="posisi-terbuka" element={<DataPosisiTerbuka />} />
-          <Route path="addshift" element={<AddShiftPage shifts={shifts} setShifts={setShifts} />} />
-          <Route path="addproject" element={<AddProjectPage projects={projects} setProjects={setProjects} />} />
+          <Route
+            path="addshift"
+            element={<AddShiftPage shifts={shifts} setShifts={setShifts} />}
+          />
+          <Route
+            path="addproject"
+            element={
+              <AddProjectPage projects={projects} setProjects={setProjects} />
+            }
+          />
         </Route>
       </Route>
 
