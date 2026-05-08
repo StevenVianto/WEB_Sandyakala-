@@ -12,4 +12,17 @@ export const AuthController = {
       data,
     });
   },
+
+  getUsers: async (_: Request, res: Response, next: Function) => {
+    try {
+      const users = await AuthService.getAllUsers();
+      res.status(200).json({
+        status: "success",
+        message: "Users retrieved successfully",
+        data: users,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

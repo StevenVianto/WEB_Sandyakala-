@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "./common/utils/AppError.js";
