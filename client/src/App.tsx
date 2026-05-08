@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Route, Routes, Outlet } from "react-router-dom";
-
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/admin/DashboardPage";
 import NotFound from "./pages/NotFound";
@@ -10,26 +9,24 @@ import VerificationPage from "./pages/admin/VerificationPage";
 import DetailVerificationPage from "./pages/admin/DetailVerificationPage";
 import ReportPage from "./pages/admin/ReportPage";
 import DetailReportPage from "./pages/admin/DetailReportPage";
-
 import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
-import LandingPage from "./pages/umkm/LandingPage";
 import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
 import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
-
-import DataShift from "./pages/umkm/DataShift";
-import DataProject from "./pages/umkm/DataProject";
-import DataPekerja from "./pages/umkm/DataPekerja";
-
 import AddShiftPage from "./pages/umkm/AddShiftPage";
 import AddProjectPage from "./pages/umkm/AddProjectPage";
-
+import ChatPage from "./pages/ChatPage";
+import ReportUMKM from "./pages/umkm/ReportUMKM";
+import AddLowonganPage from "./pages/umkm/AddLowonganPage";
+import VerificationUMKM from "./pages/umkm/VerificationUMKM";
 import VerificationFgPage from "./pages/admin/VerificationFg";
 import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
-
 import DataLamaranMasuk from "./pages/umkm/DataLamaranMasuk";
 import DataDalamSeleksi from "./pages/umkm/DataDalamSeleksi";
 import DataPosisiTerbuka from "./pages/umkm/DataPosisiTerbuka";
+import DataShift from "./pages/umkm/DataShift";
+import DataProject from "./pages/umkm/DataProject";
+import DataPekerja from "./pages/umkm/DataPekerja";
 
 function App() {
   const [shifts, setShifts] = useState<any[]>([]);
@@ -61,12 +58,15 @@ function App() {
         <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
       </Route>
 
-      {/* UMKM */}
-      <Route path="/umkm">
-        <Route path="home" Component={HomeUmkmPage} />
-        <Route path="landing" Component={LandingPage} />
-        <Route path="lowongan" Component={LowonganUmkmPage} />
-        <Route path="profile" Component={ProfileUmkmPage} />
+        {/* Route for UMKM */}
+        <Route path="/umkm/*">
+          <Route path="home" Component={HomeUmkmPage} />
+          <Route path="lowongan" Component={LowonganUmkmPage} />
+          <Route path="profile" Component={ProfileUmkmPage} />
+          <Route path="report" Component={ReportUMKM} />
+          <Route path="add-lowongan" Component={AddLowonganPage} />
+          <Route path="verification" Component={VerificationUMKM} />
+        </Route>
 
         {/* Dashboard */}
         <Route
@@ -99,8 +99,10 @@ function App() {
               <AddProjectPage projects={projects} setProjects={setProjects} />
             }
           />
+
         </Route>
-      </Route>
+
+        <Route path="/chat" Component={ChatPage} />
 
       <Route path="*" Component={NotFound} />
     </Routes>
