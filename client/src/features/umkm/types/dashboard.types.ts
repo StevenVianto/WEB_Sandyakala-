@@ -94,18 +94,21 @@ export type Project = {
 };
 
 // data sementara buat pelamar
-export type Pelamar = {
+export type Pelamar= {
   id: number;
+  lowongan_id: number; 
   nama_pelamar: string;
-  posisi_pelamar: string;
   pendidikan_terakhir_pelamar: string;
   kontak_pelamar: string;
   tanggal_melamar: string;
-  status_pelamar: "Diterima" | "Ditolak" | "Menunggu";
+  status_pelamar: "Menunggu" | "Diterima" | "Ditolak";
+  posisi_lowongan?: string;
+  tipe_lowongan?: string; 
 }
 
-export type Wawancara = {
+export type Wawancara= {
   id: number;
+  pelamar_id: number; 
   tanggal_wawancara: string;
   waktu_mulai_wawancara: string;
   waktu_selesai_wawancara: string;
@@ -116,12 +119,13 @@ export type Wawancara = {
 }
 
 export type Lowongan ={
-  id: number;
+   id: number;
   posisi_lowongan: string;
   tipe_lowongan: string;
   tanggal_buka_lowongan: string;
   tanggal_tutup_lowongan: string;
   status_lowongan: "Buka" | "Tutup";
+  jumlah_pelamar?: number;
 }
 
 export type StatusType = "Draft" | "Review" | "Revisi" | "Selesai";

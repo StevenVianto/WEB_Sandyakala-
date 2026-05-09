@@ -63,7 +63,7 @@ export default function DataDalamSeleksi() {
                     <td className="border px-3 py-2 font-semibold whitespace-nowrap">
                       {p.nama_pelamar}
                     </td>
-                    <td className="border px-3 py-2">{p.posisi_pelamar}</td>
+                    <td className="border px-3 py-2">{p.posisi_lowongan}</td>
                     <td className="border px-3 py-2">
                       {p.pendidikan_terakhir_pelamar}
                     </td>

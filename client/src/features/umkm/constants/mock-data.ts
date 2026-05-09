@@ -3,6 +3,7 @@ import type {
   BenefitItem,
   ContactItem,
   JobOpening,
+  Lowongan,
   Pelamar,
   Project,
   Shift,
@@ -523,35 +524,28 @@ export const mockProjects: Project[] = [
 export const dataDummy: Pelamar[] = [
   {
     id: 1,
+    lowongan_id: 1,          
     nama_pelamar: "Kathryn Murphy",
-    posisi_pelamar: "UI/UX Designer",
     pendidikan_terakhir_pelamar: "S1 Desain Komunikasi Visual",
     kontak_pelamar: "081234567890",
-    tanggal_melamar: "19 Maret 2025",
+    tanggal_melamar: "2025-03-19",
     status_pelamar: "Diterima",
   },
   {
     id: 2,
+    lowongan_id: 2,       
     nama_pelamar: "Devon Lane",
-    posisi_pelamar: "Web Designer",
     pendidikan_terakhir_pelamar: "S1 Teknik Informatika",
     kontak_pelamar: "081234857690",
-    tanggal_melamar: "22 Maret 2025",
+    tanggal_melamar: "2025-03-22",
     status_pelamar: "Ditolak",
   },
 ];
 
-export const mockWawancara: (Pelamar & Wawancara)[] = [
+export const mockWawancara: Wawancara[] = [
   {
-    // Data Pelamar
     id: 1,
-    nama_pelamar: "Kathryn Murphy",
-    posisi_pelamar: "UI/UX Designer",
-    pendidikan_terakhir_pelamar: "S1 Desain Komunikasi Visual",
-    kontak_pelamar: "081234567890",
-    tanggal_melamar: "19 Maret 2025",
-    status_pelamar: "Diterima",
-    // Data Wawancara
+    pelamar_id: 1,
     tanggal_wawancara: "2025-03-25",
     waktu_mulai_wawancara: "10:00",
     waktu_selesai_wawancara: "11:00",
@@ -562,12 +556,7 @@ export const mockWawancara: (Pelamar & Wawancara)[] = [
   },
   {
     id: 2,
-    nama_pelamar: "Devon Lane",
-    posisi_pelamar: "Web Designer",
-    pendidikan_terakhir_pelamar: "S1 Teknik Informatika",
-    kontak_pelamar: "081234857690",
-    tanggal_melamar: "22 Maret 2025",
-    status_pelamar: "Diterima",
+    pelamar_id: 2,           
     tanggal_wawancara: "2025-03-26",
     waktu_mulai_wawancara: "13:00",
     waktu_selesai_wawancara: "14:00",
@@ -575,6 +564,25 @@ export const mockWawancara: (Pelamar & Wawancara)[] = [
     tautan_wawancara: "Jl. Kemang Raya No. 45, Jaksel",
     note_wawancara: "Bawa CV dan portofolio fisik",
     status_wawancara: "Wawancara",
+  },
+];
+
+export const mockLowongan: Lowongan[] = [
+  {
+    id: 1,
+    posisi_lowongan: "UI/UX Designer",
+    tipe_lowongan: "Berbasis Proyek",
+    tanggal_buka_lowongan: "2025-03-12",
+    tanggal_tutup_lowongan: "2025-03-20",
+    status_lowongan: "Buka",
+  },
+  {
+    id: 2,
+    posisi_lowongan: "Web Designer",
+    tipe_lowongan: "Berbasis Shift",
+    tanggal_buka_lowongan: "2025-03-12",
+    tanggal_tutup_lowongan: "2025-03-20",
+    status_lowongan: "Tutup",
   },
 ];
 

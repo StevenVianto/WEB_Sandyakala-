@@ -4,8 +4,8 @@ import { FiUser } from "react-icons/fi";
 import { IoClose, IoCheckmark } from "react-icons/io5";
 import { BsFilePdf } from "react-icons/bs";
 import type { Pelamar } from "@/features/umkm/types/dashboard.types";
-import { useTask } from "@/pages/umkm/TaskContext";
 import { useNavigate } from "react-router-dom";
+import { useTask } from "./TaskContext";
 
 type ModalStep = "detail" | "tolak" | "ditolak" | "jadwal" | "terkirim" | null;
 
@@ -31,6 +31,8 @@ export default function DataLamaranMasuk() {
   const [waktuSelesaiWawancara, setWaktuSelesaiWawancara] = useState("");
   const [lokasiWawancara, setLokasiWawancara] = useState("");
   const [catatanWawancara, setCatatanWawancara] = useState("");
+
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   const openDetail = (pelamar: Pelamar) => {
     setSelectedPelamar(pelamar);
@@ -63,6 +65,12 @@ export default function DataLamaranMasuk() {
     },
   ];
 
+  const filteredPelamar = selectedStatus
+  ? pelamarList.filter(
+      (p) => p.status_pelamar.toLowerCase() === selectedStatus
+    )
+  : pelamarList;
+
   return (
     <DataTaskLayout
       title="Data Pelamar"
@@ -70,6 +78,7 @@ export default function DataLamaranMasuk() {
       activeTab="lamaranMasuk"
       tabs={tabs}
       statusOptions={["Diterima", "Ditolak", "Menunggu"]}
+      onStatusChange={(status) => setSelectedStatus(status)}
     >
       <div className="w-full px-6">
         <div className="border border-neutral-200 rounded-lg overflow-hidden">
@@ -95,8 +104,8 @@ export default function DataLamaranMasuk() {
               </tr>
             </thead>
             <tbody>
-              {pelamarList.length > 0 ? (
-                pelamarList.map((p, index) => (
+              {filteredPelamar.length > 0 ? (
+                filteredPelamar.map((p, index) => (
                   <tr
                     key={p.id}
                     className="hover:bg-neutral-100 transition text-center text-xs"
@@ -105,15 +114,13 @@ export default function DataLamaranMasuk() {
                     <td className="border px-3 py-2 font-semibold whitespace-nowrap">
                       {p.nama_pelamar}
                     </td>
-                    <td className="border px-3 py-2">{p.posisi_pelamar}</td>
+                    <td className="border px-3 py-2">{p.posisi_lowongan}</td>
                     <td className="border px-3 py-2">
                       {p.pendidikan_terakhir_pelamar}
                     </td>
                     <td className="border px-3 py-2">{p.kontak_pelamar}</td>
                     <td className="border px-3 py-2 whitespace-nowrap">
-                      {new Date(
-                        p.tanggal_melamar,
-                      ).toLocaleDateString("id-ID", {
+                      {new Date(p.tanggal_melamar).toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "long",
                         year: "numeric",
@@ -165,7 +172,7 @@ export default function DataLamaranMasuk() {
                   <h2 className="font-extrabold text-lg">Detail Pelamar</h2>
                   <p className="text-gray-400 text-sm">
                     {selectedPelamar.nama_pelamar} -{" "}
-                    {selectedPelamar.posisi_pelamar}
+                    {selectedPelamar.posisi_lowongan}
                   </p>
                 </div>
               </div>
@@ -180,7 +187,7 @@ export default function DataLamaranMasuk() {
                       {selectedPelamar.nama_pelamar}
                     </h3>
                     <p className="text-gray-500 text-sm">
-                      Melamar: {selectedPelamar.posisi_pelamar}
+                      Melamar: {selectedPelamar.posisi_lowongan}
                     </p>
                   </div>
                 </div>
@@ -257,7 +264,7 @@ export default function DataLamaranMasuk() {
                   <h2 className="font-extrabold text-lg">Tolak Lamaran</h2>
                   <p className="text-gray-400 text-sm">
                     {selectedPelamar.nama_pelamar} -{" "}
-                    {selectedPelamar.posisi_pelamar}
+                    {selectedPelamar.posisi_lowongan}
                   </p>
                 </div>
               </div>
@@ -279,7 +286,7 @@ export default function DataLamaranMasuk() {
               <div className="px-6 pb-6">
                 <button
                   onClick={() => {
-                    updateStatusPelamar(selectedPelamar.id, "Ditolak");
+                    (selectedPelamar.id, "Ditolak");
                     setModalStep("ditolak");
                   }}
                   className="w-full py-3 rounded-xl bg-red-50 text-red-500 font-bold text-sm hover:bg-red-100 transition"
@@ -302,7 +309,7 @@ export default function DataLamaranMasuk() {
                 </h2>
                 <p className="text-gray-500 text-sm leading-relaxed">
                   Lamaran {selectedPelamar.nama_pelamar} untuk posisi{" "}
-                  {selectedPelamar.posisi_pelamar} telah ditolak.
+                  {selectedPelamar.posisi_lowongan} telah ditolak.
                   <br />
                   Notifikasi penolakan telah dikirim ke pelamar
                 </p>
@@ -335,7 +342,7 @@ export default function DataLamaranMasuk() {
                   </h2>
                   <p className="text-gray-400 text-sm">
                     {selectedPelamar.nama_pelamar} -{" "}
-                    {selectedPelamar.posisi_pelamar}
+                    {selectedPelamar.posisi_lowongan}
                   </p>
                 </div>
               </div>
@@ -433,7 +440,8 @@ export default function DataLamaranMasuk() {
                     updateStatusPelamar(selectedPelamar.id, "Diterima");
                     addWawancara({
                       ...selectedPelamar,
-                      id: selectedPelamar.id,
+                      posisi_lowongan: selectedPelamar.posisi_lowongan ?? "-",
+                      pelamar_id: selectedPelamar.id, // ← tambah ini
                       tanggal_wawancara: tanggalWawancara,
                       waktu_mulai_wawancara: waktuMulaiWawancara,
                       waktu_selesai_wawancara: waktuSelesaiWawancara,
