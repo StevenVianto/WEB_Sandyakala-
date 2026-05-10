@@ -100,7 +100,9 @@ export default function DataPekerja() {
   const [filterStatus, setFilterStatus] = useState<string>("");
 
   const filteredEmployees = filterStatus
-    ? employeeList.filter((e) => e.status_pekerja.toLowerCase() === filterStatus)
+    ? employeeList.filter(
+        (e) => e.status_pekerja.toLowerCase() === filterStatus,
+      )
     : employeeList;
 
   return (

@@ -50,7 +50,7 @@ export default function DataPosisiTerbuka() {
   const [tipeKerjaLowongan, setTipeKerjaLowongan] = useState("Berbasis Proyek");
   const [tanggalBukaLowongan, setTanggalBukaLowongan] = useState("");
   const [tanggalTutupLowongan, setTanggalTutupLowongan] = useState("");
-  const [statusLowongan, setStatusLowongan] = useState<"Buka" | "Tutup">(
+  const [statusLowongan, setStatusLowongan] = useState<"Buka" | "Tutup" | "Segera Tutup">(
     "Buka",
   );
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -114,7 +114,7 @@ export default function DataPosisiTerbuka() {
       description="Kelola semua lowongan dalam satu tampilan"
       activeTab="posisiTerbuka"
       tabs={tabs}
-      statusOptions={["Buka", "Tutup"]}
+      statusOptions={["Buka", "Tutup", "Segera Tutup"]}
       onStatusChange={(status) => setSelectedStatus(status)}
 
     >
