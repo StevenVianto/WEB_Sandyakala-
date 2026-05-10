@@ -61,7 +61,7 @@ export default function HeroSection(props: HeroSectionProps) {
 
               {isShowButtonRight && (
                 <Link
-                  to={"/umkm/dashboard"}
+                  to={"/umkm/dashboard/lamaran-masuk"}
                   className="md:px-5 px-3.5 py-1.5 md:py-2.5 rounded-full bg-white text-mint font-medium text-xs md:text-sm shadow-md hover:bg-gray-50 transition-colors w-fit"
                 >
                   Seleksi Pelamar

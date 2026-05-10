@@ -23,7 +23,7 @@ export type JobOpening = {
   id: number;
   title: string;
   type: string;
-  status: JobStatus;
+  status_lowongan: JobStatus;
   date: string;
   iconStr: string;
   iconBgClass: string;
@@ -124,7 +124,7 @@ export type Lowongan ={
   tipe_lowongan: string;
   tanggal_buka_lowongan: string;
   tanggal_tutup_lowongan: string;
-  status_lowongan: "Buka" | "Tutup";
+  status_lowongan: "Buka" | "Tutup" | "Segera Tutup";
   jumlah_pelamar?: number;
 }
 

@@ -41,7 +41,7 @@ export default function DataTaskLayout({
         <div className="flex flex-row p-5 items-center">
           <GoArrowLeft
             className="text-3xl mr-5 cursor-pointer"
-            onClick={() => navigate("/umkm/dashboard")}
+            onClick={() => navigate(-1)}
           />
           <div>
             <h3 className="font-extrabold text-h5">{title}</h3>
