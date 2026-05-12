@@ -1,0 +1,21 @@
+import { Router } from "express";
+import { asyncHandler } from "../../common/middlewares/asyncHandler.js";
+import { uploadMiddleware } from "../../common/middlewares/upload.js";
+import { validate } from "../../common/middlewares/validate.js";
+import UmkmController from "./umkm.controller.js";
+import { registerUmkmSchema } from "./umkm.schema.js";
+
+const umkmRouter = Router();
+
+umkmRouter.post(
+  "/register",
+  uploadMiddleware.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "ktp", maxCount: 1 },
+    { name: "nib_document", maxCount: 1 },
+  ]),
+  validate(registerUmkmSchema),
+  asyncHandler(UmkmController.register),
+);
+
+export default umkmRouter;

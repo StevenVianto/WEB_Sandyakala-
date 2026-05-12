@@ -3,11 +3,16 @@ import type {
   BenefitItem,
   ContactItem,
   JobOpening,
+  Lowongan,
+  Pelamar,
+  Project,
+  Shift,
   StatCard,
   StatCardDataType,
   TabsData,
   TaskListType,
   TestimonialItem,
+  Wawancara,
 } from "../types/dashboard.types";
 import { FaUserClock, FaUserPlus } from "react-icons/fa6";
 import { BiSolidNotepad } from "react-icons/bi";
@@ -230,25 +235,25 @@ export const dataCardBisnis = [
     title: "Buat Lowongan",
     description: "Pasang posisi & mulai terima pelamar.",
     Icon: RiUserSearchFill,
-    link: "/umkm/lowongan",
+    link: "/umkm/add-lowongan",
   },
   {
     title: "Kelola Pelamar",
     description: "Seleksi & Wawancara kandidat terbaik.",
     Icon: FaUserPlus,
-    link: "/umkm/pelamar",
+    link: "/umkm/dashboard/lamaran-masuk",
   },
   {
     title: "Proyek & Task",
     description: "Pantau progres proyek tim secara langsung.",
     Icon: BiSolidNotepad,
-    link: "/umkm/proyek",
+    link: "/umkm/dashboard/data-project",
   },
   {
     title: "Shift Harian",
     description: "Atur jadwal & konfirmasi kehadiran",
     Icon: FaUserClock,
-    link: "/umkm/proyek",
+    link: "/umkm/dashboard/data-shift",
   },
 ];
 
@@ -257,7 +262,7 @@ export const mockJobOpenings: JobOpening[] = [
     id: 1,
     title: "UI/UX Designer",
     type: "Berbasis Proyek",
-    status: "Buka",
+    status_lowongan: "Buka",
     date: "12 Maret 2026",
     iconStr: "🎨",
     iconBgClass: "bg-teal-50",
@@ -272,7 +277,7 @@ export const mockJobOpenings: JobOpening[] = [
     id: 2,
     title: "Web Designer",
     type: "Berbasis Proyek",
-    status: "Segera Tutup",
+    status_lowongan: "Segera Tutup",
     date: "12 Maret 2026",
     iconStr: "💻",
     iconBgClass: "bg-orange-50",
@@ -287,7 +292,7 @@ export const mockJobOpenings: JobOpening[] = [
     id: 3,
     title: "Data Analyst",
     type: "Berbasis Proyek",
-    status: "Buka",
+    status_lowongan: "Buka",
     date: "12 Maret 2026",
     iconStr: "📊",
     iconBgClass: "bg-blue-50",
@@ -302,7 +307,7 @@ export const mockJobOpenings: JobOpening[] = [
     id: 4,
     title: "Back End Dev",
     type: "Berbasis Proyek",
-    status: "Buka",
+    status_lowongan: "Buka",
     date: "13 Maret 2026",
     iconStr: "⚙️",
     iconBgClass: "bg-teal-50",
@@ -317,7 +322,7 @@ export const mockJobOpenings: JobOpening[] = [
     id: 5,
     title: "Barista",
     type: "Berbasis Proyek",
-    status: "Tutup",
+    status_lowongan: "Tutup",
     date: "12 Maret 2026",
     iconStr: "☕",
     iconBgClass: "bg-red-50",
@@ -332,7 +337,7 @@ export const mockJobOpenings: JobOpening[] = [
     id: 6,
     title: "Barista",
     type: "Berbasis Proyek",
-    status: "Tutup",
+    status_lowongan: "Tutup",
     date: "12 Maret 2026",
     iconStr: "☕",
     iconBgClass: "bg-red-50",
@@ -474,3 +479,110 @@ export const taskList: TaskListType[] = [
     status: "Draft",
   },
 ];
+
+export const mockShifts: Shift[] = [
+  {
+    id: 1,
+    divisi_shift: "UI/UX Designer",
+    nama_pekerja_shift: "Rizky Handoko",
+    nama_shift: "Morning Design Review",
+    list_tugas_shift: [
+      "Membuat wireframe",
+      "Revisi dashboard",
+      "Push Github",
+    ],
+    waktu_mulai_shift: "08:00",
+    waktu_selesai_shift: "12:00",
+    jenis_shift: "pagi",
+    tanggal_shift: "2026-05-07",
+    jam_masuk: "07:55",
+    jam_pulang: "12:05",
+    status_shift: "Review",
+  },
+];
+
+export const mockProjects: Project[] = [
+  {
+    id: "1",
+    nama_project: "Redesign Landing Page FreshStart",
+    divisi_project: "UI/UX Design",
+    deskripsi_project: "Melakukan redesign landing page FreshStart agar lebih modern dan responsif sesuai brand guideline terbaru perusahaan.",
+    tanggal_mulai_project: "2026-05-01",
+    tanggal_selesai_project: "2026-06-01",
+    list_tugas_project: [
+      "Riset kompetitor dan referensi desain",
+      "Membuat wireframe halaman utama",
+      "Desain UI di Figma",
+      "Handoff ke tim developer",
+    ],
+    anggota_tim_project: "Budi Santoso, Rina Dewi, Cahyo",
+    penanggung_jawab_project: "Rina Dewi",
+    status_project: "Review",
+  },
+];
+
+export const dataDummy: Pelamar[] = [
+  {
+    id: 1,
+    lowongan_id: 1,          
+    nama_pelamar: "Kathryn Murphy",
+    pendidikan_terakhir_pelamar: "S1 Desain Komunikasi Visual",
+    kontak_pelamar: "081234567890",
+    tanggal_melamar: "2025-03-19",
+    status_pelamar: "Diterima",
+  },
+  {
+    id: 2,
+    lowongan_id: 2,       
+    nama_pelamar: "Devon Lane",
+    pendidikan_terakhir_pelamar: "S1 Teknik Informatika",
+    kontak_pelamar: "081234857690",
+    tanggal_melamar: "2025-03-22",
+    status_pelamar: "Ditolak",
+  },
+];
+
+export const mockWawancara: Wawancara[] = [
+  {
+    id: 1,
+    pelamar_id: 1,
+    tanggal_wawancara: "2025-03-25",
+    waktu_mulai_wawancara: "10:00",
+    waktu_selesai_wawancara: "11:00",
+    metode_wawancara: "Google Meet",
+    tautan_wawancara: "meet.google.com/abc-xyz",
+    note_wawancara: "Siapkan portofolio desain sebelum interview",
+    status_wawancara: "Wawancara",
+  },
+  {
+    id: 2,
+    pelamar_id: 2,           
+    tanggal_wawancara: "2025-03-26",
+    waktu_mulai_wawancara: "13:00",
+    waktu_selesai_wawancara: "14:00",
+    metode_wawancara: "Tatap Muka",
+    tautan_wawancara: "Jl. Kemang Raya No. 45, Jaksel",
+    note_wawancara: "Bawa CV dan portofolio fisik",
+    status_wawancara: "Wawancara",
+  },
+];
+
+export const mockLowongan: Lowongan[] = [
+  {
+    id: 1,
+    posisi_lowongan: "UI/UX Designer",
+    tipe_lowongan: "Berbasis Proyek",
+    tanggal_buka_lowongan: "2025-03-12",
+    tanggal_tutup_lowongan: "2025-03-20",
+    status_lowongan: "Buka",
+  },
+  {
+    id: 2,
+    posisi_lowongan: "Web Designer",
+    tipe_lowongan: "Berbasis Shift",
+    tanggal_buka_lowongan: "2025-03-12",
+    tanggal_tutup_lowongan: "2025-03-20",
+    status_lowongan: "Tutup",
+  },
+];
+

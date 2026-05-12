@@ -9,15 +9,11 @@ import { HiOutlineMenuAlt2, HiViewGridAdd } from "react-icons/hi";
 import { FaGift, FaStar } from "react-icons/fa6";
 import InfoBadge from "./ui/InfoBadge";
 import { Button } from "@/shared/components/ui/button";
-import {
-  mockBenefits,
-  mockContacts,
-  mockTestimonials,
-} from "../constants/mock-data";
+import { mockContacts, mockTestimonials } from "../constants/mock-data";
 import type { IconType } from "react-icons";
 import { cn } from "@/shared/lib/utils";
-// import { EmptyData } from "./ui/EmptyData";
-// import ImgEmptyData from "@/assets/images/Img Empty Data - Profile Umkm.png";
+import { ProfileUmkmProvider, useProfileUmkm } from "./ProfileUmkmContext";
+import ProfileUmkmModals from "./ProfileUmkmModals";
 
 const SectionHeader: React.FC<{
   title: string;
@@ -26,7 +22,7 @@ const SectionHeader: React.FC<{
 }> = ({ title, actionText, onAction }) => (
   <div className="flex justify-between items-center mb-5">
     <div className="flex items-center gap-3">
-      <div className="w-1.5 h-6 bg-info-300 rounded-full" />{" "}
+      <div className="w-1.5 h-6 bg-info-300 rounded-full" />
       <h2 className="text-lg font-bold text-info-300">{title}</h2>
     </div>
     {actionText && (
@@ -61,18 +57,11 @@ export const EmptySection = ({
   className,
 }: EmptySectionProps) => {
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-4 items-center w-full text-center",
-        className,
-      )}
-    >
+    <div className={cn("flex flex-col gap-4 items-center w-full text-center", className)}>
       <div className="h-12 w-12 bg-gray-100 flex justify-center items-center p-2 rounded-full">
         <Icon className="h-full w-full text-mint" />
       </div>
-
       <p className="text-sm md:text-base text-gray-400">{title}</p>
-
       {actionLabel && (
         <Button variant="mint" size={"sm"} className="rounded-md">
           {actionLabel}
@@ -82,7 +71,14 @@ export const EmptySection = ({
   );
 };
 
-export default function ProfileUmkm() {
+function ProfileUmkmContent() {
+  const {
+    openModal,
+    namaUsaha, keteranganUsaha, lokasiUsaha,
+    tahunDibangun, jumlahKaryawan, kategoriUsaha,
+    fasilitas, handleHapusFasilitas,
+  } = useProfileUmkm();
+
   return (
     <DashboardUmkmLayout>
       <section className="w-full pt-7 md:pt-12 bg-white">
@@ -102,31 +98,26 @@ export default function ProfileUmkm() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h1 className="text-xl md:text-[22px] font-extrabold text-slate-800">
-                      Sambal Bakar Nusantara
+                      {namaUsaha}
                     </h1>
                     <MdVerified className="w-6 h-6 text-blue-500" />
                   </div>
-
                   <p className="text-slate-600 text-sm md:text-base mb-4 font-medium">
-                    Kuliner Nusantara Modern
+                    {keteranganUsaha}
                   </p>
-
                   <div className="flex flex-wrap items-center gap-2">
-                    <InfoBadge
-                      icon={<IoLocationSharp />}
-                      text="Jakarta Selatan"
-                    />
-                    <InfoBadge icon={<MdStore />} text="Berdiri sejak 2022" />
-                    <InfoBadge icon={<IoPeople />} text="10 - 50 Karyawan" />
-                    <InfoBadge
-                      icon={<BiSolidBriefcaseAlt />}
-                      text="4 Lowongan Aktif"
-                    />
-                    <InfoBadge icon={<HiViewGridAdd />} text="Kuliner" />
+                    <InfoBadge icon={<IoLocationSharp />} text={lokasiUsaha} />
+                    <InfoBadge icon={<MdStore />} text={`Berdiri sejak ${tahunDibangun}`} />
+                    <InfoBadge icon={<IoPeople />} text={`${jumlahKaryawan} Karyawan`} />
+                    <InfoBadge icon={<BiSolidBriefcaseAlt />} text="4 Lowongan Aktif" />
+                    <InfoBadge icon={<HiViewGridAdd />} text={kategoriUsaha} />
                   </div>
                 </div>
 
-                <button className="absolute top-6 right-6 md:static px-5 py-1.5 rounded-full border border-teal-300 text-teal-500 text-xs md:text-sm font-semibold hover:bg-teal-50 transition-colors shrink-0">
+                <button
+                  onClick={() => openModal("profile")}
+                  className="absolute top-6 right-6 md:static px-5 py-1.5 rounded-full border border-teal-300 text-teal-500 text-xs md:text-sm font-semibold hover:bg-teal-50 transition-colors shrink-0 cursor-pointer"
+                >
                   Ubah
                 </button>
               </div>
@@ -140,23 +131,11 @@ export default function ProfileUmkm() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-8 flex flex-col gap-6">
               <Card>
-                <SectionHeader title="Tentang Kami" actionText="Ubah" />
-                {/* <div className="text-gray-700 text-sm leading-relaxed">
-                  <p>
-                    <strong>Sambal Bakar Nusantara</strong> adalah UMKM kuliner
-                    yang menghadirkan berbagai hidangan khas Indonesia dengan
-                    cita rasa autentik dan sentuhan modern. Sejak berdiri tahun
-                    2022, kami telah melayani ribuan pelanggan setia di Jakarta
-                    Selatan.
-                  </p>
-                  <p className="mt-2">
-                    Kami berkomitmen menggunakan bahan berkualitas lokal,
-                    menjaga standar kebersihan dan keamanan pangan, serta
-                    memberikan pelayanan terbaik. Tim kami terdiri dari individu
-                    berdedikasi yang mencintai kuliner Nusantara.
-                  </p>
-                </div> */}
-
+                <SectionHeader
+                  title="Tentang Kami"
+                  actionText="Ubah"
+                  onAction={() => openModal("tentang")}
+                />
                 <EmptySection
                   icon={HiOutlineMenuAlt2}
                   title="Belum ada deskripsi usaha"
@@ -168,10 +147,11 @@ export default function ProfileUmkm() {
                 <SectionHeader
                   title="Keuntungan & Fasilitas"
                   actionText="Tambah"
+                  onAction={() => openModal("fasilitas")}
                 />
-                {mockBenefits.length > 0 ? (
+                {fasilitas.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {mockBenefits.map((benefit) => (
+                    {fasilitas.map((benefit: { id: string; title: string; description: string }) => (
                       <div
                         key={benefit.id}
                         className="bg-neutral-100 rounded-xl p-4 flex flex-col justify-between relative group"
@@ -184,7 +164,10 @@ export default function ProfileUmkm() {
                             {benefit.description}
                           </p>
                         </div>
-                        <div className="absolute bottom-4 right-4 opacity-50 hover:opacity-100 hover:text-error">
+                        <div
+                          onClick={() => handleHapusFasilitas(benefit.id)}
+                          className="absolute bottom-4 right-4 opacity-50 hover:opacity-100 hover:text-error cursor-pointer"
+                        >
                           <FiTrash />
                         </div>
                       </div>
@@ -202,14 +185,15 @@ export default function ProfileUmkm() {
 
             <div className="lg:col-span-4">
               <Card className="h-full">
-                <SectionHeader title="Kontak Kami" actionText="Ubah" />
+                <SectionHeader
+                  title="Kontak Kami"
+                  actionText="Ubah"
+                  onAction={() => openModal("kontak")}
+                />
                 {mockContacts.length > 0 ? (
                   <div className="space-y-3">
                     {mockContacts.map((contact) => (
-                      <div
-                        key={contact.id}
-                        className="bg-neutral-100 rounded-xl p-4"
-                      >
+                      <div key={contact.id} className="bg-neutral-100 rounded-xl p-4">
                         <span className="block text-xs font-medium text-info-300 mb-1">
                           {contact.label}
                         </span>
@@ -232,14 +216,6 @@ export default function ProfileUmkm() {
 
           <Card>
             <SectionHeader title="Kata Karyawan Kami" />
-
-            {/* <EmptyData
-              className="border-none"
-              title="Belum ada testimoni karyawan"
-              description="Belum ada ulasan dari tim. Testimoni karyawan akan muncul di sini sebagai cerminan lingkungan kerja."
-              image={ImgEmptyData}
-            /> */}
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {mockTestimonials.map((testimoni) => (
                 <div
@@ -254,15 +230,23 @@ export default function ProfileUmkm() {
                   <p className="text-sm text-info-300 opacity-80 leading-relaxed mb-6 grow">
                     "{testimoni.quote}"
                   </p>
-                  <h4 className="font-bold text-gray-900 text-sm">
-                    {testimoni.name}
-                  </h4>
+                  <h4 className="font-bold text-gray-900 text-sm">{testimoni.name}</h4>
                 </div>
               ))}
             </div>
           </Card>
         </div>
       </div>
+
+      <ProfileUmkmModals />
     </DashboardUmkmLayout>
+  );
+}
+
+export default function ProfileUmkm() {
+  return (
+    <ProfileUmkmProvider>
+      <ProfileUmkmContent />
+    </ProfileUmkmProvider>
   );
 }

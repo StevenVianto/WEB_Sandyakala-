@@ -23,7 +23,7 @@ export type JobOpening = {
   id: number;
   title: string;
   type: string;
-  status: JobStatus;
+  status_lowongan: JobStatus;
   date: string;
   iconStr: string;
   iconBgClass: string;
@@ -52,15 +52,20 @@ export interface TestimonialItem {
 
 // Add Shift Types
 export type Shift = {
-  id: string;
+  id: number;
   nama_shift: string;
+  divisi_shift: string;
   nama_pekerja_shift: string;
   waktu_mulai_shift: string;
   waktu_selesai_shift: string;
-  jenis_shift: "" | "pagi" | "siang" | "malam";
+  jenis_shift: "pagi" | "siang" | "malam";
+  tanggal_shift: string;
+  jam_masuk: string;
+  jam_pulang: string;
   list_tugas_shift: string[];
   status_shift: "Proses" | "Review" | "Disetujui";
 };
+
 
 // data pekerja
 export type Employee = {
@@ -71,6 +76,7 @@ export type Employee = {
   no_hp_pekerja: string;
   tanggal_masuk_pekerja: string;
   status_pekerja: "Aktif" | "Nonaktif";
+  foto_pekerja?: string;
 }
 
 // Add Project Types
@@ -86,6 +92,41 @@ export type Project = {
   penanggung_jawab_project: string;
   status_project: "Selesai" | "Review" | "Revisi";
 };
+
+// data sementara buat pelamar
+export type Pelamar= {
+  id: number;
+  lowongan_id: number; 
+  nama_pelamar: string;
+  pendidikan_terakhir_pelamar: string;
+  kontak_pelamar: string;
+  tanggal_melamar: string;
+  status_pelamar: "Menunggu" | "Diterima" | "Ditolak";
+  posisi_lowongan?: string;
+  tipe_lowongan?: string; 
+}
+
+export type Wawancara= {
+  id: number;
+  pelamar_id: number; 
+  tanggal_wawancara: string;
+  waktu_mulai_wawancara: string;
+  waktu_selesai_wawancara: string;
+  metode_wawancara: string;
+  tautan_wawancara: string;
+  note_wawancara: string;
+  status_wawancara: "Wawancara";
+}
+
+export type Lowongan ={
+   id: number;
+  posisi_lowongan: string;
+  tipe_lowongan: string;
+  tanggal_buka_lowongan: string;
+  tanggal_tutup_lowongan: string;
+  status_lowongan: "Buka" | "Tutup" | "Segera Tutup";
+  jumlah_pelamar?: number;
+}
 
 export type StatusType = "Draft" | "Review" | "Revisi" | "Selesai";
 

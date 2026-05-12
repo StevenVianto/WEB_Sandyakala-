@@ -1,9 +1,11 @@
 import { cn } from "@/shared/lib/utils";
 import type { JobOpening } from "../../types/dashboard.types";
 import { getStatusStyles } from "../../utils/badge-style";
+import { useNavigate } from "react-router-dom";
 
 export default function JobCard({ data }: { data: JobOpening }) {
-  const styles = getStatusStyles(data.status);
+  const styles = getStatusStyles(data.status_lowongan);
+  const navigate = useNavigate();
 
   return (
     <div
@@ -29,7 +31,7 @@ export default function JobCard({ data }: { data: JobOpening }) {
           )}
         >
           <span className={cn("w-1.5 h-1.5 rounded-full", styles.dotColor)} />
-          {data.status}
+          {data.status_lowongan}
         </div>
       </div>
 
@@ -63,7 +65,7 @@ export default function JobCard({ data }: { data: JobOpening }) {
         </div>
 
         <div className="flex flex-col items-end gap-3">
-          <button className="px-4 py-1.5 rounded-lg border border-teal-200 text-teal-600 text-sm font-medium hover:bg-teal-50 transition-colors">
+          <button onClick={() => navigate("/umkm/dashboard/posisi-terbuka")} className="px-4 py-1.5 rounded-lg border border-teal-200 text-teal-600 text-sm font-medium hover:bg-teal-50 transition-colors">
             Lihat Detail
           </button>
         </div>

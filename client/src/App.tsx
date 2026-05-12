@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Route, Routes, Outlet } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+
 import LandingPage from "./pages/umkm/LandingPage";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/admin/DashboardPage";
@@ -14,77 +14,64 @@ import HomeUmkmPage from "./pages/umkm/HomeUmkmPage";
 import DashboardUmkmPage from "./pages/umkm/DashboardUmkmPage";
 import LowonganUmkmPage from "./pages/umkm/LowonganUmkmPage";
 import ProfileUmkmPage from "./pages/umkm/ProfileUmkmPage";
+
+import DataShift from "./features/umkm/components/DataShift";
+import DataProject from "./features/umkm/components/DataProject";
+import DataPekerja from "./features/umkm/components/DataPekerja";
+
 import AddShiftPage from "./pages/umkm/AddShiftPage";
 import AddProjectPage from "./pages/umkm/AddProjectPage";
-import ChatPage from "./pages/ChatPage";
-import ReportUMKM from "./pages/umkm/ReportUMKM";
-import AddLowonganPage from "./pages/umkm/AddLowonganPage";
-import VerificationUMKM from "./pages/umkm/VerificationUMKM";
+import TaskLayoutContent from "./pages/umkm/TaskLayoutContent";
+
 import VerificationFgPage from "./pages/admin/VerificationFg";
 import DetailVerificationFgPage from "./pages/admin/DetailVerificationFgPage";
 import DataLamaranMasuk from "./pages/umkm/DataLamaranMasuk";
 import DataDalamSeleksi from "./pages/umkm/DataDalamSeleksi";
 import DataPosisiTerbuka from "./pages/umkm/DataPosisiTerbuka";
-import DataShift from "./pages/umkm/DataShift";
-import DataProject from "./pages/umkm/DataProject";
-import DataPekerja from "./pages/umkm/DataPekerja";
+import ReportUMKM from "./pages/umkm/ReportUMKM";
+import AddLowonganPage from "./pages/umkm/AddLowonganPage";
+import VerificationUMKM from "./pages/umkm/VerificationUMKM";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
-  const [shifts, setShifts] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
-
   return (
     <Routes>
-      <Route path="/" Component={LandingPage} />
-      <Route path="/landing" Component={LandingPage} />
-      <Route path="/home" Component={HomePage} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/landing" element={<LandingPage />} />
 
       <Route path="/auth">
-        <Route path="login" Component={LoginPage} />
-        <Route path="register" Component={RegisterPage} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
       </Route>
 
-      {/* Admin */}
       <Route path="/admin">
-        <Route path="dashboard" Component={DashboardPage} />
-        <Route path="verifikasi-umkm" Component={VerificationPage} />
+        <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="verifikasi-umkm" element={<VerificationPage />} />
         <Route
           path="verifikasi-umkm/:namaUsaha"
-          Component={DetailVerificationPage}
+          element={<DetailVerificationPage />}
         />
-        <Route path="verifikasi-freshgraduate" Component={VerificationFgPage} />
+        <Route
+          path="verifikasi-freshgraduate"
+          element={<VerificationFgPage />}
+        />
         <Route
           path="verifikasi-freshgraduate/:email"
-          Component={DetailVerificationFgPage}
+          element={<DetailVerificationFgPage />}
         />
-        <Route path="laporan" Component={ReportPage} />
-        <Route path="laporan/:namaUsaha" Component={DetailReportPage} />
+        <Route path="laporan" element={<ReportPage />} />
+        <Route path="laporan/:namaUsaha" element={<DetailReportPage />} />
       </Route>
 
-        {/* Route for UMKM */}
-        <Route path="/umkm/*">
-          <Route path="home" Component={HomeUmkmPage} />
-          <Route path="lowongan" Component={LowonganUmkmPage} />
-          <Route path="profile" Component={ProfileUmkmPage} />
-          <Route path="report" Component={ReportUMKM} />
-          <Route path="add-lowongan" Component={AddLowonganPage} />
-          <Route path="verification" Component={VerificationUMKM} />
-        </Route>
+      <Route path="/umkm">
+        <Route path="home" element={<HomeUmkmPage />} />
+        <Route path="lowongan" element={<LowonganUmkmPage />} />
+        <Route path="profile" element={<ProfileUmkmPage />} />
+        <Route path="report" element={<ReportUMKM />} />
+        <Route path="add-lowongan" element={<AddLowonganPage />} />
+        <Route path="verification" element={<VerificationUMKM />} />
 
-        {/* Dashboard */}
-        <Route
-          path="dashboard"
-          element={
-            <Outlet
-              context={{
-                shifts,
-                setShifts,
-                projects,
-                setProjects,
-              }}
-            />
-          }
-        >
+        <Route path="dashboard" element={<TaskLayoutContent />}>
           <Route index element={<DashboardUmkmPage />} />
           <Route path="data-shift" element={<DataShift />} />
           <Route path="data-project" element={<DataProject />} />
@@ -92,22 +79,13 @@ function App() {
           <Route path="lamaran-masuk" element={<DataLamaranMasuk />} />
           <Route path="dalam-seleksi" element={<DataDalamSeleksi />} />
           <Route path="posisi-terbuka" element={<DataPosisiTerbuka />} />
-          <Route
-            path="addshift"
-            element={<AddShiftPage shifts={shifts} setShifts={setShifts} />}
-          />
-          <Route
-            path="addproject"
-            element={
-              <AddProjectPage projects={projects} setProjects={setProjects} />
-            }
-          />
-
+          <Route path="addshift" element={<AddShiftPage />} />
+          <Route path="addproject" element={<AddProjectPage />} />
         </Route>
+      </Route>
 
-        <Route path="/chat" Component={ChatPage} />
-
-      <Route path="*" Component={NotFound} />
+      <Route path="/chat" element={<ChatPage />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
