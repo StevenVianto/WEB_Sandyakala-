@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -33,6 +34,7 @@ const ForkKnifeIcon = ({ className }: { className?: string }) => (
 
 export default function VerificationUMKM() {
   const [status, setStatus] = useState<VerificationStatus>('step1');
+  const navigate = useNavigate();
 
   const getCurrentStep = () => {
     switch (status) {
@@ -301,7 +303,7 @@ export default function VerificationUMKM() {
               <Button onClick={() => setStatus('step1')} variant="outline" className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50">
                 Kembali
               </Button>
-              <Button onClick={() => setStatus('pending')} className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]">
+              <Button onClick={() => navigate('/umkm/home')} className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]">
                 Lanjut
               </Button>
             </div>
@@ -418,7 +420,7 @@ export default function VerificationUMKM() {
               ))}
             </div>
 
-            <Button className="w-full bg-[#1E3A5F] hover:bg-[#162d4a] text-white py-3 rounded-lg font-bold text-[15px]">
+            <Button onClick={() => navigate('/umkm/home')} className="w-full bg-[#1E3A5F] hover:bg-[#162d4a] text-white py-3 rounded-lg font-bold text-[15px]">
               Akses Sekarang
             </Button>
           </Card>

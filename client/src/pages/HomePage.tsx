@@ -1,5 +1,5 @@
 import { Badge } from "@/shared/components/ui/badge";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 export default function HomePage() {
   return (

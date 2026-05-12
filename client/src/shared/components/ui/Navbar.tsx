@@ -24,7 +24,7 @@ export default function Navbar() {
           <ul className="flex items-center gap-10 font-bold">
             <li>
               <NavLink
-                to="/umkm/homepage"
+                to="/umkm/home"
                 end
                 className={({ isActive }) =>
                   isActive
@@ -38,7 +38,7 @@ export default function Navbar() {
 
             <li>
               <NavLink
-                to="/umkm/dashboard"
+                to="/dashboard"
                 className={({ isActive }) =>
                   isActive
                     ? "text-teal-400 underline decoration-4 underline-offset-15"
@@ -51,7 +51,7 @@ export default function Navbar() {
 
             <li>
               <NavLink
-                to="/"
+                to="/umkm/lowongan"
                 className={({ isActive }) =>
                   isActive
                     ? "text-teal-400 underline decoration-4 underline-offset-15"
@@ -63,7 +63,7 @@ export default function Navbar() {
             </li>
             <li>
               <NavLink
-                to="/"
+                to="/umkm/profile"
                 className={({ isActive }) =>
                   isActive
                     ? "text-teal-400 underline decoration-4 underline-offset-15"

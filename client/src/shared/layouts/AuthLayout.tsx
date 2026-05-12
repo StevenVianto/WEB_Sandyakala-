@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import ImageAuth from "@/assets/images/Image Auth.png";
 
 interface AuthLayoutProps {
