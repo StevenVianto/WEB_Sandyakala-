@@ -1,8 +1,8 @@
 import { cn } from "@/shared/lib/utils";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
-import LogoFreshstart from "@/assets/images/Logo FreshStart.png";
+import logo from "@/assets/images/logo.png";
 
 const navItems = [
   { title: "Home", to: "/umkm/home" },
@@ -28,11 +28,13 @@ const NavItem = ({
       onClick={onClick}
       className={({ isActive }) =>
         cn(
-          "font-medium transition-all text-xs duration-300",
-          isMobile ? "block" : "pb-2 border-b-3",
+          "font-bold transition-colors duration-200 relative",
+          isMobile ? "block text-sm py-2" : "text-sm pb-1",
           isActive
-            ? "text-mint border-mint"
-            : "text-slate-500 border-transparent hover:text-mint",
+            ? isMobile
+              ? "text-teal-400"
+              : "text-teal-400 underline decoration-4 underline-offset-8"
+            : "text-primary-dark hover:text-teal-400"
         )
       }
     >
@@ -50,29 +52,21 @@ export default function DashboardUmkmLayout({
 
   return (
     <>
-      <nav className="py-2.5 bg-white shadow rounded-b-2xl fixed w-full top-0 z-40 transition-all">
-        <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
-          <div className="flex gap-2 md:gap-3 items-center">
-            <img
-              src={LogoFreshstart}
-              alt="Logo FreshStart"
-              className="h-8 w-8 md:h-10 md:w-10"
-            />
-            <Link
-              to="/umkm/home"
-              className="text-sm md:text-sm font-bold text-mint-300"
-            >
-              FreshStart
+      <nav className="fixed top-0 left-0 w-full z-40 shadow-md bg-white transition-all">
+        <div className="max-w-6xl mx-auto px-8 py-3 flex justify-between items-center">
+          <div className="flex items-center">
+            <Link to="/umkm/home">
+              <img src={logo} alt="FreshStart" className="h-10 w-auto object-contain" />
             </Link>
           </div>
-          <ul className="hidden md:flex gap-7 items-center">
+          <ul className="hidden md:flex gap-10 items-center">
             {navItems.map((item) => (
               <li key={item.title}>
                 <NavItem to={item.to}>{item.title}</NavItem>
               </li>
             ))}
 
-            <div className="h-9 w-9 bg-gray-100 rounded-full shadow ms-6 border border-slate-300 overflow-hidden">
+            <div className="h-10 w-10 bg-gray-100 rounded-full shadow ms-2 border border-slate-300 overflow-hidden cursor-pointer">
               <img
                 src="https://i.pravatar.cc/150?img=11"
                 alt="Profile"
@@ -82,7 +76,7 @@ export default function DashboardUmkmLayout({
           </ul>
 
           <button
-            className="md:hidden cursor-pointer p-2 text-mint-300 focus:outline-none"
+            className="md:hidden cursor-pointer p-2 text-primary-dark focus:outline-none"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <svg

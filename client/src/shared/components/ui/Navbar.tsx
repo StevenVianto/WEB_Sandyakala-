@@ -1,35 +1,31 @@
 import { FcManager } from "react-icons/fc";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import logo from "@/assets/images/logo.png";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
   return (
     <>
-      <div className="fixed top-0 left-0 w-full flex justify-between rounded-b-3xl shadow-md z-50 bg-white">
-        {/* logo freshstart */}
-        <div>
-          <div className="flex flex-row items-center gap-2 py-4 pl-15">
-            <img
-            src="/logoFreshstart.png"
-            className=" cursor-pointer w-12"
-            alt="Logo FreshStart"
-          />
-          <p className="text-lg cursor-pointer font-extrabold bg-linear-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
-            FreshStart
-          </p>
+      <nav className="fixed top-0 left-0 w-full z-50 shadow-md bg-white">
+        <div className="max-w-6xl mx-auto px-8 py-3 flex items-center justify-between">
+          {/* logo freshstart */}
+          <div className="flex items-center cursor-pointer" onClick={() => navigate("/umkm/home")}>
+            <img src={logo} alt="FreshStart" className="h-10 w-auto object-contain" />
           </div>
-        </div>
 
-        {/* link nav */}
-        <nav className="items-center py-6 pr-15">
-          <ul className="flex items-center gap-10 font-bold">
+          {/* link nav */}
+          <ul className="hidden md:flex items-center gap-10 font-bold">
             <li>
               <NavLink
                 to="/umkm/home"
                 end
                 className={({ isActive }) =>
-                  isActive
-                    ? "text-teal-400 underline decoration-4 underline-offset-15"
-                    : "text-primary-dark"
+                  `text-sm font-bold transition-colors duration-200 relative pb-1 ${
+                    isActive
+                      ? "text-teal-400 underline decoration-4 underline-offset-8"
+                      : "text-primary-dark hover:text-teal-400"
+                  }`
                 }
               >
                 Home
@@ -40,9 +36,11 @@ export default function Navbar() {
               <NavLink
                 to="/dashboard"
                 className={({ isActive }) =>
-                  isActive
-                    ? "text-teal-400 underline decoration-4 underline-offset-15"
-                    : "text-primary-dark"
+                  `text-sm font-bold transition-colors duration-200 relative pb-1 ${
+                    isActive
+                      ? "text-teal-400 underline decoration-4 underline-offset-8"
+                      : "text-primary-dark hover:text-teal-400"
+                  }`
                 }
               >
                 Dashboard
@@ -53,9 +51,11 @@ export default function Navbar() {
               <NavLink
                 to="/umkm/lowongan"
                 className={({ isActive }) =>
-                  isActive
-                    ? "text-teal-400 underline decoration-4 underline-offset-15"
-                    : "text-primary-dark"
+                  `text-sm font-bold transition-colors duration-200 relative pb-1 ${
+                    isActive
+                      ? "text-teal-400 underline decoration-4 underline-offset-8"
+                      : "text-primary-dark hover:text-teal-400"
+                  }`
                 }
               >
                 Lowongan
@@ -65,20 +65,25 @@ export default function Navbar() {
               <NavLink
                 to="/umkm/profile"
                 className={({ isActive }) =>
-                  isActive
-                    ? "text-teal-400 underline decoration-4 underline-offset-15"
-                    : "text-primary-dark"
+                  `text-sm font-bold transition-colors duration-200 relative pb-1 ${
+                    isActive
+                      ? "text-teal-400 underline decoration-4 underline-offset-8"
+                      : "text-primary-dark hover:text-teal-400"
+                  }`
                 }
               >
                 Profil UMKM
               </NavLink>
             </li>
             <li>
-              <FcManager className="text-4xl cursor-pointer" />
+              <FcManager
+                className="text-4xl cursor-pointer"
+                onClick={() => navigate("/umkm/profile")}
+              />
             </li>
           </ul>
-        </nav>
-      </div>
+        </div>
+      </nav>
     </>
   );
 }
