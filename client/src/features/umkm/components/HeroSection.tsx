@@ -30,26 +30,27 @@ export default function HeroSection(props: HeroSectionProps) {
   } = props;
 
   return (
-    <section className="w-full pt-7 md:pt-12 bg-white">
+    <section className="w-full pt-16 md:pt-12 bg-white">
       <div
-        className="relative bg-cover bg-center h-87.5 w-full"
+        className="relative bg-cover bg-center min-h-[350px] md:h-87.5 w-full pb-20 md:pb-0"
         style={{ backgroundImage: `url(${bgImage})` }}
       >
         {/* Overlay Gelap */}
         {/* <div className="absolute inset-0 bg-black/50"></div> */}
 
-        <div className="relative z-10 container px-4 md:px-8 pt-18 h-full flex flex-col">
+        <div className="relative z-10 container px-4 md:px-8 pt-8 md:pt-18 h-full flex flex-col">
           {isShowTabs && (
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-5">
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-5 w-full">
               {isShowTabs && (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex overflow-x-auto gap-3 pb-2 w-full md:w-auto scrollbar-hide items-center">
                   {tabs.map((tab) => (
                     <button
+                      key={tab.key}
                       onClick={() => setActiveTab && setActiveTab(tab.key)}
                       className={cn(
-                        "md:px-5 cursor-pointer px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-base transition-all",
+                        "md:px-5 cursor-pointer px-3.5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-base transition-all whitespace-nowrap",
                         activeTab === tab.key
-                          ? "bg-white text-mint-300" // State Aktif
+                          ? "bg-white text-mint-300 shadow-sm" // State Aktif
                           : "border border-white/80 text-white hover:bg-white/20 hover:border-white", // State Inaktif
                       )}
                     >
@@ -92,10 +93,11 @@ export default function HeroSection(props: HeroSectionProps) {
         </div>
       </div>
 
-      <div className="relative z-20 container mx-auto px-4 md:px-8 md:-mt-19 -mt-15 sm:-mt-20 pb-12">
+      <div className="relative z-20 container mx-auto px-4 md:px-8 md:-mt-19 -mt-16 pb-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {statCardData.map((card) => (
+          {statCardData.map((card, index) => (
             <StatCard
+              key={index}
               title={card.title}
               value={card.value}
               colorClass={card.colorClass}

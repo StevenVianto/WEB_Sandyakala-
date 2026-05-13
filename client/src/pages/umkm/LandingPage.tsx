@@ -107,7 +107,7 @@ function CaraKerjaSection() {
 
   return (
     <section id="cara-kerja" className="py-14 bg-white">
-      <div className="max-w-6xl mx-auto px-28">
+      <div className="max-w-6xl mx-auto px-6 md:px-12 lg:px-28">
         <h2 className="text-2xl md:text-3xl font-bold text-blue-600 text-center mb-10">
           Proses ringkas, Usaha makin lancar
         </h2>
@@ -178,7 +178,7 @@ function KeunggulanSection() {
 
   return (
     <section id="keunggulan" className="py-14 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-28">
+      <div className="max-w-6xl mx-auto px-6 md:px-12 lg:px-28">
         <h2 className="text-2xl md:text-3xl font-bold text-blue-600 text-center mb-10">
           Kenapa UMKM pilih FreshStart?
         </h2>

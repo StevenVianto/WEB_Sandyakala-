@@ -63,7 +63,7 @@ export default function VerificationUMKM() {
       /* ── PENDING (kuning) ── */
       case 'pending':
         return (
-          <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-2xl p-6 flex items-start gap-5 relative overflow-hidden">
+          <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-2xl p-6 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 relative overflow-hidden">
             {/* Clock circle */}
             <div className="w-14 h-14 bg-[#D97706] rounded-full flex items-center justify-center shrink-0 shadow-sm z-10">
               <FiClock className="w-7 h-7 text-white" />
@@ -105,7 +105,7 @@ export default function VerificationUMKM() {
       /* ── APPROVED (hijau) ── */
       case 'approved':
         return (
-          <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-6 flex items-start gap-5 relative overflow-hidden">
+          <div className="bg-[#F0FDF4] border border-[#BBF7D0] rounded-2xl p-6 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 relative overflow-hidden">
             {/* Check circle */}
             <div className="w-14 h-14 bg-[#16A34A] rounded-full flex items-center justify-center shrink-0 shadow-sm z-10">
               <FiCheck className="w-8 h-8 text-white stroke-[3]" />
@@ -154,7 +154,7 @@ export default function VerificationUMKM() {
       /* ── REJECTED (merah) ── */
       case 'rejected':
         return (
-          <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-2xl p-6 flex items-start gap-5 relative overflow-hidden">
+          <div className="bg-[#FEF2F2] border border-[#FECACA] rounded-2xl p-6 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5 relative overflow-hidden">
             {/* X circle */}
             <div className="w-14 h-14 bg-[#FEE2E2] border border-[#FECACA] rounded-full flex items-center justify-center shrink-0 z-10">
               <FiX className="w-7 h-7 text-[#DC2626] stroke-[2.5]" />
@@ -299,7 +299,7 @@ export default function VerificationUMKM() {
               </div>
             </Card>
             
-            <div className="w-full max-w-2xl flex gap-5">
+            <div className="w-full max-w-2xl flex flex-col sm:flex-row gap-5">
               <Button onClick={() => setStatus('step1')} variant="outline" className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50">
                 Kembali
               </Button>

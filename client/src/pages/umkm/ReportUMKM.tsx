@@ -26,7 +26,7 @@ const SectionHeader: React.FC<{
   <div className="flex justify-between items-center mb-6">
     <div className="flex items-center gap-3">
       <div className="w-1.5 h-7 bg-[#2563EB] rounded-full" />{" "}
-      <h2 className="text-[20px] font-bold text-[#1E293B]">{title}</h2>
+      <h2 className="text-[16px] md:text-[20px] font-bold text-[#1E293B]">{title}</h2>
     </div>
     {actionText && (
       <Button
@@ -47,23 +47,23 @@ export default function ReportUMKM() {
     switch (status) {
       case 'warning':
         return (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl bg-[#FEF9C3] text-[#A16207] px-6 py-2.5 rounded shadow-sm flex justify-between items-center z-30">
-            <span className="text-sm font-semibold">Akun Anda mendapat peringatan: Melanggar syarat & ketentuan (Terms of Service)</span>
-            <button className="bg-[#FDE047] text-[#A16207] px-6 py-1.5 rounded text-xs font-bold hover:bg-[#FACC15] transition">Lihat</button>
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl bg-[#FEF9C3] text-[#A16207] px-4 md:px-6 py-2.5 rounded shadow-sm flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 z-30">
+            <span className="text-xs md:text-sm font-semibold text-center md:text-left">Akun Anda mendapat peringatan: Melanggar syarat & ketentuan (Terms of Service)</span>
+            <button className="bg-[#FDE047] text-[#A16207] px-6 py-1.5 rounded text-xs font-bold hover:bg-[#FACC15] transition shrink-0">Lihat</button>
           </div>
         );
       case 'inactive':
         return (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl bg-[#E0E7FF] text-[#3730A3] px-6 py-2.5 rounded shadow-sm flex justify-between items-center z-30">
-            <span className="text-sm font-semibold">Akun Anda ditangguhkan sementara. Terdeteksi aktivitas mencurigakan</span>
-            <button className="bg-[#6366F1] text-white px-6 py-1.5 rounded text-xs font-bold hover:bg-[#4F46E5] transition">Lihat</button>
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl bg-[#E0E7FF] text-[#3730A3] px-4 md:px-6 py-2.5 rounded shadow-sm flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 z-30">
+            <span className="text-xs md:text-sm font-semibold text-center md:text-left">Akun Anda ditangguhkan sementara. Terdeteksi aktivitas mencurigakan</span>
+            <button className="bg-[#6366F1] text-white px-6 py-1.5 rounded text-xs font-bold hover:bg-[#4F46E5] transition shrink-0">Lihat</button>
           </div>
         );
       case 'disabled':
         return (
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl bg-[#FEE2E2] text-[#B91C1C] px-6 py-2.5 rounded shadow-sm flex justify-between items-center z-30">
-            <span className="text-sm font-semibold">Akun Anda ditangguhkan sementara. Terdeteksi aktivitas mencurigakan</span>
-            <button className="bg-[#EF4444] text-white px-6 py-1.5 rounded text-xs font-bold hover:bg-[#DC2626] transition">Lihat</button>
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl bg-[#FEE2E2] text-[#B91C1C] px-4 md:px-6 py-2.5 rounded shadow-sm flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 z-30">
+            <span className="text-xs md:text-sm font-semibold text-center md:text-left">Akun Anda ditangguhkan sementara. Terdeteksi aktivitas mencurigakan</span>
+            <button className="bg-[#EF4444] text-white px-6 py-1.5 rounded text-xs font-bold hover:bg-[#DC2626] transition shrink-0">Lihat</button>
           </div>
         );
     }
@@ -101,7 +101,7 @@ export default function ReportUMKM() {
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 w-full">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h1 className="text-[26px] font-extrabold text-slate-800">
+                      <h1 className="text-[20px] md:text-[26px] font-extrabold text-slate-800">
                         Sambal Bakar Nusantara
                       </h1>
                       <MdVerified className="w-7 h-7 text-[#3B82F6]" />
