@@ -7,9 +7,7 @@ import type { RegisterUmkmInput } from "./umkm.schema.js";
 const UmkmService = {
   registerUmkm: async (userId: number, data: RegisterUmkmInput, files: any) => {
     if (!files || !files.logo || !files.ktp || !files.nib_document) {
-      throw new BadRequestError(
-        "Documents (logo, ktp, nib) are required for UMKM registration.",
-      );
+      throw new BadRequestError("Documents (logo, ktp, nib) wajib diunggah");
     }
 
     const logoUrl = await CloudinaryUtil.uploadFile(
@@ -31,16 +29,30 @@ const UmkmService = {
       nib_file_url: nibUrl,
     };
 
-    const umkmId = await UmkmRepository.createUmkmProfileAndDocs(
-      userId,
-      data,
-      documentUrls,
-    );
+    try {
+      const umkmId = await UmkmRepository.createUmkmProfileAndDocs(
+        userId,
+        data,
+        documentUrls,
+      );
 
-    return {
-      umkm_id: umkmId,
-      status: "PENDING",
-    };
+      return {
+        umkm_id: umkmId,
+        status: "PENDING",
+      };
+    } catch (error) {
+      console.log(
+        "Terjadi kegagalan di Database. Memulai proses Rollback Cloudinary...",
+      );
+
+      await Promise.all([
+        CloudinaryUtil.deleteFile(logoUrl, AppConfig.CLOUDINARY_FOLDER),
+        CloudinaryUtil.deleteFile(ktpUrl, AppConfig.CLOUDINARY_FOLDER),
+        CloudinaryUtil.deleteFile(nibUrl, AppConfig.CLOUDINARY_FOLDER),
+      ]);
+
+      throw error;
+    }
   },
 };
 

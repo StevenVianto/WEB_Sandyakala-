@@ -23,6 +23,24 @@ const CloudinaryUtil = {
       throw new Error(`Failed to upload file.`);
     }
   },
+
+  deleteFile: async (secureUrl: string, folderName: string): Promise<void> => {
+    try {
+      const urlParts = secureUrl.split("/");
+      const fileNameWithExt = urlParts[urlParts.length - 1];
+      const fileName = fileNameWithExt?.split(".")[0];
+
+      const publicId = `${folderName}/${fileName}`;
+
+      await cloudinary.uploader.destroy(publicId);
+      console.log(`[Rollback] Berhasil menghapus ${publicId} dari Cloudinary`);
+    } catch (error) {
+      console.error(
+        `[Rollback Failed] Gagal menghapus file dari Cloudinary: ${secureUrl}`,
+        error,
+      );
+    }
+  },
 };
 
 export default CloudinaryUtil;
