@@ -1,11 +1,6 @@
 import jwt from "jsonwebtoken";
 import { AppConfig } from "../../config/app.js";
-
-export interface TokenPayload {
-  id: number;
-  email: string;
-  role: string;
-}
+import type { TokenPayload } from "../../types/user.js";
 
 export const signToken = (payload: TokenPayload) => {
   return jwt.sign(payload, AppConfig.JWT_SECRET, {

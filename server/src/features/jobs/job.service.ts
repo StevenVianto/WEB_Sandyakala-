@@ -1,5 +1,6 @@
 import {
   BadRequestError,
+  NotFoundError,
   UnauthorizedError,
 } from "../../common/utils/AppError.js";
 import pool from "../../config/db.js";
@@ -8,7 +9,6 @@ import type { CreateJobInput } from "./job.schema.js";
 
 const JobService = {
   createJob: async (userId: number, data: CreateJobInput) => {
-
     const [umkmRows]: any = await pool.execute(
       "SELECT id_umkm, status FROM umkm_profiles WHERE user_id = ?",
       [userId],
@@ -43,6 +43,16 @@ const JobService = {
     const jobId = await JobRepository.createJob(umkmId, data, uniqueSkills);
 
     return jobId;
+  },
+
+  getJobDetail: async (jobId: number) => {
+    const jobDetail = await JobRepository.getJobById(jobId);
+
+    if (!jobDetail) {
+      throw new NotFoundError("Lowongan pekerjaan tidak ditemukan.");
+    }
+
+    return jobDetail;
   },
 };
 

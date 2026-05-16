@@ -2,8 +2,8 @@ import {
   BadRequestError,
   UnauthorizedError,
 } from "../../common/utils/AppError.js";
-import HashUtil from "../../common/utils/hash.util.js";
-import { signToken } from "../../common/utils/jwt.utils.js";
+import HashUtil from "../../common/utils/password.js";
+import { signToken } from "../../common/utils/jwt.js";
 import { AuthRepository } from "./auth.repository.js";
 import type { LoginInput, RegisterInput } from "./auth.schema.js";
 

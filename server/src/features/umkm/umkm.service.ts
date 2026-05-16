@@ -1,5 +1,5 @@
 import { BadRequestError } from "../../common/utils/AppError.js";
-import CloudinaryUtil from "../../common/utils/cloudinary.util.js";
+import CloudinaryUtil from "../../common/utils/cloudinary.js";
 import { AppConfig } from "../../config/app.js";
 import UmkmRepository from "./umkm.repository.js";
 import type { RegisterUmkmInput } from "./umkm.schema.js";

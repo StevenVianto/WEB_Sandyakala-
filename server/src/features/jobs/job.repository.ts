@@ -100,6 +100,57 @@ const JobRepository = {
       connection.release();
     }
   },
+
+  getJobById: async (jobId: number) => {
+    const queryJob = `
+      SELECT 
+        j.*, 
+        u.business_name, 
+        d.logo_url, 
+        u.business_address 
+      FROM jobs j
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      JOIN umkm_documents d ON j.umkm_id = d.umkm_id -- Ambil logo dari tabel dokumen
+      WHERE j.id = ?
+    `;
+    const [jobRows]: any = await pool.execute(queryJob, [jobId]);
+
+    if (jobRows.length === 0) return null;
+
+    const jobData = jobRows[0];
+
+    const querySkills = `
+      SELECT s.id, s.skill_name 
+      FROM skills s
+      JOIN job_skills js ON s.id = js.skill_id
+      WHERE js.job_id = ?
+    `;
+    const [skillRows]: any = await pool.execute(querySkills, [jobId]);
+
+    let shifts: string[] = [];
+    let projectTasks: any[] = [];
+
+    if (jobData.type === "SHIFT") {
+      const [shiftRows]: any = await pool.execute(
+        "SELECT shift_type FROM job_shifts WHERE job_id = ?",
+        [jobId],
+      );
+      shifts = shiftRows.map((row: any) => row.shift_type);
+    } else if (jobData.type === "PROJECT") {
+      const [taskRows]: any = await pool.execute(
+        "SELECT id, task_name, task_order FROM job_project_tasks WHERE job_id = ? ORDER BY task_order ASC",
+        [jobId],
+      );
+      projectTasks = taskRows;
+    }
+
+    return {
+      ...jobData,
+      skills: skillRows,
+      shifts: shifts.length > 0 ? shifts : undefined,
+      project_tasks: projectTasks.length > 0 ? projectTasks : undefined,
+    };
+  },
 };
 
 export default JobRepository;

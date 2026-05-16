@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { requireAuth } from "../../common/middlewares/auth.js";
 import { validate } from "../../common/middlewares/validate.js";
 import { asyncHandler } from "../../common/middlewares/asyncHandler.js";
 import { createJobSchema } from "./job.schema.js";
@@ -9,9 +8,10 @@ const jobRouter = Router();
 
 jobRouter.post(
   "/",
-  requireAuth,
   validate(createJobSchema),
   asyncHandler(JobController.create),
 );
+
+jobRouter.get("/:id", asyncHandler(JobController.getDetail));
 
 export default jobRouter;
