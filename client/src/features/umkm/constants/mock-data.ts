@@ -374,8 +374,8 @@ export const statCardDataLowongan: StatCardDataType[] = [
 ];
 
 export const mockContacts: ContactItem[] = [
-  { id: "1", label: "Website", value: "www.sambalbakarnusantara.com" },
-  { id: "2", label: "Email HRD", value: "hrd@sambalbakar.id" },
+  { id: "1", label: "Website/Sosial Media", value: "www.sambalbakarnusantara.com" },
+  { id: "2", label: "Email Usaha", value: "hrd@sambalbakar.id" },
   { id: "3", label: "Telepon", value: "+62 812-3456-7890" },
   { id: "4", label: "Alamat", value: "Jl. Kemang Raya No. 45, Jaksel" },
 ];

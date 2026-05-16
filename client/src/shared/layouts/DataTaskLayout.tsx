@@ -7,6 +7,7 @@ import { Link, NavLink } from "react-router";
 import logo from "@/assets/images/logo.png";
 import { IoClose } from "react-icons/io5";
 import { cn } from "../lib/utils";
+import { ModalNotification } from "../components/ui/modal-notification";
 
 interface DataTaskLayoutProps {
   children: React.ReactNode;
@@ -65,16 +66,16 @@ const NavItem = ({
 const profileMenuItems = [
   { label: "Keamanan Akun", path: "modal" },
   { label: "Chat", path: "/chat" },
-  { label: "Keluar" , path: "/auth/login"},
+  { label: "Keluar", path: "keluar" },
 ];
 
 function UbahAkunModal({ onClose }: { onClose: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = () => {
     setError("");
@@ -83,23 +84,21 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
       setError("Isi minimal username atau password baru.");
       return;
     }
-
     if (password && password !== confirmPassword) {
       setError("Konfirmasi password tidak cocok.");
       return;
     }
-
     if (password && password.length < 6) {
       setError("Password minimal 6 karakter.");
       return;
     }
 
-    // TODO: panggil API update akun di sini
-    setSuccess(true);
-    setTimeout(() => {
-      onClose();
-      setSuccess(false);
-    }, 1500);
+     setShowSuccessModal(true);
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccessModal(false);
+    onClose();
   };
 
   return (
@@ -108,14 +107,11 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
         onClick={onClose}
       />
-
-      {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg font-bold text-gray-800">Keamanan Akun</h2>
             <button
@@ -126,9 +122,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
 
-          {/* Form */}
           <div className="flex flex-col gap-4">
-            {/* Username */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1 block">
                 Username Baru
@@ -142,7 +136,6 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1 block">
                 Password Baru
@@ -153,18 +146,11 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukkan password baru"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-10"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-24"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs cursor-pointer"
-                >
-                </button>
               </div>
             </div>
 
-            {/* Konfirmasi Password */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1 block">
                 Konfirmasi Password
@@ -178,20 +164,9 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
               />
             </div>
 
-            {/* Error */}
-            {error && (
-              <p className="text-red-500 text-xs">{error}</p>
-            )}
-
-            {/* Success */}
-            {success && (
-              <p className="text-teal-500 text-xs font-medium">
-                Akun berhasil diperbarui!
-              </p>
-            )}
+            {error && <p className="text-red-500 text-xs">{error}</p>}
           </div>
 
-          {/* Footer */}
           <div className="flex gap-3 mt-6">
             <button
               onClick={onClose}
@@ -208,67 +183,104 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
+
+      {/* Modal Notifikasi Sukses setelah Simpan */}
+            <ModalNotification
+              visible={showSuccessModal}
+              title="Akun berhasil diperbarui!"
+              subtitle="Perubahan username dan password kamu telah disimpan."
+              button={{
+                type: "single",
+                label: "Kembali",
+                onPress: handleSuccessClose,
+              }}
+            />
     </>
   );
 }
 
 function ProfileMenu() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const navigate = useNavigate();
-  
-    const handleClick = (path: string | null) => {
-      setIsMenuOpen(false);
-      if (path === "modal") {
-        setIsModalOpen(true);
-      } else if (path) {
-        navigate(path);
-      }
-    };
+  const [isAkunModalOpen, setIsAkunModalOpen] = React.useState(false);
+  const [isKeluarModalOpen, setIsKeluarModalOpen] = React.useState(false);
+  const navigate = useNavigate();
+
+  const handleClick = (path: string) => {
+    setIsMenuOpen(false);
+    if (path === "modal") {
+      setIsAkunModalOpen(true);
+    } else if (path === "keluar") {
+      setIsKeluarModalOpen(true);
+    } else {
+      navigate(path);
+    }
+  };
+
+  const handleKeluar = () => {
+    setIsKeluarModalOpen(false);
+    navigate("/auth/login");
+  };
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setIsMenuOpen((prev) => !prev)}
-        className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 focus:outline-none cursor-pointer"
-      >
-        <img
-          src="https://i.pravatar.cc/150?img=11"
-          alt="profile"
-          className="h-8 w-8 rounded-full border border-gray-900 object-cover"
-        />
-      </button>
-
-      {isMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsMenuOpen(false)}
+    <>
+      <div className="relative">
+        <button
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 focus:outline-none cursor-pointer"
+        >
+          <img
+            src="https://i.pravatar.cc/150?img=11"
+            alt="profile"
+            className="h-8 w-8 rounded-full border border-gray-900 object-cover"
           />
-          <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-100 z-20 py-1">
-            {profileMenuItems.map(({ label, path }, key) => {
-              const isLastItem = key === profileMenuItems.length - 1;
-              return (
-                <button
-                  key={label}
-                  onClick={() => handleClick(path)}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                    isLastItem
-                      ? "text-red-500 hover:bg-red-50"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          {isModalOpen && (
-        <UbahAkunModal onClose={() => setIsModalOpen(false)} />
+        </button>
+
+        {isMenuOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-10"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-100 z-20 py-1">
+              {profileMenuItems.map(({ label, path }, key) => {
+                const isLastItem = key === profileMenuItems.length - 1;
+                return (
+                  <button
+                    key={label}
+                    onClick={() => handleClick(path)}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
+                      isLastItem
+                        ? "text-red-500 hover:bg-red-50"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {isAkunModalOpen && (
+        <UbahAkunModal onClose={() => setIsAkunModalOpen(false)} />
       )}
-        </>
-      )}
-    </div>
+
+      {/* Modal Konfirmasi Keluar */}
+      <ModalNotification
+        visible={isKeluarModalOpen}
+        title="Yakin ingin keluar dari akun?"
+        subtitle="Sesi kamu akan diakhiri dan kamu perlu login kembali untuk melanjutkan."
+        button={{
+          type: "double",
+          cancelLabel: "Tidak",
+          confirmLabel: "Ya, Keluar",
+          onCancel: () => setIsKeluarModalOpen(false),
+          onConfirm: handleKeluar,
+        }}
+      />
+    </>
   );
 }
 
@@ -301,16 +313,16 @@ export default function DataTaskLayout({
               />
             </Link>
           </div>
+
           <ul className="hidden md:flex gap-10 items-center">
             {navItems.map((item) => (
               <li key={item.title}>
                 <NavItem to={item.to}>{item.title}</NavItem>
               </li>
             ))}
-
-            <div>
-              <ProfileMenu/>
-            </div>
+            <li>
+              <ProfileMenu />
+            </li>
           </ul>
 
           <button
@@ -340,7 +352,7 @@ export default function DataTaskLayout({
           isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible",
         )}
         onClick={() => setIsMobileMenuOpen(false)}
-      ></div>
+      />
 
       <div
         className={cn(
@@ -404,7 +416,7 @@ export default function DataTaskLayout({
         {/* STAT CARD */}
         {statCardSlot && <div className="px-6 mt-4">{statCardSlot}</div>}
 
-        {/* TABS (optional) */}
+        {/* TABS */}
         {tabs.length > 0 && (
           <div className="w-full px-2 sm:px-8 mt-6 mb-3 overflow-x-auto">
             <div className="flex gap-4 sm:gap-10 border-b border-neutral-300 text-sm sm:text-lg font-bold text-primary-dark min-w-fit">
@@ -429,7 +441,7 @@ export default function DataTaskLayout({
         <div className="flex gap-3 p-6">
           <SearchInput
             placeholder="Cari nama atau posisi pekerja..."
-            onChange={(e) => onSearch?.(e.target.value)} // ← tambah ini
+            onChange={(e) => onSearch?.(e.target.value)}
           />
 
           {statusOptions.length > 0 && (
@@ -442,7 +454,6 @@ export default function DataTaskLayout({
               }}
             >
               <option value="">Semua Status</option>
-
               {statusOptions.map((status) => (
                 <option key={status} value={status.toLowerCase()}>
                   {status}

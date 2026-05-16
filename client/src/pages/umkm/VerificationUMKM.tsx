@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
@@ -43,6 +43,92 @@ export default function VerificationUMKM() {
 
   const [kategori, setKategori] = useState("");
   const [customKategori, setCustomKategori] = useState("");
+
+  const [provinsi, setProvinsi] = useState<any[]>([]);
+  const [selectedProvinsi, setSelectedProvinsi] = useState("");
+  const [kabupaten, setKabupaten] = useState<any[]>([]);
+  const [selectedKabupaten, setSelectedKabupaten] = useState("");
+
+  const [kecamatan, setKecamatan] = useState<any[]>([]);
+  const [selectedKecamatan, setSelectedKecamatan] = useState("");
+
+  const [desa, setDesa] = useState<any[]>([]);
+  const [selectedDesa, setSelectedDesa] = useState("");
+
+  // provinsi
+  useEffect(() => {
+    fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
+      .then((res) => res.json())
+      .then((data) => setProvinsi(data));
+  }, []);
+
+  // kabupaten/kota
+  const handleProvinsi = async (id: string) => {
+    setSelectedProvinsi(id);
+
+    setKabupaten([]);
+    setKecamatan([]);
+    setDesa([]);
+
+    setSelectedKabupaten("");
+    setSelectedKecamatan("");
+    setSelectedDesa("");
+
+    try {
+      const response = await fetch(
+        `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${id}.json`,
+      );
+
+      const data = await response.json();
+
+      setKabupaten(data);
+    } catch (error) {
+      console.error("Gagal mengambil kabupaten:", error);
+    }
+  };
+
+  // kecamatan
+  const handleKabupaten = async (id: string) => {
+    setSelectedKabupaten(id);
+
+    setKecamatan([]);
+    setDesa([]);
+
+    setSelectedKecamatan("");
+    setSelectedDesa("");
+
+    try {
+      const response = await fetch(
+        `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${id}.json`,
+      );
+
+      const data = await response.json();
+
+      setKecamatan(data);
+    } catch (error) {
+      console.error("Gagal mengambil kecamatan:", error);
+    }
+  };
+
+  //  desa
+  const handleKecamatan = async (id: string) => {
+    setSelectedKecamatan(id);
+
+    setDesa([]);
+    setSelectedDesa("");
+
+    try {
+      const response = await fetch(
+        `https://www.emsifa.com/api-wilayah-indonesia/api/villages/${id}.json`,
+      );
+
+      const data = await response.json();
+
+      setDesa(data);
+    } catch (error) {
+      console.error("Gagal mengambil desa:", error);
+    }
+  };
 
   const getCurrentStep = () => {
     switch (status) {
@@ -206,7 +292,6 @@ export default function VerificationUMKM() {
     }
   };
 
-  /* ─────────────────────── CONTENT CARD ─────────────────────── */
   const renderContent = () => {
     switch (status) {
       /* ── STEP 1: Pengisian Data ── */
@@ -235,7 +320,7 @@ export default function VerificationUMKM() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Masukkan nomor NIB usaha"
+                    placeholder="Masukkan NIB usaha"
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -286,7 +371,7 @@ export default function VerificationUMKM() {
                     </option>
                     <option value="Lainnya">Lainnya</option>
                   </select>
-                  {kategori === "lainnya" && (
+                  {kategori === "Lainnya" && (
                     <input
                       type="text"
                       placeholder="Tulis kategori usaha"
@@ -304,7 +389,9 @@ export default function VerificationUMKM() {
                     <option value="" selected disabled>
                       Pilih jumlah karyawan
                     </option>
-                    <option value="1 - 10">1 - 10 Karyawan (Usaha Mikro)</option>
+                    <option value="1 - 10">
+                      1 - 10 Karyawan (Usaha Mikro)
+                    </option>
                     <option value="11 - 50">
                       11 - 50 Karyawan (Usaha Kecil)
                     </option>
@@ -316,13 +403,100 @@ export default function VerificationUMKM() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[13px] font-bold text-gray-800">
-                    Alamat Usaha
+                    Berdiri Sejak Tahun
                   </label>
                   <input
-                    type="text"
-                    placeholder="Masukkan alamat lengkap lokasi usaha"
+                    type="number"
+                    placeholder="2020, 2021, 2022, 2023"
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
+                </div>
+                
+                {/* LOKASI */}
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* PROVINSI */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-gray-800">
+                      Provinsi
+                    </label>
+
+                    <select
+                      value={selectedProvinsi}
+                      onChange={(e) => handleProvinsi(e.target.value)}
+                      className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
+                    >
+                      <option value="">Pilih Provinsi</option>
+
+                      {provinsi.map((item: any) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* KABUPATEN */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-gray-800">
+                      Kabupaten / Kota
+                    </label>
+
+                    <select
+                      value={selectedKabupaten}
+                      onChange={(e) => handleKabupaten(e.target.value)}
+                      className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
+                    >
+                      <option value="">Pilih Kabupaten/Kota</option>
+
+                      {kabupaten.map((item: any) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* KECAMATAN */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-gray-800">
+                      Kecamatan
+                    </label>
+
+                    <select
+                      value={selectedKecamatan}
+                      onChange={(e) => handleKecamatan(e.target.value)}
+                      className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
+                    >
+                      <option value="">Pilih Kecamatan</option>
+
+                      {kecamatan.map((item: any) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* DESA */}
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-gray-800">
+                      Desa / Kelurahan
+                    </label>
+
+                    <select
+                      value={selectedDesa}
+                      onChange={(e) => setSelectedDesa(e.target.value)}
+                      className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
+                    >
+                      <option value="">Pilih Desa/Kelurahan</option>
+
+                      {desa.map((item: any) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[13px] font-bold text-gray-800">
@@ -341,6 +515,16 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="081234567890"
+                    className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[13px] font-bold text-gray-800">
+                    Website/Sosial Media Usaha
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Masukkan website atau sosial media usaha"
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -425,9 +609,13 @@ export default function VerificationUMKM() {
                 </div>
               </div>
             </Card>
-            
+
             <div className="w-full max-w-2xl flex flex-col sm:flex-row gap-5">
-              <Button onClick={() => setStatus('step1')} variant="outline" className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50">
+              <Button
+                onClick={() => setStatus("step1")}
+                variant="outline"
+                className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50"
+              >
                 Kembali
               </Button>
               <Button

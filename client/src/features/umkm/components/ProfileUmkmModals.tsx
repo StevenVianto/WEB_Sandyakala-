@@ -292,13 +292,13 @@ export default function ProfileUmkmModals() {
           <div className="flex flex-col gap-4">
             {[
               {
-                label: "Website",
+                label: "Website/Sosial Media",
                 value: website,
                 onChange: setWebsite,
                 type: "text",
               },
               {
-                label: "Email HRD",
+                label: "Email Usaha",
                 value: emailHrd,
                 onChange: setEmailHrd,
                 type: "email",
