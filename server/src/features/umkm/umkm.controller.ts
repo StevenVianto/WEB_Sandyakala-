@@ -3,9 +3,13 @@ import UmkmService from "./umkm.service.js";
 
 const UmkmController = {
   register: async (req: Request, res: Response) => {
-    const userId = (req.user as any).id;
+    const userId = req.user.id;
 
-    const result = await UmkmService.registerUmkm(userId, req.body, req.files);
+    const result = await UmkmService.registerUmkm(
+      Number(userId),
+      req.body,
+      req.files,
+    );
 
     res.status(201).json({
       success: true,

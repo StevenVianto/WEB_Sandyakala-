@@ -1,5 +1,4 @@
 import "dotenv/config";
-
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "./common/utils/AppError.js";
@@ -44,6 +43,7 @@ app.use((err: Error, _: Request, res: Response, __: NextFunction) => {
   return res.status(500).json({
     status: false,
     message: "Internal Server Error",
+    // error_detail: err.message,
   });
 });
 
