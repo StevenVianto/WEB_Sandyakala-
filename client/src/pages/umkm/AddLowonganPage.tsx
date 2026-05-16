@@ -54,37 +54,6 @@ export default function AddLowonganPage() {
   const [jamKerja, setJamKerja] = useState<"pagi" | "siang" | "malam">("pagi");
   const navigate = useNavigate();
 
-  const [provinsi, setProvinsi] = useState<any[]>([]);
-  const [selectedProvinsi, setSelectedProvinsi] = useState("");
-  const [kabupaten, setKabupaten] = useState<any[]>([]);
-
-  // PROVINSI
-  useEffect(() => {
-    fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
-      .then((res) => res.json())
-      .then((data) => setProvinsi(data));
-  }, []);
-
-  // KABUPATEN
-  const handleProvinsi = async (id: string) => {
-    setSelectedProvinsi(id);
-
-    setKabupaten([]);
-
-    try {
-      const response = await fetch(
-        `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${id}.json`,
-      );
-
-      const data = await response.json();
-
-      console.log(data); // cek isi data
-
-      setKabupaten(data);
-    } catch (error) {
-      console.error("Gagal mengambil kabupaten:", error);
-    }
-  };
 
   const renderStep1 = () => (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -102,50 +71,6 @@ export default function AddLowonganPage() {
               label="Bidang Pekerjaan"
               placeholder="Contoh: Keuangan, Desain, Marketing"
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Provinsi */}
-            <div className="flex flex-col gap-2">
-              <label className="text-[14px] font-bold text-gray-800">
-                Provinsi
-              </label>
-
-              <select
-                value={selectedProvinsi}
-                onChange={(e) => handleProvinsi(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
-              >
-                <option value="">Pilih Provinsi</option>
-
-                {provinsi.map((item: any) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Kabupaten */}
-            <div className="flex flex-col gap-2">
-              <label className="text-[14px] font-bold text-gray-800">
-                Kabupaten / Kota
-              </label>
-
-              <select className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]">
-                <option value="">Pilih Kabupaten/Kota</option>
-
-                {kabupaten.length > 0 ? (
-                  kabupaten.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))
-                ) : (
-                  <option disabled>Tidak ada data</option>
-                )}
-              </select>
-            </div>
           </div>
           <TextAreaField
             label="Deskripsi Pekerjaan"
@@ -246,6 +171,37 @@ export default function AddLowonganPage() {
             label="Upah Maksimum (Rp)"
             placeholder="Contoh: 4.000.000"
           />
+        </div>
+      </Card>
+
+      <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
+        <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
+          Jumlah Pekerja yang Dicari
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="flex flex-col gap-2 w-full">
+            <label className="text-[14px] font-bold text-gray-800">
+              Jumlah <span className="px-1 rounded-sm">Lowongan</span> Kerja
+            </label>
+            <input
+              type="text"
+              placeholder="Masukkan jumlah pekerja yang ingin dicari"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
+            />
+          </div>
+          <div className="flex flex-col gap-2 w-full">
+            <label className="text-[14px] font-bold text-gray-800">
+              Batas Waktu Melamar
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Tanggal berakhir lowongan"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
+              />
+              <FiCalendar className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -362,37 +318,6 @@ export default function AddLowonganPage() {
                   </p>
                 </div>
               </label>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
-        <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
-          Jumlah Pekerja yang Dicari
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="flex flex-col gap-2 w-full">
-            <label className="text-[14px] font-bold text-gray-800">
-              Jumlah <span className="px-1 rounded-sm">Lowongan</span> Kerja
-            </label>
-            <input
-              type="text"
-              placeholder="Ketik dalam angka"
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
-            />
-          </div>
-          <div className="flex flex-col gap-2 w-full">
-            <label className="text-[14px] font-bold text-gray-800">
-              Batas Waktu Melamar
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Pilih tanggal"
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
-              />
-              <FiCalendar className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
           </div>
         </div>

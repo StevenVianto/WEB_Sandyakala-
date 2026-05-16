@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import logo from "@/assets/images/logo.png";
+import { ModalNotification } from "@/shared/components/ui/modal-notification";
 
 const navItems = [
   { title: "Home", to: "/umkm/home" },
@@ -34,7 +35,7 @@ const NavItem = ({
             ? isMobile
               ? "text-teal-400"
               : "text-teal-400 underline decoration-4 underline-offset-8"
-            : "text-primary-dark hover:text-teal-400"
+            : "text-primary-dark hover:text-teal-400",
         )
       }
     >
@@ -46,16 +47,16 @@ const NavItem = ({
 const profileMenuItems = [
   { label: "Keamanan Akun", path: "modal" },
   { label: "Chat", path: "/chat" },
-  { label: "Keluar", path: "/auth/login" },
+  { label: "Keluar", path: "keluar" },
 ];
 
 function UbahAkunModal({ onClose }: { onClose: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSubmit = () => {
     setError("");
@@ -64,27 +65,26 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
       setError("Isi minimal username atau password baru.");
       return;
     }
-
     if (password && password !== confirmPassword) {
       setError("Konfirmasi password tidak cocok.");
       return;
     }
-
     if (password && password.length < 6) {
       setError("Password minimal 6 karakter.");
       return;
     }
 
-    // TODO: panggil API update akun di sini
-    setSuccess(true);
-    setTimeout(() => {
-      onClose();
-      setSuccess(false);
-    }, 1500);
+    setShowSuccessModal(true);
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccessModal(false);
+    onClose();
   };
 
   return (
     <>
+      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
         onClick={onClose}
@@ -134,14 +134,9 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukkan password baru"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-10"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-10
+                    "
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs cursor-pointer"
-                >
-                </button>
               </div>
             </div>
 
@@ -155,21 +150,12 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Ulangi password baru"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition
+                 "
               />
             </div>
 
-            {/* Error */}
-            {error && (
-              <p className="text-red-500 text-xs">{error}</p>
-            )}
-
-            {/* Success */}
-            {success && (
-              <p className="text-teal-500 text-xs font-medium">
-                Akun berhasil diperbarui!
-              </p>
-            )}
+            {error && <p className="text-red-500 text-xs">{error}</p>}
           </div>
 
           {/* Footer */}
@@ -189,70 +175,112 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
+
+      {/* Modal Notifikasi Sukses setelah Simpan */}
+      <ModalNotification
+        visible={showSuccessModal}
+        title="Akun berhasil diperbarui!"
+        subtitle="Perubahan username dan password kamu telah disimpan."
+        button={{
+          type: "single",
+          label: "Kembali",
+          onPress: handleSuccessClose,
+        }}
+      />
     </>
   );
 }
 
+// ─── Profile Menu ─────────────────────────────────────────────────────────────
 function ProfileMenu() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isAkunModalOpen, setIsAkunModalOpen] = React.useState(false);
+  const [isKeluarModalOpen, setIsKeluarModalOpen] = React.useState(false);
   const navigate = useNavigate();
 
-  const handleClick = (path: string | null) => {
+  const handleClick = (path: string) => {
     setIsMenuOpen(false);
     if (path === "modal") {
-      setIsModalOpen(true);
-    } else if (path) {
+      setIsAkunModalOpen(true);
+    } else if (path === "keluar") {
+      setIsKeluarModalOpen(true);
+    } else {
       navigate(path);
     }
   };
 
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setIsMenuOpen((prev) => !prev)}
-        className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 focus:outline-none cursor-pointer"
-      >
-        <img
-          src="https://i.pravatar.cc/150?img=11"
-          alt="profile"
-          className="h-8 w-8 rounded-full border border-gray-900 object-cover"
-        />
-      </button>
+  const handleKeluar = () => {
+    setIsKeluarModalOpen(false);
+    navigate("/auth/login");
+  };
 
-      {isMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsMenuOpen(false)}
+  return (
+    // Fragment agar modal fixed tidak terkurung di dalam div.relative
+    <>
+      <div className="relative">
+        <button
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+          className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 focus:outline-none cursor-pointer"
+        >
+          <img
+            src="https://i.pravatar.cc/150?img=11"
+            alt="profile"
+            className="h-8 w-8 rounded-full border border-gray-900 object-cover"
           />
-          <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-100 z-20 py-1">
-            {profileMenuItems.map(({ label, path }, key) => {
-              const isLastItem = key === profileMenuItems.length - 1;
-              return (
-                <button
-                  key={label}
-                  onClick={() => handleClick(path)}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
-                    isLastItem
-                      ? "text-red-500 hover:bg-red-50"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          {isModalOpen && (
-        <UbahAkunModal onClose={() => setIsModalOpen(false)} />
+        </button>
+
+        {isMenuOpen && (
+          <>
+            {/* Backdrop tutup dropdown */}
+            <div
+              className="fixed inset-0 z-10"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-100 z-20 py-1">
+              {profileMenuItems.map(({ label, path }, key) => {
+                const isLastItem = key === profileMenuItems.length - 1;
+                return (
+                  <button
+                    key={label}
+                    onClick={() => handleClick(path)}
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer ${
+                      isLastItem
+                        ? "text-red-500 hover:bg-red-50"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Modal Keamanan Akun — di luar div.relative agar fixed benar */}
+      {isAkunModalOpen && (
+        <UbahAkunModal onClose={() => setIsAkunModalOpen(false)} />
       )}
-        </>
-      )}
-    </div>
+
+      {/* Modal Konfirmasi Keluar */}
+      <ModalNotification
+        visible={isKeluarModalOpen}
+        title="Yakin ingin keluar dari akun?"
+        subtitle="Sesi kamu akan diakhiri dan kamu perlu login kembali untuk melanjutkan."
+        button={{
+          type: "double",
+          cancelLabel: "Tidak",
+          confirmLabel: "Ya, Keluar",
+          onCancel: () => setIsKeluarModalOpen(false),
+          onConfirm: handleKeluar,
+        }}
+      />
+    </>
   );
 }
 
+// ─── DashboardUmkmLayout ──────────────────────────────────────────────────────
 export default function DashboardUmkmLayout({
   children,
 }: {
@@ -262,25 +290,31 @@ export default function DashboardUmkmLayout({
 
   return (
     <>
+      {/* ── NAVBAR ── */}
       <nav className="fixed top-0 left-0 w-full z-40 shadow-md bg-white transition-all">
         <div className="max-w-6xl mx-auto px-8 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <Link to="/umkm/home">
-              <img src={logo} alt="FreshStart" className="h-10 w-auto object-contain" />
+              <img
+                src={logo}
+                alt="FreshStart"
+                className="h-10 w-auto object-contain"
+              />
             </Link>
           </div>
+
           <ul className="hidden md:flex gap-10 items-center">
             {navItems.map((item) => (
               <li key={item.title}>
                 <NavItem to={item.to}>{item.title}</NavItem>
               </li>
             ))}
-
-            <div>
-              <ProfileMenu/>
-            </div>
+            <li>
+              <ProfileMenu />
+            </li>
           </ul>
 
+          {/* Hamburger — mobile */}
           <button
             className="md:hidden cursor-pointer p-2 text-primary-dark focus:outline-none"
             onClick={() => setIsMobileMenuOpen(true)}
@@ -302,14 +336,16 @@ export default function DashboardUmkmLayout({
         </div>
       </nav>
 
+      {/* ── MOBILE OVERLAY ── */}
       <div
         className={cn(
           "fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity duration-300 md:hidden",
           isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible",
         )}
         onClick={() => setIsMobileMenuOpen(false)}
-      ></div>
+      />
 
+      {/* ── MOBILE SIDEBAR ── */}
       <div
         className={cn(
           "fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden flex flex-col",
