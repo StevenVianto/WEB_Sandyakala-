@@ -8,6 +8,7 @@ import {
   FiCalendar,
   // FiClock,
   FiX,
+  FiPlus,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -53,6 +54,23 @@ export default function AddLowonganPage() {
   // const [shiftType, setShiftType] = useState("pagi");
   const [jamKerja, setJamKerja] = useState<"pagi" | "siang" | "malam">("pagi");
   const navigate = useNavigate();
+
+  const [tasks, setTasks] = useState<string[]>([""]);
+
+  const handleTaskChange = (index: number, value: string) => {
+    const newTasks = [...tasks];
+    newTasks[index] = value;
+    setTasks(newTasks);
+  };
+
+  const addTaskProject = () => {
+    setTasks([...tasks, ""]);
+  };
+
+  const removeTask = (index: number) => {
+    const newTasks = tasks.filter((_, i) => i !== index);
+    setTasks(newTasks.length ? newTasks : [""]);
+  };
 
 
   const renderStep1 = () => (
@@ -131,7 +149,7 @@ export default function AddLowonganPage() {
               </label>
               {/* jam kerja */}
               {jobType === "shift" && (
-                <div className="mt-2">
+                <div className="mt-2 md:col-span-2">
                   <label className="text-[14px] font-bold text-gray-800 mb-3 block">
                     Jam Kerja
                   </label>
@@ -150,6 +168,51 @@ export default function AddLowonganPage() {
                         {jam.charAt(0).toUpperCase() + jam.slice(1)}
                       </button>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* milestone untuk project */}
+              {jobType === "project" && (
+                <div className="mt-2 md:col-span-2">
+                  <label className="text-[14px] font-bold text-gray-800 mb-3 block">
+                    Milestone
+                  </label>
+                  <div className="flex flex-col gap-3">
+                    {tasks.map((task, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-row items-center border border-gray-200 px-4 py-3 rounded-lg bg-white"
+                      >
+                        <span className="mr-4 text-[11px] font-bold bg-[#0F766E] w-6 h-6 flex items-center justify-center text-white rounded-full shrink-0">
+                          {index + 1}
+                        </span>
+
+                        <input
+                          value={task}
+                          onChange={(e) => handleTaskChange(index, e.target.value)}
+                          placeholder="Tugas project"
+                          className="w-full text-sm focus:outline-none placeholder:text-gray-400 bg-transparent"
+                        />
+
+                        <button
+                          type="button"
+                          className="ml-3 text-gray-400 hover:text-red-500 transition-colors"
+                          onClick={() => removeTask(index)}
+                        >
+                          <FiX size={18} />
+                        </button>
+                      </div>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addTaskProject}
+                      className="w-max bg-white border border-[#99F6E4] text-[#0F766E] rounded-lg mt-2 hover:bg-[#E6F4F1] font-bold text-xs"
+                    >
+                      <FiPlus className="mr-2" /> Tambah Tugas
+                    </Button>
                   </div>
                 </div>
               )}
