@@ -28,4 +28,11 @@ jobRouter.get(
   asyncHandler(JobController.getDetail),
 );
 
+jobRouter.put(
+  "/:id",
+  safeGuard(["UMKM"]),
+  validate(createJobSchema),
+  asyncHandler(JobController.update),
+);
+
 export default jobRouter;
