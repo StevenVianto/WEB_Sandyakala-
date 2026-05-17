@@ -6,7 +6,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/shared/components/ui/card";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router-dom";
 import CardUmkm from "@/assets/images/card-umkm.png";
 import { Modal } from "@/shared/components/ui/modal";
 import { useState } from "react";
@@ -19,6 +19,19 @@ export default function DetailVerificationAdmin() {
 
   const [open, setOpen] = useState(false);
   const [openAccept, setOpenAccept] = useState(false);
+  const navigate = useNavigate();
+
+  const handleAccept = () => {
+    localStorage.setItem("umkm_verification_status", "approved");
+    setOpenAccept(false);
+    navigate("/admin/verifikasi-umkm");
+  };
+
+  const handleReject = () => {
+    localStorage.setItem("umkm_verification_status", "rejected");
+    setOpen(false);
+    navigate("/admin/verifikasi-umkm");
+  };
 
   return (
     <DashboardLayout
@@ -130,7 +143,7 @@ export default function DetailVerificationAdmin() {
           </form>
 
           <div className="flex justify-end mt-4">
-            <Button className="bg-secondary px-7 py-1 rounded-md">Kirim</Button>
+            <Button onClick={handleReject} type="button" className="bg-secondary px-7 py-1 rounded-md">Kirim</Button>
           </div>
         </Modal>
 
@@ -150,7 +163,7 @@ export default function DetailVerificationAdmin() {
             >
               Batal
             </Button>
-            <Button className="bg-info text-white hover:bg-blue-700 font-semibold px-7 py-1.5 rounded-md">
+            <Button onClick={handleAccept} className="bg-info text-white hover:bg-blue-700 font-semibold px-7 py-1.5 rounded-md">
               Terima Pengajuan
             </Button>
           </div>

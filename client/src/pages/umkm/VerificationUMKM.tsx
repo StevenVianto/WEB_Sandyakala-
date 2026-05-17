@@ -41,6 +41,14 @@ export default function VerificationUMKM() {
   const [status, setStatus] = useState<VerificationStatus>("step1");
   const navigate = useNavigate();
 
+  // Integrasi status dari Local Storage
+  useEffect(() => {
+    const savedStatus = localStorage.getItem("umkm_verification_status");
+    if (savedStatus) {
+      setStatus(savedStatus as VerificationStatus);
+    }
+  }, []);
+
   const [kategori, setKategori] = useState("");
   const [customKategori, setCustomKategori] = useState("");
 
@@ -619,7 +627,10 @@ export default function VerificationUMKM() {
                 Kembali
               </Button>
               <Button
-                onClick={() => setStatus("pending")}
+                onClick={() => {
+                  localStorage.setItem("umkm_verification_status", "pending");
+                  setStatus("pending");
+                }}
                 className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]"
               >
                 Lanjut
