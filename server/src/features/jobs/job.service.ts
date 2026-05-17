@@ -54,6 +54,63 @@ const JobService = {
 
     return jobDetail;
   },
+
+  getAllJobs: async (query: any) => {
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Number(query.limit) || 10);
+    const offset = (page - 1) * limit;
+
+    const filters = {
+      search: query.search || undefined,
+      type: query.type || undefined, // Contoh: 'SHIFT' atau 'PROJECT'
+      shift: query.shift || undefined, // Contoh: 'PAGI' atau 'MALAM'
+      limit,
+      offset,
+    };
+
+    const result = await JobRepository.getAllJobs(filters);
+
+    return {
+      jobs: result.data,
+      meta: {
+        page,
+        limit,
+        total_data: result.total,
+        total_pages: Math.ceil(result.total / limit),
+      },
+    };
+  },
+
+  getUmkmJobs: async (userId: string | number, query: any) => {
+    const [umkmRows]: any = await pool.execute(
+      "SELECT id_umkm AS id FROM umkm_profiles WHERE user_id = ?",
+      [userId],
+    );
+
+    if (umkmRows.length === 0) {
+      throw new UnauthorizedError(
+        "Akses ditolak. Anda belum mendaftar sebagai UMKM.",
+      );
+    }
+
+    const umkmId = umkmRows[0].id;
+
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Number(query.limit) || 10);
+    const offset = (page - 1) * limit;
+
+    const result = await JobRepository.getJobsByUmkmId(umkmId, limit, offset);
+
+    return {
+      jobs: result.data,
+      meta: {
+        page,
+        limit,
+        total_data: result.total,
+        total_pages: Math.ceil(result.total / limit),
+      },
+    };
+  },
 };
 
 export default JobService;

@@ -32,6 +32,30 @@ const JobController = {
       data: jobDetail,
     });
   },
+
+  getAll: async (req: Request, res: Response) => {
+    const result = await JobService.getAllJobs(req.query);
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil daftar lowongan",
+      data: result.jobs,
+      meta: result.meta,
+    });
+  },
+
+  getMyJobs: async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+
+    const result = await JobService.getUmkmJobs(userId, req.query);
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil daftar lowongan Anda",
+      data: result.jobs,
+      meta: result.meta,
+    });
+  },
 };
 
 export default JobController;

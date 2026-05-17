@@ -151,6 +151,100 @@ const JobRepository = {
       project_tasks: projectTasks.length > 0 ? projectTasks : undefined,
     };
   },
+
+  getAllJobs: async (filters: {
+    search?: string;
+    type?: string;
+    shift?: string;
+    limit: number;
+    offset: number;
+  }) => {
+    let baseQuery = `
+      SELECT 
+        j.id, 
+        j.title, 
+        j.type, 
+        j.salary_min, 
+        j.salary_max, 
+        u.business_name, 
+        u.business_address
+      FROM jobs j
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      WHERE 1=1
+    `;
+
+    let countQuery = `
+      SELECT COUNT(j.id) as total
+      FROM jobs j
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      WHERE 1=1
+    `;
+
+    const queryParams: any[] = [];
+    const countParams: any[] = [];
+
+    if (filters.search) {
+      const searchStr = `%${filters.search}%`;
+      baseQuery += ` AND j.title LIKE ?`;
+      countQuery += ` AND j.title LIKE ?`;
+      queryParams.push(searchStr);
+      countParams.push(searchStr);
+    }
+
+    if (filters.type) {
+      baseQuery += ` AND j.type = ?`;
+      countQuery += ` AND j.type = ?`;
+      queryParams.push(filters.type);
+      countParams.push(filters.type);
+    }
+
+    if (filters.shift) {
+      const shiftClause = ` AND EXISTS (SELECT 1 FROM job_shifts js WHERE js.job_id = j.id AND js.shift_type = ?)`;
+      baseQuery += shiftClause;
+      countQuery += shiftClause;
+      queryParams.push(filters.shift);
+      countParams.push(filters.shift);
+    }
+
+    baseQuery += ` ORDER BY j.created_at DESC`;
+    baseQuery += ` LIMIT ${filters.limit} OFFSET ${filters.offset}`;
+
+    const [rows]: any = await pool.execute(baseQuery, queryParams);
+    const [countRows]: any = await pool.execute(countQuery, countParams);
+
+    return {
+      data: rows,
+      total: countRows[0].total,
+    };
+  },
+
+  getJobsByUmkmId: async (umkmId: number, limit: number, offset: number) => {
+    const baseQuery = `
+      SELECT 
+        id, 
+        title, 
+        type, 
+        salary_min, 
+        salary_max, 
+        worker_needed, 
+        deadline, 
+        created_at
+      FROM jobs
+      WHERE umkm_id = ?
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const countQuery = `SELECT COUNT(id) as total FROM jobs WHERE umkm_id = ?`;
+
+    const [rows]: any = await pool.execute(baseQuery, [umkmId]);
+    const [countRows]: any = await pool.execute(countQuery, [umkmId]);
+
+    return {
+      data: rows,
+      total: countRows[0].total,
+    };
+  },
 };
 
 export default JobRepository;

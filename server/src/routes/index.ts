@@ -10,6 +10,6 @@ const router = Router();
 router.use("/auth", authRoute);
 router.use("/umkm", safeGuard(["UMKM"]), umkmRouter);
 router.use("/skills", safeGuard(["UMKM"]), skillRouter);
-router.use("/jobs", safeGuard(["UMKM", "USER"]), jobRouter);
+router.use("/jobs", jobRouter); // safeGuard diterapkan di dalam job.route.ts
 
 export default router;
