@@ -619,7 +619,7 @@ export default function VerificationUMKM() {
                 Kembali
               </Button>
               <Button
-                onClick={() => navigate("/umkm/home")}
+                onClick={() => setStatus("pending")}
                 className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]"
               >
                 Lanjut
@@ -822,48 +822,6 @@ export default function VerificationUMKM() {
   /* ─────────────────────── RENDER ─────────────────────── */
   return (
     <div className="w-full min-h-screen bg-[#F1F5F9]">
-      {/* ── Dev Switcher (floating pill, kecil) untuk status akhir ── */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm p-1.5 rounded-full shadow-xl border border-gray-200">
-        <button
-          onClick={() => setStatus("pending")}
-          title="Sedang Diproses"
-          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-            status === "pending"
-              ? "bg-[#D97706] shadow-inner"
-              : "bg-[#FEF3C7] hover:bg-[#FDE68A]"
-          }`}
-        >
-          <FiClock
-            className={`w-3.5 h-3.5 ${status === "pending" ? "text-white" : "text-[#D97706]"}`}
-          />
-        </button>
-        <button
-          onClick={() => setStatus("approved")}
-          title="Terverifikasi"
-          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-            status === "approved"
-              ? "bg-[#16A34A] shadow-inner"
-              : "bg-[#DCFCE7] hover:bg-[#BBF7D0]"
-          }`}
-        >
-          <FiCheck
-            className={`w-3.5 h-3.5 ${status === "approved" ? "text-white" : "text-[#16A34A]"}`}
-          />
-        </button>
-        <button
-          onClick={() => setStatus("rejected")}
-          title="Tidak Disetujui"
-          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-            status === "rejected"
-              ? "bg-[#DC2626] shadow-inner"
-              : "bg-[#FEE2E2] hover:bg-[#FECACA]"
-          }`}
-        >
-          <FiX
-            className={`w-3.5 h-3.5 ${status === "rejected" ? "text-white" : "text-[#DC2626]"}`}
-          />
-        </button>
-      </div>
 
       {/* ── Page Header ── */}
       <div className="bg-[#E2E8F0] pt-10 pb-20 px-4 md:px-8">
