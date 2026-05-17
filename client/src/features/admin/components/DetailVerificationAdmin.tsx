@@ -18,6 +18,7 @@ export default function DetailVerificationAdmin() {
   const namaUsahaFormatted = formatNamaUsaha(namaUsaha);
 
   const [open, setOpen] = useState(false);
+  const [openAccept, setOpenAccept] = useState(false);
 
   return (
     <DashboardLayout
@@ -100,7 +101,10 @@ export default function DetailVerificationAdmin() {
             </div>
           </CardBody>
           <CardFooter className="bg-info-100/30 flex gap-5 justify-between px-10 border-t-2 border-info-100">
-            <Button className="bg-info-200 border-info border text-info-300 hover:text-white hover:bg-info font-semibold w-1/2">
+            <Button
+              onClick={() => setOpenAccept(true)}
+              className="bg-info-200 border-info border text-info-300 hover:text-white hover:bg-info font-semibold w-1/2"
+            >
               Terima
             </Button>
             <Button
@@ -127,6 +131,28 @@ export default function DetailVerificationAdmin() {
 
           <div className="flex justify-end mt-4">
             <Button className="bg-secondary px-7 py-1 rounded-md">Kirim</Button>
+          </div>
+        </Modal>
+
+        <Modal open={openAccept} onClose={() => setOpenAccept(false)}>
+          <h1 className="text-center text-xl font-bold mb-4">
+            Anda yakin ingin menerima pengajuan ini ?
+          </h1>
+
+          <p className="text-center text-sm text-gray-600 mb-6">
+            Dengan menerima pengajuan ini, akun UMKM <strong>{namaUsahaFormatted}</strong> akan terverifikasi dan mendapatkan akses penuh ke platform.
+          </p>
+
+          <div className="flex justify-center gap-4 mt-4">
+            <Button
+              onClick={() => setOpenAccept(false)}
+              className="bg-gray-200 text-gray-700 hover:bg-gray-300 font-semibold px-7 py-1.5 rounded-md"
+            >
+              Batal
+            </Button>
+            <Button className="bg-info text-white hover:bg-blue-700 font-semibold px-7 py-1.5 rounded-md">
+              Terima Pengajuan
+            </Button>
           </div>
         </Modal>
       </div>

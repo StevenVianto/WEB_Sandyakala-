@@ -93,7 +93,7 @@ export default function VerificationAdmin() {
               </td>
               <td className="table-data ">
                 <Link
-                  to={"/admin/verifikasi/sambal-bakar-nusantara"}
+                  to={"/admin/verifikasi-umkm/sambal-bakar-nusantara"}
                   className="text-center block underline text-blue-600 cursor-pointer"
                 >
                   Detail
@@ -116,7 +116,7 @@ export default function VerificationAdmin() {
               </td>
               <td className="table-data">
                 <Link
-                  to={"/admin/verifikasi/cendol-jaya"}
+                  to={"/admin/verifikasi-umkm/cendol-jaya"}
                   className="text-center block underline text-blue-600 cursor-pointer"
                 >
                   Detail
