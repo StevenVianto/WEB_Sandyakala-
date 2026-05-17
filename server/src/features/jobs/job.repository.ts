@@ -1,0 +1,379 @@
+import pool from "../../config/db.js";
+import type { CreateJobInput } from "./job.schema.js";
+
+const JobRepository = {
+  createJob: async (
+    umkmId: number,
+    data: CreateJobInput,
+    uniqueSkills: string[],
+  ) => {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const queryJob = `
+        INSERT INTO jobs 
+        (umkm_id, title, job_category, description, type, salary_min, salary_max, worker_needed, minimum_education, qualification_description, portfolio_requirement, deadline, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+      `;
+
+      const [jobResult] = await connection.execute(queryJob, [
+        umkmId,
+        data.title,
+        data.job_category,
+        data.description,
+        data.type,
+        data.salary_min || null,
+        data.salary_max || null,
+        data.worker_needed,
+        data.minimum_education,
+        data.qualification_description,
+        data.portfolio_requirement,
+        data.deadline,
+      ]);
+
+      const jobId = (jobResult as any).insertId;
+
+      const skillIds: number[] = [];
+
+      for (const skillName of uniqueSkills) {
+        const [existingSkill]: any = await connection.execute(
+          "SELECT id FROM skills WHERE LOWER(skill_name) = ?",
+          [skillName.toLowerCase()],
+        );
+
+        if (existingSkill.length > 0) {
+          skillIds.push(existingSkill[0].id);
+        } else {
+          const [newSkill]: any = await connection.execute(
+            "INSERT INTO skills (skill_name) VALUES (?)",
+            [skillName],
+          );
+          skillIds.push(newSkill.insertId);
+        }
+      }
+
+      if (skillIds.length > 0) {
+        const skillPlaceholders = skillIds.map(() => "(?, ?)").join(", ");
+        const skillParams = skillIds.flatMap((skillId) => [jobId, skillId]);
+
+        await connection.execute(
+          `INSERT INTO job_skills (job_id, skill_id) VALUES ${skillPlaceholders}`,
+          skillParams,
+        );
+      }
+
+      if (data.type === "SHIFT" && data.shifts) {
+        const shiftPlaceholders = data.shifts.map(() => "(?, ?)").join(", ");
+        const shiftParams = data.shifts.flatMap((shiftType) => [
+          jobId,
+          shiftType,
+        ]);
+
+        await connection.execute(
+          `INSERT INTO job_shifts (job_id, shift_type) VALUES ${shiftPlaceholders}`,
+          shiftParams,
+        );
+      } else if (data.type === "PROJECT" && data.project_tasks) {
+        const taskPlaceholders = data.project_tasks
+          .map(() => "(?, ?, ?, NOW())")
+          .join(", ");
+        const taskParams = data.project_tasks.flatMap((task) => [
+          jobId,
+          task.task_name,
+          task.task_order,
+        ]);
+
+        await connection.execute(
+          `INSERT INTO job_project_tasks (job_id, task_name, task_order, created_at) VALUES ${taskPlaceholders}`,
+          taskParams,
+        );
+      }
+
+      await connection.commit();
+      return jobId;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
+  getJobById: async (jobId: number) => {
+    const queryJob = `
+      SELECT 
+        j.*, 
+        u.business_name, 
+        d.logo_url, 
+        u.business_address 
+      FROM jobs j
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      JOIN umkm_documents d ON j.umkm_id = d.umkm_id -- Ambil logo dari tabel dokumen
+      WHERE j.id = ?
+    `;
+    const [jobRows]: any = await pool.execute(queryJob, [jobId]);
+
+    if (jobRows.length === 0) return null;
+
+    const jobData = jobRows[0];
+
+    const querySkills = `
+      SELECT s.id, s.skill_name 
+      FROM skills s
+      JOIN job_skills js ON s.id = js.skill_id
+      WHERE js.job_id = ?
+    `;
+    const [skillRows]: any = await pool.execute(querySkills, [jobId]);
+
+    let shifts: string[] = [];
+    let projectTasks: any[] = [];
+
+    if (jobData.type === "SHIFT") {
+      const [shiftRows]: any = await pool.execute(
+        "SELECT shift_type FROM job_shifts WHERE job_id = ?",
+        [jobId],
+      );
+      shifts = shiftRows.map((row: any) => row.shift_type);
+    } else if (jobData.type === "PROJECT") {
+      const [taskRows]: any = await pool.execute(
+        "SELECT id, task_name, task_order FROM job_project_tasks WHERE job_id = ? ORDER BY task_order ASC",
+        [jobId],
+      );
+      projectTasks = taskRows;
+    }
+
+    return {
+      ...jobData,
+      skills: skillRows,
+      shifts: shifts.length > 0 ? shifts : undefined,
+      project_tasks: projectTasks.length > 0 ? projectTasks : undefined,
+    };
+  },
+
+  getAllJobs: async (filters: {
+    search?: string;
+    type?: string;
+    shift?: string;
+    limit: number;
+    offset: number;
+  }) => {
+    let baseQuery = `
+      SELECT 
+        j.id, 
+        j.title, 
+        j.type, 
+        j.salary_min, 
+        j.salary_max, 
+        u.business_name, 
+        u.business_address
+      FROM jobs j
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      WHERE 1=1
+    `;
+
+    let countQuery = `
+      SELECT COUNT(j.id) as total
+      FROM jobs j
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      WHERE 1=1
+    `;
+
+    const queryParams: any[] = [];
+    const countParams: any[] = [];
+
+    if (filters.search) {
+      const searchStr = `%${filters.search}%`;
+      baseQuery += ` AND j.title LIKE ?`;
+      countQuery += ` AND j.title LIKE ?`;
+      queryParams.push(searchStr);
+      countParams.push(searchStr);
+    }
+
+    if (filters.type) {
+      baseQuery += ` AND j.type = ?`;
+      countQuery += ` AND j.type = ?`;
+      queryParams.push(filters.type);
+      countParams.push(filters.type);
+    }
+
+    if (filters.shift) {
+      const shiftClause = ` AND EXISTS (SELECT 1 FROM job_shifts js WHERE js.job_id = j.id AND js.shift_type = ?)`;
+      baseQuery += shiftClause;
+      countQuery += shiftClause;
+      queryParams.push(filters.shift);
+      countParams.push(filters.shift);
+    }
+
+    baseQuery += ` ORDER BY j.created_at DESC`;
+    baseQuery += ` LIMIT ${filters.limit} OFFSET ${filters.offset}`;
+
+    const [rows]: any = await pool.execute(baseQuery, queryParams);
+    const [countRows]: any = await pool.execute(countQuery, countParams);
+
+    return {
+      data: rows,
+      total: countRows[0].total,
+    };
+  },
+
+  getJobsByUmkmId: async (umkmId: number, limit: number, offset: number) => {
+    const baseQuery = `
+      SELECT 
+        id, 
+        title, 
+        type, 
+        salary_min, 
+        salary_max, 
+        worker_needed, 
+        deadline, 
+        created_at
+      FROM jobs
+      WHERE umkm_id = ?
+      ORDER BY created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const countQuery = `SELECT COUNT(id) as total FROM jobs WHERE umkm_id = ?`;
+
+    const [rows]: any = await pool.execute(baseQuery, [umkmId]);
+    const [countRows]: any = await pool.execute(countQuery, [umkmId]);
+
+    return {
+      data: rows,
+      total: countRows[0].total,
+    };
+  },
+
+  updateJob: async (
+    jobId: number,
+    umkmId: number,
+    data: CreateJobInput,
+    uniqueSkills: string[],
+  ) => {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const queryUpdateJob = `
+        UPDATE jobs 
+        SET title = ?, job_category = ?, description = ?, type = ?, 
+            salary_min = ?, salary_max = ?, worker_needed = ?, minimum_education = ?, 
+            qualification_description = ?, portfolio_requirement = ?, deadline = ?, updated_at = NOW()
+        WHERE id = ? AND umkm_id = ?
+      `;
+
+      const [updateResult]: any = await connection.execute(queryUpdateJob, [
+        data.title,
+        data.job_category,
+        data.description,
+        data.type,
+        data.salary_min ?? null,
+        data.salary_max ?? null,
+        data.worker_needed,
+        data.minimum_education,
+        data.qualification_description,
+        data.portfolio_requirement,
+        data.deadline,
+        jobId,
+        umkmId,
+      ]);
+
+      if (updateResult.affectedRows === 0) {
+        throw new Error("NOT_FOUND_OR_UNAUTHORIZED");
+      }
+
+      // wipe relationships
+      await connection.execute("DELETE FROM job_skills WHERE job_id = ?", [
+        jobId,
+      ]);
+      await connection.execute("DELETE FROM job_shifts WHERE job_id = ?", [
+        jobId,
+      ]);
+      await connection.execute(
+        "DELETE FROM job_project_tasks WHERE job_id = ?",
+        [jobId],
+      );
+
+      const skillIds: number[] = [];
+
+      // Replace : find or create skills
+      for (const skillName of uniqueSkills) {
+        const [existingSkill]: any = await connection.execute(
+          "SELECT id FROM skills WHERE LOWER(skill_name) = ?",
+          [skillName.toLowerCase()],
+        );
+
+        if (existingSkill.length > 0) {
+          skillIds.push(existingSkill[0].id);
+        } else {
+          const [newSkill]: any = await connection.execute(
+            "INSERT INTO skills (skill_name) VALUES (?)",
+            [skillName],
+          );
+          skillIds.push(newSkill.insertId);
+        }
+      }
+
+      if (skillIds.length > 0) {
+        const skillPlaceholders = skillIds.map(() => "(?, ?)").join(", ");
+        const skillParams = skillIds.flatMap((skillId) => [jobId, skillId]);
+        await connection.execute(
+          `INSERT INTO job_skills (job_id, skill_id) VALUES ${skillPlaceholders}`,
+          skillParams,
+        );
+      }
+
+      // Replace dynamic fields (SHIFT/PROJECT)
+      if (data.type === "SHIFT" && data.shifts) {
+        const shiftPlaceholders = data.shifts.map(() => "(?, ?)").join(", ");
+        const shiftParams = data.shifts.flatMap((shiftType) => [
+          jobId,
+          shiftType,
+        ]);
+        await connection.execute(
+          `INSERT INTO job_shifts (job_id, shift_type) VALUES ${shiftPlaceholders}`,
+          shiftParams,
+        );
+      } else if (data.type === "PROJECT" && data.project_tasks) {
+        const taskPlaceholders = data.project_tasks
+          .map(() => "(?, ?, ?, NOW())")
+          .join(", ");
+        const taskParams = data.project_tasks.flatMap((task) => [
+          jobId,
+          task.task_name,
+          task.task_order,
+        ]);
+        await connection.execute(
+          `INSERT INTO job_project_tasks (job_id, task_name, task_order, created_at) VALUES ${taskPlaceholders}`,
+          taskParams,
+        );
+      }
+
+      await connection.commit();
+      return true;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
+
+  deleteJob: async (jobId: number, umkmId: number) => {
+    const [result]: any = await pool.execute(
+      "DELETE FROM jobs WHERE id = ? AND umkm_id = ?",
+      [jobId, umkmId],
+    );
+
+    if (result.affectedRows === 0) {
+      throw new Error("NOT_FOUND_OR_UNAUTHORIZED");
+    }
+
+    return true;
+  },
+};
+
+export default JobRepository;

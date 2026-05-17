@@ -1,4 +1,4 @@
-import type { TokenPayload } from "../common/utils/jwt.utils.ts";
+import type { TokenPayload } from "../common/utils/jwt.utils";
 
 declare global {
   namespace Express {
@@ -7,3 +7,5 @@ declare global {
     }
   }
 }
+
+export {};
