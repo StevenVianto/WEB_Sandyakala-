@@ -1,0 +1,39 @@
+$kind: http-request
+url: "{{BASE_URL}}/api/jobs/3"
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \    \"title\": \"Kasir Toko Baju\",\r
+
+    \    \"job_category\": \"Retail\",\r
+
+    \    \"description\": \"Dibutuhkan kasir berpengalaman untuk toko FreshStart cabang utama. Bersedia bekerja dalam sistem shift.\",\r
+
+    \    \"type\": \"SHIFT\",\r
+
+    \    \"salary_min\": 1500000,\r
+
+    \    \"salary_max\": 2500000,\r
+
+    \    \"worker_needed\": 2,\r
+
+    \    \"deadline\": \"2026-06-30\",\r
+
+    \    \"minimum_education\": \"SMA/SMK\",\r
+
+    \    \"qualification_description\": \"Jujur, teliti, dan bisa menggunakan mesin kasir POS.\",\r
+
+    \    \"portfolio_requirement\": \"OPTIONAL\",\r
+
+    \    \"skills\": [\"Kasir\", \"Komunikasi\", \"Pelayanan Pelanggan\", \"Ms. Excel\"],\r
+
+    \    \"shifts\": [\"PAGI\", \"SIANG\"]\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhaG1hZEBnbWFpbC5jb20iLCJyb2xlIjoiVU1LTSIsImlhdCI6MTc3ODk5MzI5NiwiZXhwIjoxNzc5MDc5Njk2fQ.2ywF5ACA9QxTPh_4UzKuny-vofcIOfkcQhexh44rwmI
+order: 11000

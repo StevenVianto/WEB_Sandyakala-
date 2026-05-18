@@ -8,11 +8,11 @@ export const createJobSchema = z
     type: z.enum(["SHIFT", "PROJECT"]),
     salary_min: z.coerce
       .number()
-      .min(0, "Gaji minimal tidak boleh negatif")
+      .min(1, "Gaji minimal wajib diisi")
       .optional(),
     salary_max: z.coerce
       .number()
-      .min(0, "Gaji maksimal tidak boleh negatif")
+      .min(1, "Gaji maksimal wajib diisi")
       .optional(),
     worker_needed: z.coerce.number().int().min(1, "Minimal butuh 1 pekerja"),
     deadline: z.coerce
@@ -33,7 +33,9 @@ export const createJobSchema = z
         z.object({
           task_name: z.string().min(1, "Nama tugas wajib diisi"),
           task_order: z.number().int(),
-        }),
+          project_start: z.string().optional(),
+          project_end: z.string().optional(),
+        })
       )
       .optional(),
   })

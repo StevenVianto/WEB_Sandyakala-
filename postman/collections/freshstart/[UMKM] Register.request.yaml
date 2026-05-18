@@ -1,0 +1,47 @@
+$kind: http-request
+url: "{{BASE_URL}}/api/umkm/register"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: text
+      key: owner_name
+      value: Dani
+    - type: text
+      key: nib
+      value: "1234567890122"
+    - type: text
+      key: business_name
+      value: Usaha Geprek Ayam
+    - type: text
+      key: business_category
+      value: Kuliner
+    - type: text
+      key: employee_count
+      value: "4"
+    - type: text
+      key: business_address
+      value: Jl. Ayam Ds. Geprekin
+    - type: text
+      key: business_email
+      value: ayam@geprek.com
+    - type: text
+      key: business_phone
+      value: "08123456789"
+    - type: file
+      key: logo
+      src:
+        - /C:/Users/Ahmad Dani/Downloads/Capture.PNG
+    - type: file
+      key: ktp
+      src:
+        - /C:/Users/Ahmad Dani/Downloads/Group 225.png
+    - type: file
+      key: nib_document
+      src:
+        - /C:/Users/Ahmad Dani/Downloads/drawSQL-image-export-2026-05-15 (1).jpg
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJkYW5pQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzc4ODM2NjMwLCJleHAiOjE3Nzg5MjMwMzB9.N-_BNxJhgb57j77ktn97ntJUdzJbt1YJ0bwgqKgc9Ks
+order: 3000

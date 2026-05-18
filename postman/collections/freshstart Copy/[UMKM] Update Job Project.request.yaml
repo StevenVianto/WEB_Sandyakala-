@@ -1,0 +1,57 @@
+$kind: http-request
+url: "{{BASE_URL}}/api/jobs/1"
+method: PUT
+body:
+  type: json
+  content: "{\r
+
+    \    \"title\": \"Desainer Logo Kemasan Produk\",\r
+
+    \    \"job_category\": \"Desain Grafis\",\r
+
+    \    \"description\": \"Dibutuhkan desainer lepas untuk membuat ulang logo dan kemasan produk UMKM kami.\",\r
+
+    \    \"type\": \"PROJECT\",\r
+
+    \    \"salary_min\": 500000,\r
+
+    \    \"salary_max\": 1000000,\r
+
+    \    \"worker_needed\": 1,\r
+
+    \    \"deadline\": \"2026-06-15\",\r
+
+    \    \"minimum_education\": \"Tidak Ada Syarat\",\r
+
+    \    \"qualification_description\": \"Menguasai software desain modern dan memiliki portofolio yang relevan.\",\r
+
+    \    \"portfolio_requirement\": \"REQUIRED\",\r
+
+    \    \"skills\": [\"Figma\", \"Adobe Illustrator\"],\r
+
+    \    \"project_tasks\": [\r
+
+    \        {\r
+
+    \            \"task_name\": \"Riset dan Referensi Desain\",\r
+
+    \            \"task_order\": 1\r
+
+    \        },\r
+
+    \        {\r
+
+    \            \"task_name\": \"Pembuatan 3 Alternatif Logo Kemasan\",\r
+
+    \            \"task_order\": 2\r
+
+    \        }\r
+
+    \    ]\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhaG1hZEBnbWFpbC5jb20iLCJyb2xlIjoiVU1LTSIsImlhdCI6MTc3ODk5MzI5NiwiZXhwIjoxNzc5MDc5Njk2fQ.2ywF5ACA9QxTPh_4UzKuny-vofcIOfkcQhexh44rwmI
+order: 10000

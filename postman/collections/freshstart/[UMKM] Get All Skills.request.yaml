@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{BASE_URL}}/api/skills"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhaG1hZEBnbWFpbC5jb20iLCJyb2xlIjoiVU1LTSIsImlhdCI6MTc3ODk0NjQ1NSwiZXhwIjoxNzc5MDMyODU1fQ.IKgqwD0t7bHHeN-P2obt4DchWuHXFKKI3-YcsVPAtwg
+order: 4000
