@@ -109,7 +109,7 @@ export default function AddLowonganPage() {
   };
 
   const handleNextStep = async () => {
-    const isValid = await trigger([
+    const fieldsToValidate: any[] = [
       "title",
       "job_category",
       "description",
@@ -118,8 +118,12 @@ export default function AddLowonganPage() {
       "salary_max",
       "worker_needed",
       "deadline",
-      "project_tasks",
-    ]);
+    ];
+
+    if (jobType === "PROJECT") fieldsToValidate.push("project_tasks");
+    if (jobType === "SHIFT") fieldsToValidate.push("shifts");
+
+    const isValid = await trigger(fieldsToValidate);
     if (isValid) setStep(2);
   };
 
@@ -149,9 +153,17 @@ export default function AddLowonganPage() {
   const [portfolio, setPortfolio] = useState("wajib");
   // const [activeTab, setActiveTab] = useState("shift");
   // const [shiftType, setShiftType] = useState("pagi");
-  const [jamKerja, setJamKerja] = useState<"PAGI" | "SIANG" | "MALAM">("PAGI");
+  const [selectedShifts, setSelectedShifts] = useState<
+    ("PAGI" | "SIANG" | "MALAM")[]
+  >([]);
+
   const toggleShift = (shift: "PAGI" | "SIANG" | "MALAM") => {
-    setValue("shifts", [shift]);
+    const updated = selectedShifts.includes(shift)
+      ? selectedShifts.filter((s) => s !== shift)
+      : [...selectedShifts, shift];
+
+    setSelectedShifts(updated);
+    setValue("shifts", updated, { shouldValidate: true });
   };
   const navigate = useNavigate();
 
@@ -365,12 +377,9 @@ export default function AddLowonganPage() {
                         <button
                           key={jam}
                           type="button"
-                          onClick={() => {
-                            setJamKerja(jam);
-                            toggleShift(jam);
-                          }}
+                          onClick={() => toggleShift(jam)}
                           className={`px-5 py-2 rounded-lg text-xs font-bold border transition-colors ${
-                            jamKerja === jam
+                            selectedShifts.includes(jam)
                               ? "bg-[#E6F4F1] border-[#99F6E4] text-[#0F766E]"
                               : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                           }`}
@@ -487,7 +496,7 @@ export default function AddLowonganPage() {
               <InputField
                 type="text"
                 invalid={!!errors.salary_min}
-                  {...register("salary_min")}
+                {...register("salary_min")}
                 value={salaryMinDisplay}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const formatted = formatRupiah(e.target.value);
@@ -509,7 +518,7 @@ export default function AddLowonganPage() {
               <InputField
                 type="text"
                 invalid={!!errors.salary_max}
-                  {...register("salary_max")}
+                {...register("salary_max")}
                 value={salaryMaxDisplay}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const formatted = formatRupiah(e.target.value);
