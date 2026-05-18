@@ -92,7 +92,13 @@ export default function RevisiTugas({ project, onBack }: RevisiTugasProps) {
                   <td className="text-xs font-bold">
                     {project.penanggung_jawab_project}
                   </td>
-                  <td className="text-xs">7 Maret 2026 20:21 WIB</td>
+                  <td className="text-xs">{new Date(
+                      project.tanggal_mulai_project,
+                    ).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}</td>
                 </tr>
                 <tr className="flex justify-between mb-2">
                   <th className="text-neutral-600 text-xs">Tahap</th>

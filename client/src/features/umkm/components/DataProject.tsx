@@ -67,11 +67,11 @@ export default function DataProject() {
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs whitespace-nowrap">
                   Nama Proyek
                 </th>
-                <th className="border px-1.5 sm:px-3 py-2 sm:text-xs whitespace-nowrap">
+                {/* <th className="border px-1.5 sm:px-3 py-2 sm:text-xs whitespace-nowrap">
                   PJ Proyek
-                </th>
+                </th> */}
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs whitespace-nowrap">
-                  Tanggal Proyek
+                  Mulai Proyek
                 </th>
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs whitespace-nowrap">
                   Deadline Proyek
@@ -96,15 +96,15 @@ export default function DataProject() {
                           {project.nama_project}
                         </span>
                         <span className="text-xs text-neutral-500">
-                          {project.divisi_project} -{" "}
-                          {project.anggota_tim_project}
+                          {project.divisi_project}
+                          {/* {project.anggota_tim_project} */}
                         </span>
                       </div>
                     </td>
 
-                    <td className="border px-1.5 sm:px-3 py-2 sm:text-xs truncate">
+                    {/* <td className="border px-1.5 sm:px-3 py-2 sm:text-xs truncate">
                       {project.penanggung_jawab_project}
-                    </td>
+                    </td> */}
 
                     <td className="border px-1.5 sm:px-3 py-2 sm:text-xs capitalize">
                       {new Date(

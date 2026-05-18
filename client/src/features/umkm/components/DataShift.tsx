@@ -86,18 +86,18 @@ export default function DataShift() {
                   Nama Pekerja
                 </th>
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-22">
-                  Tugas
+                  Posisi Pekerja
                 </th>
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-24">
-                  Waktu Shift
+                  Tugas Shift
+                </th>
+                <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-22">
+                  Jam Shift
                 </th>
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-22">
                   Jenis Shift
                 </th>
-                <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-22">
-                  Tanggal Shift
-                </th>
-                <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-18">
+                {/* <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-18">
                   Jam Masuk
                 </th>
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-18">
@@ -108,7 +108,7 @@ export default function DataShift() {
                 </th>
                 <th className="border px-1.5 sm:px-3 py-2 sm:text-xs w-18">
                   Aksi
-                </th>
+                </th> */}
               </tr>
             </thead>
 
@@ -124,15 +124,11 @@ export default function DataShift() {
                     </td>
 
                     <td className="border px-1.5 sm:px-3 py-2 sm:text-xs">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold whitespace-nowrap wrap-break-word">
                           {shift.nama_pekerja_shift}
-                        </span>
-
-                        <span className="text-2xs text-neutral-500 wrap-break-word">
-                          {shift.divisi_shift}
-                        </span>
-                      </div>
+                    </td>
+                    
+                    <td className="border px-1.5 sm:px-3 py-2 sm:text-xs wrap-break-word">
+                      {shift.divisi_shift}
                     </td>
 
                     <td className="border px-1.5 sm:px-3 py-2 sm:text-xs wrap-break-word">
@@ -148,7 +144,7 @@ export default function DataShift() {
                       {shift.jenis_shift}
                     </td>
 
-                    <td className="border px-1.5 sm:px-3 py-2 sm:text-xs whitespace-nowrap">
+                    {/* <td className="border px-1.5 sm:px-3 py-2 sm:text-xs whitespace-nowrap">
                       {new Date(
                         shift.tanggal_shift,
                       ).toLocaleDateString("id-ID", {
@@ -190,7 +186,7 @@ export default function DataShift() {
                           Detail
                         </button>
                       )}
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               ) : (
@@ -207,7 +203,7 @@ export default function DataShift() {
           </table>
         </div>
 
-        <ModalShift
+        {/* <ModalShift
           open={open}
           onClose={() => setOpen(false)}
           title="Detail Shift"
@@ -221,7 +217,7 @@ export default function DataShift() {
               onClose={() => setOpen(false)}
             />
           )}
-        </ModalShift>
+        </ModalShift> */}
       </div>
     </DataTaskLayout>
   );

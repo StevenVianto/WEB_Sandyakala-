@@ -5,16 +5,27 @@ import { Button } from "@/shared/components/ui/button";
 import {
   FiArrowLeft,
   FiArrowRight,
-  FiCalendar,
   // FiClock,
   FiX,
   FiPlus,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-
+import { useForm } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
+import {
+  createJobSchema,
+  type CreateJobInput,
+} from "../../../../server/src/features/jobs/job.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 
-const InputField = ({ label, placeholder, type = "text", ...props }: any) => (
+const InputField = ({
+  label,
+  placeholder,
+  type = "text",
+  invalid,
+  ...props
+}: any) => (
   <div className="flex flex-col gap-2 w-full">
     {" "}
     <label className="text-[14px] font-bold text-gray-800">{label}</label>{" "}
@@ -27,7 +38,13 @@ const InputField = ({ label, placeholder, type = "text", ...props }: any) => (
   </div>
 );
 
-const TextAreaField = ({ label, placeholder, rows = 4, ...props }: any) => (
+const TextAreaField = ({
+  label,
+  placeholder,
+  rows = 4,
+  invalid,
+  ...props
+}: any) => (
   <div className="flex flex-col gap-2 w-full">
     <label className="text-[14px] font-bold text-gray-800">{label}</label>
     <textarea
@@ -47,387 +64,723 @@ const steps = [
 ];
 
 export default function AddLowonganPage() {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    trigger,
+    formState: { errors },
+  } = useForm<CreateJobInput>({
+    resolver: zodResolver(createJobSchema as any),
+    mode: "onChange",
+    defaultValues: {
+      type: "PROJECT",
+      project_tasks: [
+        {
+          task_name: "",
+          task_order: 1,
+          project_start: "",
+          project_end: "",
+        },
+      ],
+    },
+  });
+
+  const [skills, setSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
+  const [showSkillInput, setShowSkillInput] = useState(false);
+
+  const addSkill = () => {
+    const trimmed = skillInput.trim();
+    if (!trimmed) return;
+
+    const updated = [...skills, trimmed];
+    setSkills(updated);
+    setValue("skills", updated, { shouldValidate: true });
+    setSkillInput("");
+    setShowSkillInput(false);
+  };
+
+  const removeSkill = (index: number) => {
+    const updated = skills.filter((_, i) => i !== index);
+    setSkills(updated);
+    setValue("skills", updated, { shouldValidate: true });
+  };
+
+  const handleNextStep = async () => {
+    const isValid = await trigger([
+      "title",
+      "job_category",
+      "description",
+      "type",
+      "salary_min",
+      "salary_max",
+      "worker_needed",
+      "deadline",
+      "project_tasks",
+    ]);
+    if (isValid) setStep(2);
+  };
+
+  const handleNextStep2 = async () => {
+    const isValid = await trigger([
+      "minimum_education",
+      "qualification_description",
+      "skills",
+      "portfolio_requirement",
+    ]);
+    if (isValid) setStep(3);
+  };
+
+  useEffect(() => {
+    register("project_tasks");
+  }, [register]);
+
+  const onSubmit: SubmitHandler<CreateJobInput> = (data) => {
+    console.log(data);
+
+    // kalau valid baru pindah step
+    setStep(2);
+  };
+
   const [step, setStep] = useState(1);
-  const [jobType, setJobType] = useState("shift");
+  const jobType = watch("type");
   const [portfolio, setPortfolio] = useState("wajib");
   // const [activeTab, setActiveTab] = useState("shift");
   // const [shiftType, setShiftType] = useState("pagi");
-  const [jamKerja, setJamKerja] = useState<"pagi" | "siang" | "malam">("pagi");
+  const [jamKerja, setJamKerja] = useState<"PAGI" | "SIANG" | "MALAM">("PAGI");
+  const toggleShift = (shift: "PAGI" | "SIANG" | "MALAM") => {
+    setValue("shifts", [shift]);
+  };
   const navigate = useNavigate();
 
-  const [tasks, setTasks] = useState<string[]>([""]);
+  const [tasks, setTasks] = useState([
+    {
+      task_name: "",
+      task_order: 1,
+      project_start: "",
+      project_end: "",
+    },
+  ]);
 
-  const handleTaskChange = (index: number, value: string) => {
+  const handleTaskChange = (index: number, field: string, value: string) => {
     const newTasks = [...tasks];
-    newTasks[index] = value;
+
+    newTasks[index] = {
+      ...newTasks[index],
+      [field]: value,
+    };
+
     setTasks(newTasks);
+
+    setValue("project_tasks", newTasks, {
+      shouldValidate: true,
+    });
   };
 
   const addTaskProject = () => {
-    setTasks([...tasks, ""]);
+    const updated = [
+      ...tasks,
+      {
+        task_name: "",
+        task_order: tasks.length + 1,
+        project_start: "",
+        project_end: "",
+      },
+    ];
+
+    setTasks(updated);
+
+    setValue("project_tasks", updated, {
+      shouldValidate: true,
+    });
   };
 
   const removeTask = (index: number) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks.length ? newTasks : [""]);
+    const updated = tasks
+      .filter((_, i) => i !== index)
+      .map((task, idx) => ({
+        ...task,
+        task_order: idx + 1,
+      }));
+
+    const finalTasks = updated.length
+      ? updated
+      : [
+          {
+            task_name: "",
+            task_order: 1,
+            project_start: "",
+            project_end: "",
+          },
+        ];
+
+    setTasks(finalTasks);
+
+    setValue("project_tasks", finalTasks, {
+      shouldValidate: true,
+    });
   };
 
+  const formatRupiah = (value: string) => {
+    // hapus semua karakter selain angka
+    const numberOnly = value.replace(/\D/g, "");
+    // format dengan titik sebagai pemisah ribuan
+    return numberOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const parseRupiah = (value: string) => {
+    // hapus titik, kembalikan angka murni
+    return value.replace(/\./g, "");
+  };
+
+  const [salaryMinDisplay, setSalaryMinDisplay] = useState("");
+  const [salaryMaxDisplay, setSalaryMaxDisplay] = useState("");
 
   const renderStep1 = () => (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
-        <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
-          Informasi Dasar Lowongan
-        </h3>
-        <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <InputField
-              label="Judul Lowongan"
-              placeholder="Judul lowongan pekerjaan"
-            />
-            <InputField
-              label="Bidang Pekerjaan"
-              placeholder="Contoh: Keuangan, Desain, Marketing"
-            />
-          </div>
-          <TextAreaField
-            label="Deskripsi Pekerjaan"
-            placeholder="Jelaskan tugas, tanggung jawab, jam kerja, dan aktivitas utama pekerjaan ini"
-            rows={3}
-          />
-
-          <div className="mt-2">
-            <label className="text-[14px] font-bold text-gray-800 mb-3 block">
-              Jenis Lowongan Pekerjaan
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
+          <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
+            Informasi Dasar Lowongan
+          </h3>
+          <div className="flex flex-col gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <label className="flex flex-col w-full">
+                <InputField
+                  invalid={!!errors.title}
+                  {...register("title")}
+                  label="Judul Lowongan"
+                  placeholder="Judul lowongan pekerjaan"
+                />
+                {errors.title && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.title.message}
+                  </span>
+                )}
+              </label>
+              <label className="flex flex-col w-full">
+                <InputField
+                  invalid={!!errors.job_category}
+                  {...register("job_category")}
+                  label="Bidang Pekerjaan"
+                  placeholder="Contoh: Keuangan, Desain, Marketing"
+                />
+                {errors.job_category && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {errors.job_category.message}
+                  </span>
+                )}
+              </label>
+            </div>
+            <label className="flex flex-col w-full">
+              <TextAreaField
+                invalid={!!errors.description}
+                {...register("description")}
+                label="Deskripsi Pekerjaan"
+                placeholder="Jelaskan tugas, tanggung jawab, jam kerja, dan aktivitas utama pekerjaan ini"
+                rows={3}
+              />
+              {errors.description && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.description.message}
+                </span>
+              )}
             </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label
-                className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${jobType === "project" ? "border-[#3B82F6] bg-blue-50/20" : "border-gray-200 hover:border-gray-300"}`}
-              >
-                <div className="pt-0.5">
-                  <input
-                    type="radio"
-                    name="jobType"
-                    value="project"
-                    checked={jobType === "project"}
-                    onChange={() => setJobType("project")}
-                    className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[13px] text-gray-900 mb-1">
-                    Berbasis Proyek
-                  </h4>
-                  <p className="text-[11px] text-gray-500 leading-relaxed">
-                    Lowongan berbasis proyek berisi tugas-tugas di dalamnya yang
-                    akan dilacak melalui fitur task track.
-                  </p>
-                </div>
-              </label>
-              <label
-                className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${jobType === "shift" ? "border-[#3B82F6] bg-blue-50/20" : "border-gray-200 hover:border-gray-300"}`}
-              >
-                <div className="pt-0.5">
-                  <input
-                    type="radio"
-                    name="jobType"
-                    value="shift"
-                    checked={jobType === "shift"}
-                    onChange={() => setJobType("shift")}
-                    className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[13px] text-gray-900 mb-1">
-                    Pekerja Harian (Shift)
-                  </h4>
-                  <p className="text-[11px] text-gray-500 leading-relaxed">
-                    Shift Harian digunakan untuk pekerjaan non-proyek seperti
-                    koki, kasir, barista.
-                  </p>
-                </div>
-              </label>
-              {/* jam kerja */}
-              {jobType === "shift" && (
-                <div className="mt-2 md:col-span-2">
-                  <label className="text-[14px] font-bold text-gray-800 mb-3 block">
-                    Jam Kerja
-                  </label>
-                  <div className="flex gap-3">
-                    {(["pagi", "siang", "malam"] as const).map((jam) => (
-                      <button
-                        key={jam}
-                        type="button"
-                        onClick={() => setJamKerja(jam)}
-                        className={`px-5 py-2 rounded-lg text-xs font-bold border transition-colors capitalize ${
-                          jamKerja === jam
-                            ? "bg-[#E6F4F1] border-[#99F6E4] text-[#0F766E]"
-                            : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                        }`}
-                      >
-                        {jam.charAt(0).toUpperCase() + jam.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              {/* project details */}
-              {jobType === "project" && (
-                <div className="mt-2 md:col-span-2 flex flex-col gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="flex flex-col gap-2 w-full">
-                      <label className="text-[14px] font-bold text-gray-800">
-                        Tanggal Mulai Project
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="date"
-                          className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400 text-gray-700"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2 w-full">
-                      <label className="text-[14px] font-bold text-gray-800">
-                        Tanggal Akhir Project
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="date"
-                          className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400 text-gray-700"
-                        />
-                      </div>
-                    </div>
+            <div className="mt-2">
+              <label className="text-[14px] font-bold text-gray-800 mb-3 block">
+                Jenis Lowongan Pekerjaan
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label
+                  className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${
+                    jobType === "PROJECT"
+                      ? "border-[#3B82F6] bg-blue-50/20"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="pt-0.5">
+                    <input
+                      type="radio"
+                      value="PROJECT"
+                      {...register("type")}
+                      className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
+                    />
+                    {errors.type && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.type.message}
+                      </p>
+                    )}
                   </div>
-
                   <div>
+                    <h4 className="font-bold text-[13px] text-gray-900 mb-1">
+                      Berbasis Proyek
+                    </h4>
+                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                      Lowongan berbasis proyek berisi tugas-tugas di dalamnya
+                      yang akan dilacak melalui fitur task track.
+                    </p>
+                  </div>
+                </label>
+                <label
+                  className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${
+                    jobType === "SHIFT"
+                      ? "border-[#3B82F6] bg-blue-50/20"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="pt-0.5">
+                    <input
+                      {...register("type")}
+                      type="radio"
+                      value="SHIFT"
+                      className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
+                    />
+                    {errors.type && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.type.message}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[13px] text-gray-900 mb-1">
+                      Pekerja Harian (Shift)
+                    </h4>
+                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                      Shift Harian digunakan untuk pekerjaan non-proyek seperti
+                      koki, kasir, barista.
+                    </p>
+                  </div>
+                </label>
+                {/* jam kerja */}
+                {jobType === "SHIFT" && (
+                  <div className="mt-2 md:col-span-2">
                     <label className="text-[14px] font-bold text-gray-800 mb-3 block">
-                      Milestone
+                      Jam Kerja
                     </label>
-                    <div className="flex flex-col gap-3">
-                    {tasks.map((task, index) => (
-                      <div
-                        key={index}
-                        className="flex flex-row items-center border border-gray-200 px-4 py-3 rounded-lg bg-white"
-                      >
-                        <span className="mr-4 text-[11px] font-bold bg-[#0F766E] w-6 h-6 flex items-center justify-center text-white rounded-full shrink-0">
-                          {index + 1}
-                        </span>
+                    <div className="flex gap-3">
+                      {(["PAGI", "SIANG", "MALAM"] as const).map((jam) => (
+                        <button
+                          key={jam}
+                          type="button"
+                          onClick={() => {
+                            setJamKerja(jam);
+                            toggleShift(jam);
+                          }}
+                          className={`px-5 py-2 rounded-lg text-xs font-bold border transition-colors ${
+                            jamKerja === jam
+                              ? "bg-[#E6F4F1] border-[#99F6E4] text-[#0F766E]"
+                              : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          {jam}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* project details */}
+                {jobType === "PROJECT" && (
+                  <div className="mt-2 md:col-span-2 flex flex-col gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="flex flex-col gap-2 w-full">
+                        <label className="text-[14px] font-bold text-gray-800">
+                          Tanggal Mulai Project
+                        </label>
 
                         <input
-                          value={task}
-                          onChange={(e) => handleTaskChange(index, e.target.value)}
-                          placeholder="Tugas project"
-                          className="w-full text-sm focus:outline-none placeholder:text-gray-400 bg-transparent"
+                          type="date"
+                          onChange={(e) =>
+                            handleTaskChange(0, "project_start", e.target.value)
+                          }
+                          className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm"
                         />
-
-                        <button
-                          type="button"
-                          className="ml-3 text-gray-400 hover:text-red-500 transition-colors"
-                          onClick={() => removeTask(index)}
-                        >
-                          <FiX size={18} />
-                        </button>
                       </div>
-                    ))}
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={addTaskProject}
-                      className="w-max bg-white border border-[#99F6E4] text-[#0F766E] rounded-lg mt-2 hover:bg-[#E6F4F1] font-bold text-xs"
-                    >
-                      <FiPlus className="mr-2" /> Tambah Tugas
-                    </Button>
+                      <div className="flex flex-col gap-2 w-full">
+                        <label className="text-[14px] font-bold text-gray-800">
+                          Tanggal Akhir Project
+                        </label>
+
+                        <input
+                          type="date"
+                          onChange={(e) =>
+                            handleTaskChange(0, "project_end", e.target.value)
+                          }
+                          className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* milestone */}
+                    <div>
+                      <label className="text-[14px] font-bold text-gray-800 mb-3 block">
+                        Milestone
+                      </label>
+                      <div className="flex flex-col gap-3">
+                        {tasks.map((task, index) => (
+                          <div
+                            key={index}
+                            className="flex flex-row items-center border border-gray-200 px-4 py-3 rounded-lg bg-white"
+                          >
+                            <span className="mr-4 text-[11px] font-bold bg-[#0F766E] w-6 h-6 flex items-center justify-center text-white rounded-full shrink-0">
+                              {index + 1}
+                            </span>
+
+                            <input
+                              value={task.task_name}
+                              onChange={(e) =>
+                                handleTaskChange(
+                                  index,
+                                  "task_name",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="Tugas project"
+                              className="w-full text-sm focus:outline-none placeholder:text-gray-400 bg-transparent"
+                            />
+                            {errors.project_tasks?.[index]?.task_name && (
+                              <p className="text-red-500 text-xs whitespace-nowrap mt-1">
+                                {
+                                  errors.project_tasks[index]?.task_name
+                                    ?.message
+                                }
+                              </p>
+                            )}
+
+                            <button
+                              type="button"
+                              className="ml-3 text-gray-400 hover:text-red-500 transition-colors"
+                              onClick={() => removeTask(index)}
+                            >
+                              <FiX size={18} />
+                            </button>
+                          </div>
+                        ))}
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={addTaskProject}
+                          className="w-max bg-white border border-[#99F6E4] text-[#0F766E] rounded-lg mt-2 hover:bg-[#E6F4F1] font-bold text-xs"
+                        >
+                          <FiPlus className="mr-2" /> Tambah Tugas
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-              )}
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
-      <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
-        <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
-          Informasi Upah
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <InputField
-            label="Upah Minimum (Rp)"
-            placeholder="Contoh: 1.500.000"
-          />
-          <InputField
-            label="Upah Maksimum (Rp)"
-            placeholder="Contoh: 4.000.000"
-          />
-        </div>
-      </Card>
-
-      <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
-        <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
-          Jumlah Pekerja yang Dicari
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="flex flex-col gap-2 w-full">
-            <label className="text-[14px] font-bold text-gray-800">
-              Jumlah <span className="px-1 rounded-sm">Lowongan</span> Kerja
-            </label>
-            <input
-              type="text"
-              placeholder="Masukkan jumlah pekerja yang ingin dicari"
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
-            />
-          </div>
-          <div className="flex flex-col gap-2 w-full">
-            <label className="text-[14px] font-bold text-gray-800">
-              Batas Waktu Melamar
-            </label>
-            <div className="relative">
-              <input
+        <Card className="rounded-[16px] mt-5 mb-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
+          <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
+            Informasi Upah
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <label className="flex flex-col w-full">
+              <InputField
                 type="text"
-                placeholder="Tanggal berakhir lowongan"
+                invalid={!!errors.salary_min}
+                  {...register("salary_min")}
+                value={salaryMinDisplay}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const formatted = formatRupiah(e.target.value);
+                  setSalaryMinDisplay(formatted);
+                  setValue("salary_min", Number(parseRupiah(formatted)), {
+                    shouldValidate: true,
+                  });
+                }}
+                label="Upah Minimum (Rp)"
+                placeholder="Contoh: 1.500.000"
+              />
+              {errors.salary_min && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.salary_min.message}
+                </span>
+              )}
+            </label>
+            <label className="flex flex-col w-full">
+              <InputField
+                type="text"
+                invalid={!!errors.salary_max}
+                  {...register("salary_max")}
+                value={salaryMaxDisplay}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const formatted = formatRupiah(e.target.value);
+                  setSalaryMaxDisplay(formatted);
+                  setValue("salary_max", Number(parseRupiah(formatted)), {
+                    shouldValidate: true,
+                  });
+                }}
+                label="Upah Maksimum (Rp)"
+                placeholder="Contoh: 4.000.000"
+              />
+              {errors.salary_max && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.salary_max.message}
+                </span>
+              )}
+            </label>
+          </div>
+        </Card>
+
+        <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
+          <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
+            Jumlah Pekerja yang Dicari
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <label className="flex flex-col w-full">
+              <span className="text-[14px] mb-3 font-bold text-gray-800">
+                Jumlah Lowongan Kerja
+              </span>
+              <input
+                {...register("worker_needed")}
+                type="number"
+                placeholder="Masukkan jumlah pekerja yang ingin dicari"
                 className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
               />
-              <FiCalendar className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              {errors.worker_needed && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.worker_needed.message}
+                </span>
+              )}
+            </label>
+
+            <div className="flex flex-col w-full">
+              <label className="text-[14px] mb-3 font-bold text-gray-800">
+                Batas Waktu Melamar
+              </label>
+              <div className="relative">
+                <input
+                  {...register("deadline", { valueAsDate: true })}
+                  type="date"
+                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
+                />
+              </div>
+              {errors.deadline && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.deadline.message}
+                </span>
+              )}
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
-      <div className="flex justify-end mt-2">
-        <Button
-          className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-8 py-2.5 rounded-lg font-bold text-[14px]"
-          onClick={() => setStep(2)}
-        >
-          Lanjut <FiArrowRight className="ml-2" />
-        </Button>
-      </div>
+        <div className="flex justify-end mt-2">
+          <Button
+            type="button"
+            onClick={handleNextStep}
+            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-8 py-2.5 rounded-lg font-bold text-[14px]"
+            // onClick={() => setStep(2)}
+          >
+            Lanjut <FiArrowRight className="ml-2" />
+          </Button>
+        </div>
+      </form>
     </div>
   );
 
   const renderStep2 = () => (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-8 duration-500">
-      <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
-        <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
-          Kualifikasi yang Dicari
-        </h3>
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label className="text-[14px] font-bold text-gray-800">
-              Pendidikan Minimum
-            </label>
-            <input
-              type="text"
-              placeholder="Minimal pendidikan yang dibutuhkan"
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
-            />
-          </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Card className="rounded-[16px] shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-6 md:p-8">
+          <h3 className="text-[18px] font-extrabold text-gray-900 mb-6">
+            Kualifikasi yang Dicari
+          </h3>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-[14px] font-bold text-gray-800">
+                Pendidikan Minimum
+              </label>
+              <input
+                {...register("minimum_education")}
+                type="text"
+                placeholder="Minimal pendidikan yang dibutuhkan"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
+              />
+              {errors.minimum_education && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.minimum_education.message}
+                </span>
+              )}
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-[14px] font-bold text-gray-800">
-              Kualifikasi Lowongan
-            </label>
-            <input
-              type="text"
-              placeholder="Tuliskan kualifikasi dan kriteria kandidat yang dibutuhkan"
-              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
-            />
-          </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[14px] font-bold text-gray-800">
+                Kualifikasi Lowongan
+              </label>
+              <input
+                {...register("qualification_description")}
+                type="text"
+                placeholder="Tuliskan kualifikasi dan kriteria kandidat yang dibutuhkan"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] placeholder:text-gray-400"
+              />
+              {errors.qualification_description && (
+                <span className="text-red-500 text-sm mt-1">
+                  {errors.qualification_description.message}
+                </span>
+              )}
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-[14px] font-bold text-gray-800">
-              Keahlian Spesifik
-            </label>
-            <p className="text-[11px] text-gray-500 -mt-1 mb-1">
-              Tambahkan keahlian spesifik yang dibutuhkan
-            </p>
-            <div className="flex flex-wrap gap-2 mt-1">
-              <span className="bg-[#E6F4F1] text-[#0F766E] px-3 py-1.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 border border-[#99F6E4] cursor-pointer hover:bg-[#CCFBF1] transition">
-                Figma <FiX className="text-[#0F766E]" />
-              </span>
-              <span className="bg-[#E6F4F1] text-[#0F766E] px-3 py-1.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 border border-[#99F6E4] cursor-pointer hover:bg-[#CCFBF1] transition">
-                Canva <FiX className="text-[#0F766E]" />
-              </span>
-              <span className="bg-[#E6F4F1] text-[#0F766E] px-3 py-1.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 border border-[#99F6E4] cursor-pointer hover:bg-[#CCFBF1] transition">
-                Adobe Illustrator <FiX className="text-[#0F766E]" />
-              </span>
-              <span className="bg-white text-gray-500 px-4 py-1.5 rounded-full text-[11px] font-semibold border border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition">
-                + Keahlian
-              </span>
+            {/* Keahlian Spesifik */}
+            <div className="flex flex-col gap-2">
+              <label className="text-[14px] font-bold text-gray-800">
+                Keahlian Spesifik
+              </label>
+              <p className="text-[11px] text-gray-500 -mt-1 mb-1">
+                Tambahkan keahlian spesifik yang dibutuhkan
+              </p>
+
+              <div className="flex flex-wrap gap-2 mt-1">
+                {skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="bg-[#E6F4F1] text-[#0F766E] px-3 py-1.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5 border border-[#99F6E4]"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(index)}
+                      className="hover:text-red-500 transition-colors"
+                    >
+                      <FiX />
+                    </button>
+                  </span>
+                ))}
+
+                {/* Input tambah keahlian */}
+                {showSkillInput ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      autoFocus
+                      value={skillInput}
+                      onChange={(e) => setSkillInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addSkill();
+                        }
+                        if (e.key === "Escape") {
+                          setShowSkillInput(false);
+                          setSkillInput("");
+                        }
+                      }}
+                      placeholder="Nama keahlian..."
+                      className="border border-[#99F6E4] rounded-full px-3 py-1.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-[#2DD4BF] w-36"
+                    />
+                    <button
+                      type="button"
+                      onClick={addSkill}
+                      className="text-[#0F766E] text-[11px] font-bold hover:underline"
+                    >
+                      Tambah
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowSkillInput(false);
+                        setSkillInput("");
+                      }}
+                      className="text-gray-400 text-[11px] hover:text-red-400"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                ) : (
+                  <span
+                    onClick={() => setShowSkillInput(true)}
+                    className="bg-white text-gray-500 px-4 py-1.5 rounded-full text-[11px] font-semibold border border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition"
+                  >
+                    + Keahlian
+                  </span>
+                )}
+              </div>
+
+              {errors.skills && (
+                <span className="text-red-500 text-xs mt-1">
+                  {errors.skills.message}
+                </span>
+              )}
+            </div>
+
+            <div className="mt-2">
+              <label className="text-[14px] font-bold text-gray-800 mb-3 block">
+                Persyaratan Portofolio
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label
+                  className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${portfolio === "wajib" ? "border-[#3B82F6] bg-blue-50/20" : "border-gray-200 hover:border-gray-300"}`}
+                >
+                  <div className="pt-0.5">
+                    <input
+                      type="radio"
+                      name="portfolio"
+                      value="wajib"
+                      checked={portfolio === "wajib"}
+                      onChange={() => setPortfolio("wajib")}
+                      className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[13px] text-gray-900 mb-1">
+                      Wajib melampirkan portofolio
+                    </h4>
+                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                      Pelamar wajib melampirkan portofolio sesuai bidang yang
+                      dilamar
+                    </p>
+                  </div>
+                </label>
+                <label
+                  className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${portfolio === "opsional" ? "border-[#3B82F6] bg-blue-50/20" : "border-gray-200 hover:border-gray-300"}`}
+                >
+                  <div className="pt-0.5">
+                    <input
+                      type="radio"
+                      name="portfolio"
+                      value="opsional"
+                      checked={portfolio === "opsional"}
+                      onChange={() => setPortfolio("opsional")}
+                      className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-[13px] text-gray-900 mb-1">
+                      Opsional
+                    </h4>
+                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                      Portofolio tidak wajib, bisa dilihat dari CV saja.
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
+        </Card>
 
-          <div className="mt-2">
-            <label className="text-[14px] font-bold text-gray-800 mb-3 block">
-              Persyaratan Portofolio
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label
-                className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${portfolio === "wajib" ? "border-[#3B82F6] bg-blue-50/20" : "border-gray-200 hover:border-gray-300"}`}
-              >
-                <div className="pt-0.5">
-                  <input
-                    type="radio"
-                    name="portfolio"
-                    value="wajib"
-                    checked={portfolio === "wajib"}
-                    onChange={() => setPortfolio("wajib")}
-                    className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[13px] text-gray-900 mb-1">
-                    Wajib melampirkan portofolio
-                  </h4>
-                  <p className="text-[11px] text-gray-500 leading-relaxed">
-                    Pelamar wajib melampirkan portofolio sesuai bidang yang
-                    dilamar
-                  </p>
-                </div>
-              </label>
-              <label
-                className={`cursor-pointer border rounded-xl p-4 flex gap-3 transition-colors ${portfolio === "opsional" ? "border-[#3B82F6] bg-blue-50/20" : "border-gray-200 hover:border-gray-300"}`}
-              >
-                <div className="pt-0.5">
-                  <input
-                    type="radio"
-                    name="portfolio"
-                    value="opsional"
-                    checked={portfolio === "opsional"}
-                    onChange={() => setPortfolio("opsional")}
-                    className="w-4 h-4 text-[#3B82F6] border-gray-300 focus:ring-[#3B82F6]"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-bold text-[13px] text-gray-900 mb-1">
-                    Opsional
-                  </h4>
-                  <p className="text-[11px] text-gray-500 leading-relaxed">
-                    Portofolio tidak wajib, bisa dilihat dari CV saja.
-                  </p>
-                </div>
-              </label>
-            </div>
-          </div>
+        <div className="flex justify-between mt-2">
+          <Button
+            variant="outline"
+            className="px-6 md:px-8 py-2.5 rounded-lg font-bold text-gray-600 border-gray-300 hover:bg-gray-50 bg-white"
+            onClick={() => setStep(1)}
+          >
+            <FiArrowLeft className="mr-2" /> Kembali
+          </Button>
+          <Button
+            type="button"
+            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 md:px-8 py-2.5 rounded-lg font-bold text-[14px]"
+            onClick={handleNextStep2}
+          >
+            Lanjut <FiArrowRight className="ml-2" />
+          </Button>
         </div>
-      </Card>
-
-      <div className="flex justify-between mt-2">
-        <Button
-          variant="outline"
-          className="px-6 md:px-8 py-2.5 rounded-lg font-bold text-gray-600 border-gray-300 hover:bg-gray-50 bg-white"
-          onClick={() => setStep(1)}
-        >
-          <FiArrowLeft className="mr-2" /> Kembali
-        </Button>
-        <Button
-          className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-6 md:px-8 py-2.5 rounded-lg font-bold text-[14px]"
-          onClick={() => setStep(3)}
-        >
-          Lanjut <FiArrowRight className="ml-2" />
-        </Button>
-      </div>
+      </form>
     </div>
   );
 
