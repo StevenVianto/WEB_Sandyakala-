@@ -1,15 +1,20 @@
 import { z } from "zod";
 
+const getTodayString = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 export const createJobSchema = z
   .object({
     title: z.string().min(1, "Judul lowongan wajib diisi"),
     job_category: z.string().min(1, "Bidang pekerjaan wajib diisi"),
     description: z.string().min(10, "Deskripsi minimal 10 karakter"),
     type: z.enum(["SHIFT", "PROJECT"]),
-    salary_min: z.coerce
-      .number()
-      .min(1, "Gaji minimal wajib diisi")
-      .optional(),
+    salary_min: z.coerce.number().min(1, "Gaji minimal wajib diisi").optional(),
     salary_max: z.coerce
       .number()
       .min(1, "Gaji maksimal wajib diisi")
@@ -30,12 +35,44 @@ export const createJobSchema = z
     shifts: z.array(z.enum(["PAGI", "SIANG", "MALAM"])).optional(),
     project_tasks: z
       .array(
-        z.object({
-          task_name: z.string().min(1, "Nama tugas wajib diisi"),
-          task_order: z.number().int(),
-          project_start: z.string().optional(),
-          project_end: z.string().optional(),
-        })
+        z
+          .object({
+            task_name: z.string().min(1, "Nama tugas wajib diisi"),
+            task_order: z.number().int(),
+            project_start: z
+              .string()
+              .regex(
+                /^\d{4}-\d{2}-\d{2}$/,
+                "Format tanggal mulai harus YYYY-MM-DD",
+              ),
+            project_end: z
+              .string()
+              .regex(
+                /^\d{4}-\d{2}-\d{2}$/,
+                "Format tanggal selesai harus YYYY-MM-DD",
+              ),
+          })
+          .refine(
+            (data) => {
+              const today = getTodayString();
+              return data.project_start >= today;
+            },
+            {
+              message:
+                "Tanggal mulai tidak boleh di masa lalu (minimal hari ini)",
+              path: ["project_start"],
+            },
+          )
+          .refine(
+            (data) => {
+              return data.project_end >= data.project_start;
+            },
+            {
+              message:
+                "Tanggal selesai tidak boleh lebih cepat dari tanggal mulai",
+              path: ["project_end"],
+            },
+          ),
       )
       .optional(),
   })

@@ -41,4 +41,16 @@ jobRouter.delete(
   asyncHandler(JobController.delete),
 );
 
+jobRouter.get(
+  "/saved/me",
+  safeGuard(["USER"]),
+  asyncHandler(JobController.getMySavedJobs),
+);
+
+jobRouter.post(
+  "/:id/toggle-save",
+  safeGuard(["USER"]),
+  asyncHandler(JobController.toggleSave),
+);
+
 export default jobRouter;

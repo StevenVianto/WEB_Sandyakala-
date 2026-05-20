@@ -84,6 +84,34 @@ const JobController = {
       message: "Lowongan pekerjaan berhasil dihapus",
     });
   },
+
+  toggleSave: async (req: Request, res: Response) => {
+    const jobId = Number(req.params.id);
+    if (isNaN(jobId)) throw new BadRequestError("ID Lowongan tidak valid");
+
+    const userId = Number(req.user!.id);
+    const result = await JobService.toggleSaveJob(userId, jobId);
+
+    res.status(200).json({
+      success: true,
+      message: result.isSaved
+        ? "Lowongan berhasil disimpan"
+        : "Lowongan dihapus dari bookmark",
+      data: result,
+    });
+  },
+
+  getMySavedJobs: async (req: Request, res: Response) => {
+    const userId = Number(req.user!.id);
+    const result = await JobService.getSavedJobs(userId, req.query);
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mengambil daftar lowongan tersimpan",
+      data: result.saved_jobs,
+      meta: result.meta,
+    });
+  },
 };
 
 export default JobController;

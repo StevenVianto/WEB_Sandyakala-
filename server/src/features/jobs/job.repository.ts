@@ -77,16 +77,18 @@ const JobRepository = {
         );
       } else if (data.type === "PROJECT" && data.project_tasks) {
         const taskPlaceholders = data.project_tasks
-          .map(() => "(?, ?, ?, NOW())")
+          .map(() => "(?, ?, ?, ?, ?, NOW())")
           .join(", ");
         const taskParams = data.project_tasks.flatMap((task) => [
           jobId,
           task.task_name,
           task.task_order,
+          task.project_start,
+          task.project_end,
         ]);
 
         await connection.execute(
-          `INSERT INTO job_project_tasks (job_id, task_name, task_order, created_at) VALUES ${taskPlaceholders}`,
+          `INSERT INTO job_project_tasks (job_id, task_name, task_order, project_start, project_end, created_at) VALUES ${taskPlaceholders}`,
           taskParams,
         );
       }
@@ -107,10 +109,10 @@ const JobRepository = {
         j.*, 
         u.business_name, 
         d.logo_url, 
-        u.business_address 
+        u.regency 
       FROM jobs j
       JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
-      JOIN umkm_documents d ON j.umkm_id = d.umkm_id -- Ambil logo dari tabel dokumen
+      JOIN umkm_documents d ON j.umkm_id = d.umkm_id
       WHERE j.id = ?
     `;
     const [jobRows]: any = await pool.execute(queryJob, [jobId]);
@@ -138,7 +140,7 @@ const JobRepository = {
       shifts = shiftRows.map((row: any) => row.shift_type);
     } else if (jobData.type === "PROJECT") {
       const [taskRows]: any = await pool.execute(
-        "SELECT id, task_name, task_order FROM job_project_tasks WHERE job_id = ? ORDER BY task_order ASC",
+        "SELECT id, task_name, task_order, project_start, project_end FROM job_project_tasks WHERE job_id = ? ORDER BY task_order ASC",
         [jobId],
       );
       projectTasks = taskRows;
@@ -167,7 +169,7 @@ const JobRepository = {
         j.salary_min, 
         j.salary_max, 
         u.business_name, 
-        u.business_address
+        u.regency
       FROM jobs j
       JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
       WHERE 1=1
@@ -373,6 +375,53 @@ const JobRepository = {
     }
 
     return true;
+  },
+
+  toggleSaveJob: async (
+    userId: number,
+    jobId: number,
+  ): Promise<{ isSaved: boolean }> => {
+    const [rows]: any = await pool.execute(
+      "SELECT id FROM saved_jobs WHERE user_id = ? AND job_id = ?",
+      [userId, jobId],
+    );
+
+    if (rows.length > 0) {
+      await pool.execute(
+        "DELETE FROM saved_jobs WHERE user_id = ? AND job_id = ?",
+        [userId, jobId],
+      );
+      return { isSaved: false };
+    } else {
+      await pool.execute(
+        "INSERT INTO saved_jobs (user_id, job_id) VALUES (?, ?)",
+        [userId, jobId],
+      );
+      return { isSaved: true };
+    }
+  },
+
+  getMySavedJobs: async (userId: number, limit: number, offset: number) => {
+    const baseQuery = `
+      SELECT 
+        j.id, j.title, j.type, j.salary_min, j.salary_max, 
+        u.business_name, 
+        u.regency,
+        sj.created_at AS saved_at
+      FROM saved_jobs sj
+      JOIN jobs j ON sj.job_id = j.id
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      WHERE sj.user_id = ?
+      ORDER BY sj.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const countQuery = `SELECT COUNT(id) as total FROM saved_jobs WHERE user_id = ?`;
+
+    const [rows]: any = await pool.execute(baseQuery, [userId]);
+    const [countRows]: any = await pool.execute(countQuery, [userId]);
+
+    return { data: rows, total: countRows[0].total };
   },
 };
 

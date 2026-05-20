@@ -157,6 +157,35 @@ const JobService = {
 
     return true;
   },
+
+  toggleSaveJob: async (userId: number, jobId: number) => {
+    const [jobRows]: any = await pool.execute(
+      "SELECT id FROM jobs WHERE id = ?",
+      [jobId],
+    );
+    if (jobRows.length === 0)
+      throw new NotFoundError("Lowongan pekerjaan tidak ditemukan.");
+
+    return await JobRepository.toggleSaveJob(userId, jobId);
+  },
+
+  getSavedJobs: async (userId: number, query: any) => {
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.max(1, Number(query.limit) || 10);
+    const offset = (page - 1) * limit;
+
+    const result = await JobRepository.getMySavedJobs(userId, limit, offset);
+
+    return {
+      saved_jobs: result.data,
+      meta: {
+        page,
+        limit,
+        total_data: result.total,
+        total_pages: Math.ceil(result.total / limit),
+      },
+    };
+  },
 };
 
 export default JobService;
