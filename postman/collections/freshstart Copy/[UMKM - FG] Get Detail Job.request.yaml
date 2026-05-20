@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{BASE_URL}}/api/jobs/3"
-method: GET
-auth:
-  type: bearer
-  credentials:
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJkYW5pQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzc4OTQ4MDEzLCJleHAiOjE3NzkwMzQ0MTN9.r_PYynNZriVnIOvuwgOkTJO5xkiYXln9aW19hNzpVjw
-order: 7000

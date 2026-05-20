@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{BASE_URL}}/api/jobs/umkm/me"
-method: GET
-auth:
-  type: bearer
-  credentials:
-    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhaG1hZEBnbWFpbC5jb20iLCJyb2xlIjoiVU1LTSIsImlhdCI6MTc3ODk5MzI5NiwiZXhwIjoxNzc5MDc5Njk2fQ.2ywF5ACA9QxTPh_4UzKuny-vofcIOfkcQhexh44rwmI
-order: 9000
