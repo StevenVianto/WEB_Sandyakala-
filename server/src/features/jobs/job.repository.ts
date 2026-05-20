@@ -77,16 +77,18 @@ const JobRepository = {
         );
       } else if (data.type === "PROJECT" && data.project_tasks) {
         const taskPlaceholders = data.project_tasks
-          .map(() => "(?, ?, ?, NOW())")
+          .map(() => "(?, ?, ?, ?, ?, NOW())")
           .join(", ");
         const taskParams = data.project_tasks.flatMap((task) => [
           jobId,
           task.task_name,
           task.task_order,
+          task.project_start,
+          task.project_end,
         ]);
 
         await connection.execute(
-          `INSERT INTO job_project_tasks (job_id, task_name, task_order, created_at) VALUES ${taskPlaceholders}`,
+          `INSERT INTO job_project_tasks (job_id, task_name, task_order, project_start, project_end, created_at) VALUES ${taskPlaceholders}`,
           taskParams,
         );
       }
@@ -138,7 +140,7 @@ const JobRepository = {
       shifts = shiftRows.map((row: any) => row.shift_type);
     } else if (jobData.type === "PROJECT") {
       const [taskRows]: any = await pool.execute(
-        "SELECT id, task_name, task_order FROM job_project_tasks WHERE job_id = ? ORDER BY task_order ASC",
+        "SELECT id, task_name, task_order, project_start, project_end FROM job_project_tasks WHERE job_id = ? ORDER BY task_order ASC",
         [jobId],
       );
       projectTasks = taskRows;
