@@ -1,37 +1,37 @@
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
 import { useState } from "react";
-import { ModalShift } from "@/shared/components/ui/modal-shift";
-import { DetailShiftContent } from "@/features/umkm/components/DetailShiftContent";
-import type { Shift } from "@/features/umkm/types/dashboard.types";
+// import { ModalShift } from "@/shared/components/ui/modal-shift";
+// import { DetailShiftContent } from "@/features/umkm/components/DetailShiftContent";
+// import type { Shift } from "@/features/umkm/types/dashboard.types";
 import { useTask } from "../../../pages/umkm/TaskContext";
 
 
 export default function DataShift() {
     const { shifts } = useTask();   
 
-  const showDetailButtonShift = [
-    "Review",
-    "Disetujui",
-    "Proses",
-  ];
+  // const showDetailButtonShift = [
+  //   "Review",
+  //   "Disetujui",
+  //   "Proses",
+  // ];
 
-  const getStatusBadgeShift = (
-    status_shift?: Shift["status_shift"],
-  ) => {
-    if (!status_shift) return "";
+  // const getStatusBadgeShift = (
+  //   status_shift?: Shift["status_shift"],
+  // ) => {
+  //   if (!status_shift) return "";
 
-    const classesShift: Record<string, string> = {
-      disetujui: "bg-success-100 text-success-300",
-      proses: "bg-neutral-600/25 text-neutral-800",
-      review: "bg-warning-200/50 text-warning-300",
-    };
+  //   const classesShift: Record<string, string> = {
+  //     disetujui: "bg-success-100 text-success-300",
+  //     proses: "bg-neutral-600/25 text-neutral-800",
+  //     review: "bg-warning-200/50 text-warning-300",
+  //   };
 
-    return classesShift[status_shift.toLowerCase()] ?? "";
-  };
+  //   return classesShift[status_shift.toLowerCase()] ?? "";
+  // };
 
-  const [open, setOpen] = useState(false);
-  const [selectedShift, setSelectedShift] =
-    useState<Shift | null>(null);
+  // const [open, setOpen] = useState(false);
+  // const [selectedShift, setSelectedShift] =
+  //   useState<Shift | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
 
