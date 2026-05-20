@@ -376,6 +376,53 @@ const JobRepository = {
 
     return true;
   },
+
+  toggleSaveJob: async (
+    userId: number,
+    jobId: number,
+  ): Promise<{ isSaved: boolean }> => {
+    const [rows]: any = await pool.execute(
+      "SELECT id FROM saved_jobs WHERE user_id = ? AND job_id = ?",
+      [userId, jobId],
+    );
+
+    if (rows.length > 0) {
+      await pool.execute(
+        "DELETE FROM saved_jobs WHERE user_id = ? AND job_id = ?",
+        [userId, jobId],
+      );
+      return { isSaved: false };
+    } else {
+      await pool.execute(
+        "INSERT INTO saved_jobs (user_id, job_id) VALUES (?, ?)",
+        [userId, jobId],
+      );
+      return { isSaved: true };
+    }
+  },
+
+  getMySavedJobs: async (userId: number, limit: number, offset: number) => {
+    const baseQuery = `
+      SELECT 
+        j.id, j.title, j.type, j.salary_min, j.salary_max, 
+        u.business_name, 
+        u.regency,
+        sj.created_at AS saved_at
+      FROM saved_jobs sj
+      JOIN jobs j ON sj.job_id = j.id
+      JOIN umkm_profiles u ON j.umkm_id = u.id_umkm
+      WHERE sj.user_id = ?
+      ORDER BY sj.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const countQuery = `SELECT COUNT(id) as total FROM saved_jobs WHERE user_id = ?`;
+
+    const [rows]: any = await pool.execute(baseQuery, [userId]);
+    const [countRows]: any = await pool.execute(countQuery, [userId]);
+
+    return { data: rows, total: countRows[0].total };
+  },
 };
 
 export default JobRepository;
