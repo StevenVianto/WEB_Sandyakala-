@@ -45,6 +45,7 @@ export default function RegisterForm() {
     setLoading(false);
 
     if (response.success) {
+      localStorage.removeItem("umkm_verification_status");
       setSuccess("Registrasi berhasil! Mengalihkan ke halaman masuk...");
       setTimeout(() => {
         navigate("/auth/login");

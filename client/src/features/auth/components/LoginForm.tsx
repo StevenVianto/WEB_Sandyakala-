@@ -36,6 +36,7 @@ export default function LoginForm() {
     if (response.success && response.data) {
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.removeItem("umkm_verification_status");
       
       const role = response.data.user.role;
       if (role === "ADMIN") {

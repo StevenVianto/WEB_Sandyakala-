@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
@@ -40,6 +40,50 @@ const ForkKnifeIcon = ({ className }: { className?: string }) => (
 export default function VerificationUMKM() {
   const [status, setStatus] = useState<VerificationStatus>("step1");
   const navigate = useNavigate();
+
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [ktpFile, setKtpFile] = useState<File | null>(null);
+  const [nibFile, setNibFile] = useState<File | null>(null);
+
+  const [dragActiveLogo, setDragActiveLogo] = useState(false);
+  const [dragActiveKtp, setDragActiveKtp] = useState(false);
+  const [dragActiveNib, setDragActiveNib] = useState(false);
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const ktpInputRef = useRef<HTMLInputElement>(null);
+  const nibInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrag = (e: React.DragEvent, type: "logo" | "ktp" | "nib", active: boolean) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === "logo") setDragActiveLogo(active);
+    if (type === "ktp") setDragActiveKtp(active);
+    if (type === "nib") setDragActiveNib(active);
+  };
+
+  const handleDrop = (e: React.DragEvent, type: "logo" | "ktp" | "nib") => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === "logo") setDragActiveLogo(false);
+    if (type === "ktp") setDragActiveKtp(false);
+    if (type === "nib") setDragActiveNib(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (type === "logo") setLogoFile(file);
+      if (type === "ktp") setKtpFile(file);
+      if (type === "nib") setNibFile(file);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "logo" | "ktp" | "nib") => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (type === "logo") setLogoFile(file);
+      if (type === "ktp") setKtpFile(file);
+      if (type === "nib") setNibFile(file);
+    }
+  };
 
   // Integrasi status dari Local Storage
   useEffect(() => {
@@ -561,19 +605,73 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Upload Logo Usaha
                   </label>
-                  <div className="border-[1.5px] border-dashed border-[#CBD5E1] bg-[#F8FAFC] rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                    <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
-                      <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                  <input
+                    type="file"
+                    ref={logoInputRef}
+                    onChange={(e) => handleFileChange(e, "logo")}
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                  />
+                  {logoFile ? (
+                    <div className="border border-green-200 bg-green-50/20 rounded-xl p-4 flex items-center justify-between transition-colors">
+                      <div className="flex items-center gap-3">
+                        {logoFile.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(logoFile)}
+                            alt="Logo Preview"
+                            className="w-10 h-10 object-cover rounded-lg border border-green-200"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                            <FiFileText className="w-5 h-5 text-green-600" />
+                          </div>
+                        )}
+                        <div className="flex flex-col text-left">
+                          <span className="text-[12px] font-bold text-gray-800 truncate max-w-xs sm:max-w-md">
+                            {logoFile.name}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {(logoFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLogoFile(null);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-50 transition"
+                      >
+                        Hapus
+                      </button>
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
-                        Click or drag files to upload
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
-                        PNG, JPG or PDF up to 10MB
-                      </span>
+                  ) : (
+                    <div
+                      onClick={() => logoInputRef.current?.click()}
+                      onDragEnter={(e) => handleDrag(e, "logo", true)}
+                      onDragOver={(e) => handleDrag(e, "logo", true)}
+                      onDragLeave={(e) => handleDrag(e, "logo", false)}
+                      onDrop={(e) => handleDrop(e, "logo")}
+                      className={`border-[1.5px] border-dashed rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer transition-colors ${
+                        dragActiveLogo
+                          ? "border-blue-500 bg-blue-50/50"
+                          : "border-[#CBD5E1] bg-[#F8FAFC] hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
+                        <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
+                          Click or drag files to upload
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+                          PNG, JPG or PDF up to 10MB
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Upload Item 2 */}
@@ -581,19 +679,73 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Upload Foto KTP
                   </label>
-                  <div className="border-[1.5px] border-dashed border-[#CBD5E1] bg-[#F8FAFC] rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                    <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
-                      <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                  <input
+                    type="file"
+                    ref={ktpInputRef}
+                    onChange={(e) => handleFileChange(e, "ktp")}
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                  />
+                  {ktpFile ? (
+                    <div className="border border-green-200 bg-green-50/20 rounded-xl p-4 flex items-center justify-between transition-colors">
+                      <div className="flex items-center gap-3">
+                        {ktpFile.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(ktpFile)}
+                            alt="KTP Preview"
+                            className="w-10 h-10 object-cover rounded-lg border border-green-200"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                            <FiFileText className="w-5 h-5 text-green-600" />
+                          </div>
+                        )}
+                        <div className="flex flex-col text-left">
+                          <span className="text-[12px] font-bold text-gray-800 truncate max-w-xs sm:max-w-md">
+                            {ktpFile.name}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {(ktpFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setKtpFile(null);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-50 transition"
+                      >
+                        Hapus
+                      </button>
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
-                        Click or drag files to upload
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
-                        PNG, JPG or PDF up to 10MB
-                      </span>
+                  ) : (
+                    <div
+                      onClick={() => ktpInputRef.current?.click()}
+                      onDragEnter={(e) => handleDrag(e, "ktp", true)}
+                      onDragOver={(e) => handleDrag(e, "ktp", true)}
+                      onDragLeave={(e) => handleDrag(e, "ktp", false)}
+                      onDrop={(e) => handleDrop(e, "ktp")}
+                      className={`border-[1.5px] border-dashed rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer transition-colors ${
+                        dragActiveKtp
+                          ? "border-blue-500 bg-blue-50/50"
+                          : "border-[#CBD5E1] bg-[#F8FAFC] hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
+                        <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
+                          Click or drag files to upload
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+                          PNG, JPG or PDF up to 10MB
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Upload Item 3 */}
@@ -601,19 +753,73 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Upload NIB (Nomor Induk Berusaha)
                   </label>
-                  <div className="border-[1.5px] border-dashed border-[#CBD5E1] bg-[#F8FAFC] rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                    <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
-                      <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                  <input
+                    type="file"
+                    ref={nibInputRef}
+                    onChange={(e) => handleFileChange(e, "nib")}
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                  />
+                  {nibFile ? (
+                    <div className="border border-green-200 bg-green-50/20 rounded-xl p-4 flex items-center justify-between transition-colors">
+                      <div className="flex items-center gap-3">
+                        {nibFile.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(nibFile)}
+                            alt="NIB Preview"
+                            className="w-10 h-10 object-cover rounded-lg border border-green-200"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                            <FiFileText className="w-5 h-5 text-green-600" />
+                          </div>
+                        )}
+                        <div className="flex flex-col text-left">
+                          <span className="text-[12px] font-bold text-gray-800 truncate max-w-xs sm:max-w-md">
+                            {nibFile.name}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {(nibFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setNibFile(null);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-50 transition"
+                      >
+                        Hapus
+                      </button>
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
-                        Click or drag files to upload
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
-                        PNG, JPG or PDF up to 10MB
-                      </span>
+                  ) : (
+                    <div
+                      onClick={() => nibInputRef.current?.click()}
+                      onDragEnter={(e) => handleDrag(e, "nib", true)}
+                      onDragOver={(e) => handleDrag(e, "nib", true)}
+                      onDragLeave={(e) => handleDrag(e, "nib", false)}
+                      onDrop={(e) => handleDrop(e, "nib")}
+                      className={`border-[1.5px] border-dashed rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer transition-colors ${
+                        dragActiveNib
+                          ? "border-blue-500 bg-blue-50/50"
+                          : "border-[#CBD5E1] bg-[#F8FAFC] hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
+                        <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
+                          Click or drag files to upload
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+                          PNG, JPG or PDF up to 10MB
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </Card>
@@ -622,7 +828,7 @@ export default function VerificationUMKM() {
               <Button
                 onClick={() => setStatus("step1")}
                 variant="outline"
-                className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50"
+                className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50 animate-duration-200"
               >
                 Kembali
               </Button>
@@ -631,7 +837,8 @@ export default function VerificationUMKM() {
                   localStorage.setItem("umkm_verification_status", "pending");
                   setStatus("pending");
                 }}
-                className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]"
+                disabled={!logoFile || !ktpFile || !nibFile}
+                className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 Lanjut
               </Button>
