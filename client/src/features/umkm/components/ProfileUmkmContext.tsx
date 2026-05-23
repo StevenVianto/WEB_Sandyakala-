@@ -38,7 +38,7 @@ export function ProfileUmkmProvider({ children }: { children: React.ReactNode })
   const [jumlahKaryawan, setJumlahKaryawan] = useState(savedProfile?.employeeCount || "10 - 50");
   const [kategoriUsaha, setKategoriUsaha] = useState(savedProfile?.businessCategory || "Kuliner");
   const [deskripsiUsaha, setDeskripsiUsaha] = useState("");
-  const [website, setWebsite] = useState(savedProfile?.websiteSosmed || "www.sambalbakarnusantara.com");
+  const [website, setWebsite] = useState(savedProfile ? (savedProfile.websiteSosmed || "") : "www.sambalbakarnusantara.com");
   const [emailHrd, setEmailHrd] = useState(savedProfile?.businessEmail || "hrd@sambalbakar.id");
   const [telepon, setTelepon] = useState(savedProfile?.businessPhone || "+62 812-3456-7890");
   const [alamat, setAlamat] = useState(savedProfile?.address || "Jl. Kemang Raya No. 45, Jaksel");
