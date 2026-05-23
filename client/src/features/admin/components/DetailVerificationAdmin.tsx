@@ -22,8 +22,12 @@ export default function DetailVerificationAdmin() {
   const [registeredProfile, setRegisteredProfile] = useState<any>(null);
   const navigate = useNavigate();
 
+  const latestEmail = localStorage.getItem("latest_registered_umkm_email");
+  const profileKey = latestEmail ? `registered_umkm_profile_${latestEmail}` : "registered_umkm_profile";
+  const statusKey = latestEmail ? `umkm_verification_status_${latestEmail}` : "umkm_verification_status";
+
   useEffect(() => {
-    const savedProfile = localStorage.getItem("registered_umkm_profile");
+    const savedProfile = localStorage.getItem(profileKey);
     if (savedProfile) {
       const parsed = JSON.parse(savedProfile);
       const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
@@ -31,16 +35,16 @@ export default function DetailVerificationAdmin() {
         setRegisteredProfile(parsed);
       }
     }
-  }, [namaUsaha]);
+  }, [namaUsaha, profileKey]);
 
   const handleAccept = () => {
-    localStorage.setItem("umkm_verification_status", "approved");
+    localStorage.setItem(statusKey, "approved");
     setOpenAccept(false);
     navigate("/admin/verifikasi-umkm");
   };
 
   const handleReject = () => {
-    localStorage.setItem("umkm_verification_status", "rejected");
+    localStorage.setItem(statusKey, "rejected");
     setOpen(false);
     navigate("/admin/verifikasi-umkm");
   };

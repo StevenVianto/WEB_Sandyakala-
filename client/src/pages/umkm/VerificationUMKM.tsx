@@ -85,37 +85,59 @@ export default function VerificationUMKM() {
     }
   };
 
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const statusKey = userEmail ? "umkm_verification_status_" + userEmail : "umkm_verification_status";
+  const profileKey = userEmail ? "registered_umkm_profile_" + userEmail : "registered_umkm_profile";
+
   const handleProceedToPending = () => {
     const selectedProvinsiName = provinsi.find((p) => p.id === selectedProvinsi)?.name || "";
     const selectedKabupatenName = kabupaten.find((k) => k.id === selectedKabupaten)?.name || "";
     const selectedKecamatanName = kecamatan.find((kc) => kc.id === selectedKecamatan)?.name || "";
     const selectedDesaName = desa.find((d) => d.id === selectedDesa)?.name || "";
 
-    const profile = {
-      ownerName,
-      nib,
-      businessName,
-      businessCategory: kategori === "Lainnya" ? customKategori : kategori,
-      employeeCount,
-      establishedAt,
-      businessEmail,
-      businessPhone,
-      websiteSosmed,
-      address: [selectedDesaName, selectedKecamatanName, selectedKabupatenName, selectedProvinsiName].filter(Boolean).join(", ") || "Jakarta",
-      createdAt: new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })
+    const saveProfileData = (logoBase64?: string) => {
+      const profile = {
+        ownerName,
+        nib,
+        businessName,
+        businessCategory: kategori === "Lainnya" ? customKategori : kategori,
+        employeeCount,
+        establishedAt,
+        businessEmail,
+        businessPhone,
+        websiteSosmed,
+        address: [selectedDesaName, selectedKecamatanName, selectedKabupatenName, selectedProvinsiName].filter(Boolean).join(", ") || "Jakarta",
+        createdAt: new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }),
+        businessLogo: logoBase64 || ""
+      };
+      localStorage.setItem(profileKey, JSON.stringify(profile));
+      localStorage.setItem(statusKey, "pending");
+      if (userEmail) {
+        localStorage.setItem("latest_registered_umkm_email", userEmail);
+      }
+      setStatus("pending");
     };
-    localStorage.setItem("registered_umkm_profile", JSON.stringify(profile));
-    localStorage.setItem("umkm_verification_status", "pending");
-    setStatus("pending");
+
+    if (logoFile && logoFile.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        saveProfileData(reader.result as string);
+      };
+      reader.readAsDataURL(logoFile);
+    } else {
+      saveProfileData();
+    }
   };
 
   // Integrasi status dari Local Storage
   useEffect(() => {
-    const savedStatus = localStorage.getItem("umkm_verification_status");
+    const savedStatus = localStorage.getItem(statusKey);
     if (savedStatus) {
       setStatus(savedStatus as VerificationStatus);
     }
-  }, []);
+  }, [statusKey]);
 
   const [kategori, setKategori] = useState("");
   const [customKategori, setCustomKategori] = useState("");
@@ -131,11 +153,11 @@ export default function VerificationUMKM() {
   const [profileData, setProfileData] = useState<any>(null);
 
   useEffect(() => {
-    const savedProfile = localStorage.getItem("registered_umkm_profile");
+    const savedProfile = localStorage.getItem(profileKey);
     if (savedProfile) {
       setProfileData(JSON.parse(savedProfile));
     }
-  }, [status]);
+  }, [status, profileKey]);
 
   const [provinsi, setProvinsi] = useState<any[]>([]);
   const [selectedProvinsi, setSelectedProvinsi] = useState("");

@@ -36,15 +36,21 @@ export default function LoginForm() {
     if (response.success && response.data) {
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.removeItem("umkm_verification_status");
       
       const role = response.data.user.role;
+      const email = response.data.user.email;
+      
       if (role === "ADMIN") {
         navigate("/admin/dashboard");
       } else if (role === "UMKM") {
         navigate("/umkm/dashboard");
       } else {
-        navigate("/umkm/verification");
+        const savedStatus = localStorage.getItem("umkm_verification_status_" + email);
+        if (savedStatus === "approved") {
+          navigate("/umkm/home");
+        } else {
+          navigate("/umkm/verification");
+        }
       }
     } else {
       setError(response.message || "Email atau password salah");

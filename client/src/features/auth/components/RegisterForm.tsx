@@ -46,6 +46,8 @@ export default function RegisterForm() {
 
     if (response.success) {
       localStorage.removeItem("umkm_verification_status");
+      localStorage.removeItem(`umkm_verification_status_${email}`);
+      localStorage.removeItem(`registered_umkm_profile_${email}`);
       setSuccess("Registrasi berhasil! Mengalihkan ke halaman masuk...");
       setTimeout(() => {
         navigate("/auth/login");

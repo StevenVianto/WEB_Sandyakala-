@@ -78,6 +78,7 @@ function ProfileUmkmContent() {
     tahunDibangun, jumlahKaryawan, kategoriUsaha,
     fasilitas, handleHapusFasilitas,
     website, emailHrd, telepon, alamat,
+    logoUsaha,
   } = useProfileUmkm();
 
   return (
@@ -90,8 +91,16 @@ function ProfileUmkmContent() {
 
         <div className="relative z-20 container mx-auto md:px-8 md:-mt-19 -mt-15 sm:-mt-20 pb-12">
           <Card className="w-full flex flex-col md:h-60 md:flex-row items-start md:items-center gap-6 relative">
-            <div className="w-24 h-24 md:w-34 md:h-34 rounded-full bg-[#FFEDD5] flex items-center justify-center shrink-0">
-              <ForkKnifeIcon className="w-10 h-10 md:w-12 md:h-12 text-[#EA580C]" />
+            <div className="w-24 h-24 md:w-34 md:h-34 rounded-full overflow-hidden bg-[#FFEDD5] flex items-center justify-center shrink-0 border border-gray-100 shadow-sm">
+              {logoUsaha ? (
+                <img
+                  src={logoUsaha}
+                  alt="Logo Usaha"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <ForkKnifeIcon className="w-10 h-10 md:w-12 md:h-12 text-[#EA580C]" />
+              )}
             </div>
 
             <div className="flex-1 w-full">

@@ -24,11 +24,15 @@ export default function VerificationAdmin() {
   const [verificationStatus, setVerificationStatus] = useState<string>("pending");
 
   useEffect(() => {
-    const savedProfile = localStorage.getItem("registered_umkm_profile");
+    const latestEmail = localStorage.getItem("latest_registered_umkm_email");
+    const profileKey = latestEmail ? `registered_umkm_profile_${latestEmail}` : "registered_umkm_profile";
+    const statusKey = latestEmail ? `umkm_verification_status_${latestEmail}` : "umkm_verification_status";
+
+    const savedProfile = localStorage.getItem(profileKey);
     if (savedProfile) {
       setRegisteredProfile(JSON.parse(savedProfile));
     }
-    const savedStatus = localStorage.getItem("umkm_verification_status");
+    const savedStatus = localStorage.getItem(statusKey);
     if (savedStatus) {
       setVerificationStatus(savedStatus);
     }

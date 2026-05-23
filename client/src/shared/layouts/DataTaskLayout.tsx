@@ -205,6 +205,14 @@ function ProfileMenu() {
   const [isKeluarModalOpen, setIsKeluarModalOpen] = React.useState(false);
   const navigate = useNavigate();
 
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const profileKey = userEmail ? `registered_umkm_profile_${userEmail}` : "registered_umkm_profile";
+  const savedProfileStr = localStorage.getItem(profileKey);
+  const savedProfile = savedProfileStr ? JSON.parse(savedProfileStr) : null;
+  const logoUsaha = savedProfile?.businessLogo || "https://i.pravatar.cc/150?img=11";
+
   const handleClick = (path: string) => {
     setIsMenuOpen(false);
     if (path === "modal") {
@@ -229,7 +237,7 @@ function ProfileMenu() {
           className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 focus:outline-none cursor-pointer"
         >
           <img
-            src="https://i.pravatar.cc/150?img=11"
+            src={logoUsaha}
             alt="profile"
             className="h-8 w-8 rounded-full border border-gray-900 object-cover"
           />
@@ -299,6 +307,14 @@ export default function DataTaskLayout({
 
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const profileKey = userEmail ? `registered_umkm_profile_${userEmail}` : "registered_umkm_profile";
+  const savedProfileStr = localStorage.getItem(profileKey);
+  const savedProfile = savedProfileStr ? JSON.parse(savedProfileStr) : null;
+  const logoUsaha = savedProfile?.businessLogo || "https://i.pravatar.cc/150?img=11";
 
   return (
     <div className="bg-neutral-400 min-h-screen p-4 sm:p-10 lg:p-25 flex justify-center">
@@ -373,13 +389,15 @@ export default function DataTaskLayout({
           <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
             <div className="h-12 w-12 bg-gray-100 rounded-full overflow-hidden border border-slate-300">
               <img
-                src="https://i.pravatar.cc/150?img=11"
+                src={logoUsaha}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
             <div>
-              <h2 className="font-bold text-mint-300 text-sm">UMKM Partner</h2>
+              <h2 className="font-bold text-mint-300 text-sm">
+                {savedProfile?.businessName || "UMKM Partner"}
+              </h2>
               <p className="text-xs text-gray-500">Lihat Profil</p>
             </div>
           </div>
