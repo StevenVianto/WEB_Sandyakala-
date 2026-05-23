@@ -27,17 +27,21 @@ export function ProfileUmkmProvider({ children }: { children: React.ReactNode })
   const closeModal = (key: ModalKey) =>
     setModalState((prev) => ({ ...prev, [key]: false }));
 
-  const [namaUsaha, setNamaUsaha] = useState("Sambal Bakar Nusantara");
-  const [keteranganUsaha, setKeteranganUsaha] = useState("Kuliner Nusantara Modern");
-  const [lokasiUsaha, setLokasiUsaha] = useState("Jakarta Selatan");
-  const [tahunDibangun, setTahunDibangun] = useState("2022");
-  const [jumlahKaryawan, setJumlahKaryawan] = useState("10 - 50");
-  const [kategoriUsaha, setKategoriUsaha] = useState("Kuliner");
+  // Load saved profile data if available
+  const savedProfileStr = localStorage.getItem("registered_umkm_profile");
+  const savedProfile = savedProfileStr ? JSON.parse(savedProfileStr) : null;
+
+  const [namaUsaha, setNamaUsaha] = useState(savedProfile?.businessName || "Sambal Bakar Nusantara");
+  const [keteranganUsaha, setKeteranganUsaha] = useState(savedProfile ? `${savedProfile.businessCategory} Nusantara` : "Kuliner Nusantara Modern");
+  const [lokasiUsaha, setLokasiUsaha] = useState(savedProfile?.address || "Jakarta Selatan");
+  const [tahunDibangun, setTahunDibangun] = useState(savedProfile?.establishedAt || "2022");
+  const [jumlahKaryawan, setJumlahKaryawan] = useState(savedProfile?.employeeCount || "10 - 50");
+  const [kategoriUsaha, setKategoriUsaha] = useState(savedProfile?.businessCategory || "Kuliner");
   const [deskripsiUsaha, setDeskripsiUsaha] = useState("");
-  const [website, setWebsite] = useState("www.sambalbakarnusantara.com");
-  const [emailHrd, setEmailHrd] = useState("hrd@sambalbakar.id");
-  const [telepon, setTelepon] = useState("+62 812-3456-7890");
-  const [alamat, setAlamat] = useState("Jl. Kemang Raya No. 45, Jaksel");
+  const [website, setWebsite] = useState(savedProfile?.websiteSosmed || "www.sambalbakarnusantara.com");
+  const [emailHrd, setEmailHrd] = useState(savedProfile?.businessEmail || "hrd@sambalbakar.id");
+  const [telepon, setTelepon] = useState(savedProfile?.businessPhone || "+62 812-3456-7890");
+  const [alamat, setAlamat] = useState(savedProfile?.address || "Jl. Kemang Raya No. 45, Jaksel");
   const [fasilitas, setFasilitas] = useState<Fasilitas[]>(mockBenefits as Fasilitas[]);
   const [judulFasilitas, setJudulFasilitas] = useState("");
   const [deskripsiFasilitas, setDeskripsiFasilitas] = useState("");

@@ -77,6 +77,7 @@ function ProfileUmkmContent() {
     namaUsaha, keteranganUsaha, lokasiUsaha,
     tahunDibangun, jumlahKaryawan, kategoriUsaha,
     fasilitas, handleHapusFasilitas,
+    website, emailHrd, telepon, alamat,
   } = useProfileUmkm();
 
   return (
@@ -190,26 +191,40 @@ function ProfileUmkmContent() {
                   actionText="Ubah"
                   onAction={() => openModal("kontak")}
                 />
-                {mockContacts.length > 0 ? (
-                  <div className="space-y-3">
-                    {mockContacts.map((contact) => (
-                      <div key={contact.id} className="bg-neutral-100 rounded-xl p-4">
-                        <span className="block text-xs font-medium text-info-300 mb-1">
-                          {contact.label}
-                        </span>
-                        <span className="block text-sm font-medium text-gray-800">
-                          {contact.value}
-                        </span>
-                      </div>
-                    ))}
+                <div className="space-y-3">
+                  <div className="bg-neutral-100 rounded-xl p-4">
+                    <span className="block text-xs font-medium text-info-300 mb-1">
+                      Website/Sosial Media
+                    </span>
+                    <span className="block text-sm font-medium text-gray-800">
+                      {website}
+                    </span>
                   </div>
-                ) : (
-                  <EmptySection
-                    icon={BiSolidContact}
-                    title="Belum ada kontak tersedia"
-                    actionLabel="Tambah Kontak"
-                  />
-                )}
+                  <div className="bg-neutral-100 rounded-xl p-4">
+                    <span className="block text-xs font-medium text-info-300 mb-1">
+                      Email Usaha
+                    </span>
+                    <span className="block text-sm font-medium text-gray-800">
+                      {emailHrd}
+                    </span>
+                  </div>
+                  <div className="bg-neutral-100 rounded-xl p-4">
+                    <span className="block text-xs font-medium text-info-300 mb-1">
+                      Telepon
+                    </span>
+                    <span className="block text-sm font-medium text-gray-800">
+                      {telepon}
+                    </span>
+                  </div>
+                  <div className="bg-neutral-100 rounded-xl p-4">
+                    <span className="block text-xs font-medium text-info-300 mb-1">
+                      Alamat
+                    </span>
+                    <span className="block text-sm font-medium text-gray-800">
+                      {alamat}
+                    </span>
+                  </div>
+                </div>
               </Card>
             </div>
           </div>
