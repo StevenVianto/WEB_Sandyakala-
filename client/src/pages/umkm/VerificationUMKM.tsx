@@ -116,6 +116,23 @@ export default function VerificationUMKM() {
       localStorage.setItem(statusKey, "pending");
       if (userEmail) {
         localStorage.setItem("latest_registered_umkm_email", userEmail);
+        
+        let registeredEmails = [];
+        const savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+        if (savedEmailsStr) {
+          try {
+            registeredEmails = JSON.parse(savedEmailsStr);
+            if (!Array.isArray(registeredEmails)) {
+              registeredEmails = [];
+            }
+          } catch (e) {
+            registeredEmails = [];
+          }
+        }
+        if (!registeredEmails.includes(userEmail)) {
+          registeredEmails.push(userEmail);
+          localStorage.setItem("registered_umkm_emails", JSON.stringify(registeredEmails));
+        }
       }
       setStatus("pending");
     };

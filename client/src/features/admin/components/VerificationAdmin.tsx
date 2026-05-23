@@ -20,22 +20,71 @@ const dataCta = [
 ];
 
 export default function VerificationAdmin() {
-  const [registeredProfile, setRegisteredProfile] = useState<any>(null);
-  const [verificationStatus, setVerificationStatus] = useState<string>("pending");
+  const [registeredProfiles, setRegisteredProfiles] = useState<any[]>([]);
 
   useEffect(() => {
-    const latestEmail = localStorage.getItem("latest_registered_umkm_email");
-    const profileKey = latestEmail ? `registered_umkm_profile_${latestEmail}` : "registered_umkm_profile";
-    const statusKey = latestEmail ? `umkm_verification_status_${latestEmail}` : "umkm_verification_status";
+    let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+    let emails: string[] = [];
+    if (savedEmailsStr) {
+      try {
+        emails = JSON.parse(savedEmailsStr);
+        if (!Array.isArray(emails)) {
+          emails = [];
+        }
+      } catch (e) {
+        emails = [];
+      }
+    }
 
-    const savedProfile = localStorage.getItem(profileKey);
-    if (savedProfile) {
-      setRegisteredProfile(JSON.parse(savedProfile));
+    // Migration 1: Scoped latest registered email recovery
+    const latestEmail = localStorage.getItem("latest_registered_umkm_email");
+    if (latestEmail && !emails.includes(latestEmail)) {
+      emails.push(latestEmail);
+      localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
     }
-    const savedStatus = localStorage.getItem(statusKey);
-    if (savedStatus) {
-      setVerificationStatus(savedStatus);
+
+    // Migration 2: Legacy global profile recovery
+    const legacyProfileStr = localStorage.getItem("registered_umkm_profile");
+    if (legacyProfileStr) {
+      try {
+        const legacyProfile = JSON.parse(legacyProfileStr);
+        const legacyEmail = legacyProfile.businessEmail || "legacy@mail.com";
+        
+        if (!localStorage.getItem(`registered_umkm_profile_${legacyEmail}`)) {
+          localStorage.setItem(`registered_umkm_profile_${legacyEmail}`, legacyProfileStr);
+        }
+        if (!localStorage.getItem(`umkm_verification_status_${legacyEmail}`)) {
+          const legacyStatus = localStorage.getItem("umkm_verification_status") || "pending";
+          localStorage.setItem(`umkm_verification_status_${legacyEmail}`, legacyStatus);
+        }
+        
+        if (!emails.includes(legacyEmail)) {
+          emails.push(legacyEmail);
+          localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
+        }
+      } catch (e) {
+        console.error("Legacy profile migration error:", e);
+      }
     }
+
+    const profiles: any[] = [];
+    emails.forEach((email) => {
+      const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
+      const statusStr = localStorage.getItem(`umkm_verification_status_${email}`) || "pending";
+      if (profileStr) {
+        try {
+          const profile = JSON.parse(profileStr);
+          profiles.push({
+            ...profile,
+            email,
+            status: statusStr,
+          });
+        } catch (e) {
+          console.error("Error parsing profile for email", email, e);
+        }
+      }
+    });
+    setRegisteredProfiles(profiles);
   }, []);
 
   return (
@@ -143,40 +192,40 @@ export default function VerificationAdmin() {
               </td>
             </tr>
 
-            {registeredProfile && (
-              <tr className="bg-white border-b border-gray-100">
-                <td className="table-data">3</td>
-                <td className="table-data font-bold text-gray-900">{registeredProfile.businessName}</td>
-                <td className="table-data text-gray-600">{registeredProfile.businessEmail}</td>
+            {registeredProfiles.map((profile, idx) => (
+              <tr key={profile.email} className="bg-white border-b border-gray-100">
+                <td className="table-data">{3 + idx}</td>
+                <td className="table-data font-bold text-gray-900">{profile.businessName}</td>
+                <td className="table-data text-gray-600">{profile.businessEmail}</td>
                 <td className="table-data">
                   <Badge
                     size={"sm"}
                     variant={
-                      verificationStatus === "approved"
+                      profile.status === "approved"
                         ? "primary"
-                        : verificationStatus === "rejected"
+                        : profile.status === "rejected"
                         ? "error"
                         : "primary"
                     }
                     className="border-none text-black"
                   >
-                    {verificationStatus === "approved"
+                    {profile.status === "approved"
                       ? "Terverifikasi"
-                      : verificationStatus === "rejected"
+                      : profile.status === "rejected"
                       ? "Ditolak"
                       : "Verifikasi"}
                   </Badge>
                 </td>
                 <td className="table-data">
                   <Link
-                    to={`/admin/verifikasi-umkm/${registeredProfile.businessName.toLowerCase().replace(/\s+/g, "-")}`}
+                    to={`/admin/verifikasi-umkm/${profile.businessName.toLowerCase().replace(/\s+/g, "-")}`}
                     className="text-center block underline text-blue-600 cursor-pointer"
                   >
                     Detail
                   </Link>
                 </td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       </div>

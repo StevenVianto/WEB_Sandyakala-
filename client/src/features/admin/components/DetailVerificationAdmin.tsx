@@ -20,30 +20,100 @@ export default function DetailVerificationAdmin() {
   const [open, setOpen] = useState(false);
   const [openAccept, setOpenAccept] = useState(false);
   const [registeredProfile, setRegisteredProfile] = useState<any>(null);
+  const [selectedEmail, setSelectedEmail] = useState<string>("");
   const navigate = useNavigate();
 
-  const latestEmail = localStorage.getItem("latest_registered_umkm_email");
-  const profileKey = latestEmail ? `registered_umkm_profile_${latestEmail}` : "registered_umkm_profile";
-  const statusKey = latestEmail ? `umkm_verification_status_${latestEmail}` : "umkm_verification_status";
-
   useEffect(() => {
-    const savedProfile = localStorage.getItem(profileKey);
-    if (savedProfile) {
-      const parsed = JSON.parse(savedProfile);
-      const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
-      if (profileSlug === namaUsaha) {
-        setRegisteredProfile(parsed);
+    let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+    let emails: string[] = [];
+    if (savedEmailsStr) {
+      try {
+        emails = JSON.parse(savedEmailsStr);
+        if (!Array.isArray(emails)) {
+          emails = [];
+        }
+      } catch (e) {
+        emails = [];
       }
     }
-  }, [namaUsaha, profileKey]);
+
+    // Migration 1: Scoped latest registered email recovery
+    const latestEmail = localStorage.getItem("latest_registered_umkm_email");
+    if (latestEmail && !emails.includes(latestEmail)) {
+      emails.push(latestEmail);
+      localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
+    }
+
+    // Migration 2: Legacy global profile recovery
+    const legacyProfileStr = localStorage.getItem("registered_umkm_profile");
+    if (legacyProfileStr) {
+      try {
+        const legacyProfile = JSON.parse(legacyProfileStr);
+        const legacyEmail = legacyProfile.businessEmail || "legacy@mail.com";
+        
+        if (!localStorage.getItem(`registered_umkm_profile_${legacyEmail}`)) {
+          localStorage.setItem(`registered_umkm_profile_${legacyEmail}`, legacyProfileStr);
+        }
+        if (!localStorage.getItem(`umkm_verification_status_${legacyEmail}`)) {
+          const legacyStatus = localStorage.getItem("umkm_verification_status") || "pending";
+          localStorage.setItem(`umkm_verification_status_${legacyEmail}`, legacyStatus);
+        }
+        
+        if (!emails.includes(legacyEmail)) {
+          emails.push(legacyEmail);
+          localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
+        }
+      } catch (e) {
+        console.error("Legacy profile migration error:", e);
+      }
+    }
+
+    let foundProfile = null;
+    let foundEmail = "";
+    for (const email of emails) {
+      const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
+      if (profileStr) {
+        try {
+          const parsed = JSON.parse(profileStr);
+          const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
+          if (profileSlug === namaUsaha) {
+            foundProfile = parsed;
+            foundEmail = email;
+            break;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+
+    // Fallback if not found in array (e.g. legacy/direct keys or default)
+    if (!foundProfile) {
+      const savedProfile = localStorage.getItem("registered_umkm_profile");
+      if (savedProfile) {
+        const parsed = JSON.parse(savedProfile);
+        const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
+        if (profileSlug === namaUsaha) {
+          foundProfile = parsed;
+        }
+      }
+    }
+
+    if (foundProfile) {
+      setRegisteredProfile(foundProfile);
+      setSelectedEmail(foundEmail);
+    }
+  }, [namaUsaha]);
 
   const handleAccept = () => {
+    const statusKey = selectedEmail ? `umkm_verification_status_${selectedEmail}` : "umkm_verification_status";
     localStorage.setItem(statusKey, "approved");
     setOpenAccept(false);
     navigate("/admin/verifikasi-umkm");
   };
 
   const handleReject = () => {
+    const statusKey = selectedEmail ? `umkm_verification_status_${selectedEmail}` : "umkm_verification_status";
     localStorage.setItem(statusKey, "rejected");
     setOpen(false);
     navigate("/admin/verifikasi-umkm");
