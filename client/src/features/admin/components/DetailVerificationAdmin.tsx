@@ -9,7 +9,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import CardUmkm from "@/assets/images/card-umkm.png";
 import { Modal } from "@/shared/components/ui/modal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatNamaUsaha } from "../utils/formar-nama-usaha";
 
 export default function DetailVerificationAdmin() {
@@ -19,7 +19,19 @@ export default function DetailVerificationAdmin() {
 
   const [open, setOpen] = useState(false);
   const [openAccept, setOpenAccept] = useState(false);
+  const [registeredProfile, setRegisteredProfile] = useState<any>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedProfile = localStorage.getItem("registered_umkm_profile");
+    if (savedProfile) {
+      const parsed = JSON.parse(savedProfile);
+      const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
+      if (profileSlug === namaUsaha) {
+        setRegisteredProfile(parsed);
+      }
+    }
+  }, [namaUsaha]);
 
   const handleAccept = () => {
     localStorage.setItem("umkm_verification_status", "approved");
@@ -35,8 +47,8 @@ export default function DetailVerificationAdmin() {
 
   return (
     <DashboardLayout
-      title={`Detail Akun - ${namaUsahaFormatted}`}
-      description="Dimiliki Oleh Jane Doe"
+      title={`Detail Akun - ${registeredProfile ? registeredProfile.businessName : namaUsahaFormatted}`}
+      description={`Dimiliki Oleh ${registeredProfile ? registeredProfile.ownerName : "Jane Doe"}`}
       showBackButton
     >
       <div className="flex justify-center">
@@ -58,14 +70,14 @@ export default function DetailVerificationAdmin() {
               </div>
               <div className="space-y-3">
                 <h2 className="font-extrabold text-base md:text-3xl">
-                  {namaUsahaFormatted}
+                  {registeredProfile ? registeredProfile.businessName : namaUsahaFormatted}
                 </h2>
-                <p className="font-semibold text-sm">Kategori : Kuliner</p>
+                <p className="font-semibold text-sm">Kategori : {registeredProfile ? registeredProfile.businessCategory : "Kuliner"}</p>
                 <Button
                   size={"sm"}
                   className="w-max bg-info-100/40 hover:text-white text-info-300 text-xs font-bold shadow-md"
                 >
-                  NIB: 1232131231
+                  NIB: {registeredProfile ? registeredProfile.nib : "1232131231"}
                 </Button>
               </div>
             </div>
@@ -75,40 +87,40 @@ export default function DetailVerificationAdmin() {
                   <p className="text-xs text-gray-500 font-medium">
                     Nama Pemilik
                   </p>
-                  <p className=" text-black font-extrabold">Jane Doe</p>
+                  <p className=" text-black font-extrabold">{registeredProfile ? registeredProfile.ownerName : "Jane Doe"}</p>
                 </div>
 
                 <div>
                   <p className="text-xs text-gray-500 font-medium">
                     No Telepon
                   </p>
-                  <p className=" text-black font-extrabold">08123456789</p>
+                  <p className=" text-black font-extrabold">{registeredProfile ? registeredProfile.businessPhone : "08123456789"}</p>
                 </div>
 
                 <div>
                   <p className="text-xs text-gray-500 font-medium">Alamat</p>
-                  <p className=" text-black font-extrabold">Jakarta</p>
+                  <p className=" text-black font-extrabold">{registeredProfile ? registeredProfile.address : "Jakarta"}</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <p className="text-xs text-gray-500 font-medium">Email</p>
-                  <p className="text-black font-extrabold">janedoe@gmail.com</p>
+                  <p className="text-black font-extrabold">{registeredProfile ? registeredProfile.businessEmail : "janedoe@gmail.com"}</p>
                 </div>
 
                 <div>
                   <p className="text-xs text-gray-500 font-medium">
                     Jumlah Karyawan
                   </p>
-                  <p className="text-black font-extrabold">10 - 50 Karyawan</p>
+                  <p className="text-black font-extrabold">{registeredProfile ? registeredProfile.employeeCount : "10 - 50 Karyawan"}</p>
                 </div>
 
                 <div>
                   <p className="text-xs text-gray-500 font-medium">
                     Tanggal Bergabung
                   </p>
-                  <p className="text-black font-extrabold">29 Maret 2026</p>
+                  <p className="text-black font-extrabold">{registeredProfile ? registeredProfile.createdAt : "29 Maret 2026"}</p>
                 </div>
               </div>
             </div>

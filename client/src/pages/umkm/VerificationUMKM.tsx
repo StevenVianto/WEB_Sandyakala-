@@ -85,6 +85,30 @@ export default function VerificationUMKM() {
     }
   };
 
+  const handleProceedToPending = () => {
+    const selectedProvinsiName = provinsi.find((p) => p.id === selectedProvinsi)?.name || "";
+    const selectedKabupatenName = kabupaten.find((k) => k.id === selectedKabupaten)?.name || "";
+    const selectedKecamatanName = kecamatan.find((kc) => kc.id === selectedKecamatan)?.name || "";
+    const selectedDesaName = desa.find((d) => d.id === selectedDesa)?.name || "";
+
+    const profile = {
+      ownerName,
+      nib,
+      businessName,
+      businessCategory: kategori === "Lainnya" ? customKategori : kategori,
+      employeeCount,
+      establishedAt,
+      businessEmail,
+      businessPhone,
+      websiteSosmed,
+      address: [selectedDesaName, selectedKecamatanName, selectedKabupatenName, selectedProvinsiName].filter(Boolean).join(", ") || "Jakarta",
+      createdAt: new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' })
+    };
+    localStorage.setItem("registered_umkm_profile", JSON.stringify(profile));
+    localStorage.setItem("umkm_verification_status", "pending");
+    setStatus("pending");
+  };
+
   // Integrasi status dari Local Storage
   useEffect(() => {
     const savedStatus = localStorage.getItem("umkm_verification_status");
@@ -95,6 +119,23 @@ export default function VerificationUMKM() {
 
   const [kategori, setKategori] = useState("");
   const [customKategori, setCustomKategori] = useState("");
+
+  const [ownerName, setOwnerName] = useState("");
+  const [nib, setNib] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [employeeCount, setEmployeeCount] = useState("");
+  const [establishedAt, setEstablishedAt] = useState("");
+  const [businessEmail, setBusinessEmail] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
+  const [websiteSosmed, setWebsiteSosmed] = useState("");
+  const [profileData, setProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    const savedProfile = localStorage.getItem("registered_umkm_profile");
+    if (savedProfile) {
+      setProfileData(JSON.parse(savedProfile));
+    }
+  }, [status]);
 
   const [provinsi, setProvinsi] = useState<any[]>([]);
   const [selectedProvinsi, setSelectedProvinsi] = useState("");
@@ -363,6 +404,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan nama lengkap pemilik usaha"
+                    value={ownerName}
+                    onChange={(e) => setOwnerName(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -373,6 +416,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan NIB usaha"
+                    value={nib}
+                    onChange={(e) => setNib(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -383,6 +428,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan nama usaha atau UMKM"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -437,7 +484,11 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Jumlah Karyawan
                   </label>
-                  <select className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                  <select
+                    value={employeeCount}
+                    onChange={(e) => setEmployeeCount(e.target.value)}
+                    className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
                     <option value="" selected disabled>
                       Pilih jumlah karyawan
                     </option>
@@ -447,7 +498,7 @@ export default function VerificationUMKM() {
                     <option value="11 - 50">
                       11 - 50 Karyawan (Usaha Kecil)
                     </option>
-                    <option value="51 - 50">
+                    <option value="51 - 100">
                       51 - 100 Karyawan (Usaha Menengah)
                     </option>
                     <option value="100+">100+ Karyawan (Usaha Besar)</option>
@@ -460,6 +511,8 @@ export default function VerificationUMKM() {
                   <input
                     type="number"
                     placeholder="2020, 2021, 2022, 2023"
+                    value={establishedAt}
+                    onChange={(e) => setEstablishedAt(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -557,6 +610,8 @@ export default function VerificationUMKM() {
                   <input
                     type="email"
                     placeholder="example@gmail.com"
+                    value={businessEmail}
+                    onChange={(e) => setBusinessEmail(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -567,6 +622,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="081234567890"
+                    value={businessPhone}
+                    onChange={(e) => setBusinessPhone(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -577,6 +634,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan website atau sosial media usaha"
+                    value={websiteSosmed}
+                    onChange={(e) => setWebsiteSosmed(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -833,10 +892,7 @@ export default function VerificationUMKM() {
                 Kembali
               </Button>
               <Button
-                onClick={() => {
-                  localStorage.setItem("umkm_verification_status", "pending");
-                  setStatus("pending");
-                }}
+                onClick={handleProceedToPending}
                 disabled={!logoFile || !ktpFile || !nibFile}
                 className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
@@ -866,13 +922,13 @@ export default function VerificationUMKM() {
                 </div>
                 <div>
                   <h4 className="font-bold text-[15px] text-gray-900 mb-0.5">
-                    Sambal Bakar Nusantara
+                    {profileData?.businessName || "Sambal Bakar Nusantara"}
                   </h4>
                   <p className="text-[12px] text-gray-500 mb-1.5">
-                    Kategori: Kuliner
+                    Kategori: {profileData?.businessCategory || "Kuliner"}
                   </p>
                   <div className="bg-[#F1F5F9] text-[#64748B] text-[10px] px-2 py-0.5 rounded font-medium inline-block border border-gray-200">
-                    NIB: 1232131231
+                    NIB: {profileData?.nib || "1232131231"}
                   </div>
                 </div>
               </div>
@@ -887,12 +943,12 @@ export default function VerificationUMKM() {
             {/* Detail grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-12">
               {[
-                { label: "Nama Pemilik", value: "Jane Doe" },
-                { label: "Email", value: "janedoe@gmail.com" },
-                { label: "No Telepon", value: "08123456789" },
-                { label: "Jumlah Karyawan", value: "10-50 Karyawan" },
-                { label: "Alamat", value: "Jakarta" },
-                { label: "Tanggal Bergabung", value: "29 Maret 2025" },
+                { label: "Nama Pemilik", value: profileData?.ownerName || "Jane Doe" },
+                { label: "Email", value: profileData?.businessEmail || "janedoe@gmail.com" },
+                { label: "No Telepon", value: profileData?.businessPhone || "08123456789" },
+                { label: "Jumlah Karyawan", value: profileData?.employeeCount || "10-50 Karyawan" },
+                { label: "Alamat", value: profileData?.address || "Jakarta" },
+                { label: "Tanggal Bergabung", value: profileData?.createdAt || "29 Maret 2025" },
               ].map(({ label, value }) => (
                 <div key={label} className="flex flex-col gap-0.5">
                   <span className="text-[12px] text-gray-400">{label}</span>

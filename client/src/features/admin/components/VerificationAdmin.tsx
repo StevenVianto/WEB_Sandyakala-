@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/shared/layouts/DashboardLayout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -19,6 +20,20 @@ const dataCta = [
 ];
 
 export default function VerificationAdmin() {
+  const [registeredProfile, setRegisteredProfile] = useState<any>(null);
+  const [verificationStatus, setVerificationStatus] = useState<string>("pending");
+
+  useEffect(() => {
+    const savedProfile = localStorage.getItem("registered_umkm_profile");
+    if (savedProfile) {
+      setRegisteredProfile(JSON.parse(savedProfile));
+    }
+    const savedStatus = localStorage.getItem("umkm_verification_status");
+    if (savedStatus) {
+      setVerificationStatus(savedStatus);
+    }
+  }, []);
+
   return (
     <DashboardLayout
       title="Verifikasi Akun UMKM"
@@ -123,6 +138,41 @@ export default function VerificationAdmin() {
                 </Link>
               </td>
             </tr>
+
+            {registeredProfile && (
+              <tr className="bg-white border-b border-gray-100">
+                <td className="table-data">3</td>
+                <td className="table-data font-bold text-gray-900">{registeredProfile.businessName}</td>
+                <td className="table-data text-gray-600">{registeredProfile.businessEmail}</td>
+                <td className="table-data">
+                  <Badge
+                    size={"sm"}
+                    variant={
+                      verificationStatus === "approved"
+                        ? "primary"
+                        : verificationStatus === "rejected"
+                        ? "error"
+                        : "primary"
+                    }
+                    className="border-none text-black"
+                  >
+                    {verificationStatus === "approved"
+                      ? "Terverifikasi"
+                      : verificationStatus === "rejected"
+                      ? "Ditolak"
+                      : "Verifikasi"}
+                  </Badge>
+                </td>
+                <td className="table-data">
+                  <Link
+                    to={`/admin/verifikasi-umkm/${registeredProfile.businessName.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="text-center block underline text-blue-600 cursor-pointer"
+                  >
+                    Detail
+                  </Link>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
