@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
+import { apiRequest } from "@/shared/lib/api";
 import {
   FiClock,
   FiCheck,
@@ -39,6 +40,8 @@ const ForkKnifeIcon = ({ className }: { className?: string }) => (
 
 export default function VerificationUMKM() {
   const [status, setStatus] = useState<VerificationStatus>("step1");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -91,13 +94,45 @@ export default function VerificationUMKM() {
   const statusKey = userEmail ? "umkm_verification_status_" + userEmail : "umkm_verification_status";
   const profileKey = userEmail ? "registered_umkm_profile_" + userEmail : "registered_umkm_profile";
 
-  const handleProceedToPending = () => {
+  const handleProceedToPending = async () => {
+    setError(null);
+    setSubmitting(true);
+
     const selectedProvinsiName = provinsi.find((p) => p.id === selectedProvinsi)?.name || "";
     const selectedKabupatenName = kabupaten.find((k) => k.id === selectedKabupaten)?.name || "";
     const selectedKecamatanName = kecamatan.find((kc) => kc.id === selectedKecamatan)?.name || "";
     const selectedDesaName = desa.find((d) => d.id === selectedDesa)?.name || "";
 
-    const saveProfileData = (logoBase64?: string) => {
+    // Extract maximum number of employees (e.g. "11 - 50" -> 50) to satisfy z.coerce.number()
+    let count = 1;
+    if (employeeCount) {
+      const match = employeeCount.match(/\d+/g);
+      if (match) {
+        count = parseInt(match[match.length - 1]);
+      }
+    }
+
+    const formData = new FormData();
+    formData.append("owner_name", ownerName);
+    formData.append("nib", nib);
+    formData.append("business_name", businessName);
+    formData.append("business_category", kategori === "Lainnya" ? customKategori : kategori);
+    formData.append("employee_count", String(count));
+    formData.append("established_at", String(parseInt(establishedAt) || new Date().getFullYear()));
+    formData.append("province", selectedProvinsiName);
+    formData.append("regency", selectedKabupatenName);
+    formData.append("district", selectedKecamatanName);
+    formData.append("subdistrict", selectedDesaName);
+    formData.append("website_sosmed", websiteSosmed || "");
+    formData.append("business_email", businessEmail);
+    formData.append("business_phone", businessPhone);
+
+    // Files
+    if (logoFile) formData.append("logo", logoFile);
+    if (ktpFile) formData.append("ktp", ktpFile);
+    if (nibFile) formData.append("nib_document", nibFile);
+
+    const saveToLocalStorageAndState = (logoBase64?: string) => {
       const profile = {
         ownerName,
         nib,
@@ -137,24 +172,199 @@ export default function VerificationUMKM() {
       setStatus("pending");
     };
 
-    if (logoFile && logoFile.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        saveProfileData(reader.result as string);
-      };
-      reader.readAsDataURL(logoFile);
-    } else {
-      saveProfileData();
+    try {
+      const response = await apiRequest<{ umkm_id: number; status: string }>("/umkm/register", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.success) {
+        if (response.errors && response.errors.length > 0) {
+          // Show the first validation error beautifully
+          const errDetail = response.errors[0];
+          setError(`Kesalahan pada ${errDetail.field}: ${errDetail.message}`);
+        } else {
+          setError(response.message || "Pendaftaran gagal. Silakan periksa kembali data Anda.");
+        }
+        setSubmitting(false);
+        return;
+      }
+
+      if (logoFile && logoFile.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          saveToLocalStorageAndState(reader.result as string);
+        };
+        reader.readAsDataURL(logoFile);
+      } else {
+        saveToLocalStorageAndState();
+      }
+    } catch (e: any) {
+      console.error(e);
+      setError("Terjadi kesalahan jaringan saat mendaftarkan UMKM.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Integrasi status dari Local Storage
-  useEffect(() => {
-    const savedStatus = localStorage.getItem(statusKey);
-    if (savedStatus) {
-      setStatus(savedStatus as VerificationStatus);
+  const handleProceedToStep2 = () => {
+    setError(null);
+
+    // 1. Owner Name
+    if (!ownerName.trim()) {
+      setError("Nama pemilik wajib diisi");
+      return;
     }
-  }, [statusKey]);
+
+    // 2. NIB
+    if (!nib.trim()) {
+      setError("NIB wajib diisi");
+      return;
+    }
+    if (!/^\d{13}$/.test(nib.trim())) {
+      setError("NIB harus berupa 13 digit angka");
+      return;
+    }
+
+    // 3. Business Name
+    if (!businessName.trim()) {
+      setError("Nama usaha wajib diisi");
+      return;
+    }
+
+    // 4. Kategori
+    if (!kategori) {
+      setError("Kategori usaha wajib diisi");
+      return;
+    }
+    if (kategori === "Lainnya" && !customKategori.trim()) {
+      setError("Tuliskan kategori usaha kustom Anda");
+      return;
+    }
+
+    // 5. Employee Count
+    if (!employeeCount) {
+      setError("Jumlah karyawan wajib dipilih");
+      return;
+    }
+
+    // 6. Established Year
+    if (!establishedAt.trim()) {
+      setError("Tahun berdiri wajib diisi");
+      return;
+    }
+    const year = parseInt(establishedAt);
+    const currentYear = new Date().getFullYear();
+    if (isNaN(year) || year < 1886 || year > currentYear + 1) {
+      setError(`Tahun berdiri harus berupa angka antara 1886 dan ${currentYear + 1}`);
+      return;
+    }
+
+    // 7. Location (Provinsi, Kabupaten, Kecamatan, Desa)
+    if (!selectedProvinsi) {
+      setError("Provinsi wajib dipilih");
+      return;
+    }
+    if (!selectedKabupaten) {
+      setError("Kabupaten/Kota wajib dipilih");
+      return;
+    }
+    if (!selectedKecamatan) {
+      setError("Kecamatan wajib dipilih");
+      return;
+    }
+    if (!selectedDesa) {
+      setError("Desa/Kelurahan wajib dipilih");
+      return;
+    }
+
+    // 8. Business Email
+    if (!businessEmail.trim()) {
+      setError("Email usaha wajib diisi");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessEmail.trim())) {
+      setError("Format email usaha tidak valid");
+      return;
+    }
+
+    // 9. Phone
+    if (!businessPhone.trim()) {
+      setError("Nomor telepon usaha wajib diisi");
+      return;
+    }
+
+    // 10. Website/Sosmed
+    if (websiteSosmed.trim()) {
+      let url = websiteSosmed.trim();
+      if (!/^https?:\/\//i.test(url)) {
+        url = "https://" + url;
+      }
+      try {
+        new URL(url);
+        setWebsiteSosmed(url);
+      } catch (e) {
+        setError("Format URL Website/Sosial Media tidak valid (contoh: https://instagram.com/akun atau instagram.com)");
+        return;
+      }
+    }
+
+    setStatus("step2");
+  };
+
+  // Integrasi status dari Backend & Local Storage
+  useEffect(() => {
+    const fetchLatestStatus = async () => {
+      const response = await apiRequest<any>("/umkm/my-profile");
+      if (response.success && response.data) {
+        const dbStatus = response.data.status; // e.g. "APPROVED", "REJECTED", "PENDING"
+        if (dbStatus) {
+          const mappedStatus = dbStatus.toLowerCase() as VerificationStatus;
+          setStatus(mappedStatus);
+          localStorage.setItem(statusKey, mappedStatus);
+
+          // Update profileData with the latest data from the backend as well
+          const updatedProfile = {
+            ownerName: response.data.owner_name,
+            nib: response.data.nib,
+            businessName: response.data.business_name,
+            businessCategory: response.data.business_category,
+            employeeCount: response.data.employee_count,
+            establishedAt: response.data.established_at,
+            businessEmail: response.data.business_email,
+            businessPhone: response.data.business_phone,
+            websiteSosmed: response.data.website_sosmed,
+            address: [response.data.subdistrict, response.data.district, response.data.regency, response.data.province].filter(Boolean).join(", ") || "Jakarta",
+            createdAt: response.data.created_at ? new Date(response.data.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "29 Maret 2026",
+            businessLogo: response.data.logo_url || ""
+          };
+          setProfileData(updatedProfile);
+          localStorage.setItem(profileKey, JSON.stringify(updatedProfile));
+
+          // Also, if the status is approved, we should update the local "user" item's role to "UMKM"
+          // so that route guards and navbar links sync instantly
+          if (mappedStatus === "approved") {
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
+              const userObj = JSON.parse(userStr);
+              if (userObj.role !== "UMKM") {
+                userObj.role = "UMKM";
+                localStorage.setItem("user", JSON.stringify(userObj));
+              }
+            }
+          }
+        }
+      } else {
+        // Fallback to local storage if API fails or returns no profile
+        const savedStatus = localStorage.getItem(statusKey);
+        if (savedStatus) {
+          setStatus(savedStatus as VerificationStatus);
+        }
+      }
+    };
+
+    fetchLatestStatus();
+  }, [statusKey, profileKey]);
 
   const [kategori, setKategori] = useState("");
   const [customKategori, setCustomKategori] = useState("");
@@ -357,7 +567,7 @@ export default function VerificationUMKM() {
               </h2>
 
               <p className="text-[#166534] text-[13px] leading-relaxed max-w-3xl mb-4">
-                Akun <strong>Sambal Bakar Nusantara</strong> milik Jane Doe
+                Akun <strong>{profileData?.businessName || "Sambal Bakar Nusantara"}</strong> milik <strong>{profileData?.ownerName || "Jane Doe"}</strong>{" "}
                 telah resmi terverifikasi oleh tim FreshStart. Kini Anda dapat
                 mengakses seluruh fitur platform secara penuh, mulai dari
                 membuka lowongan kerja, mengelola profil usaha, hingga
@@ -368,7 +578,7 @@ export default function VerificationUMKM() {
                 <div className="flex items-center gap-2">
                   <FiClock className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    Diverifikasi pada: <strong>31 Maret 2025, 12.30 WIB</strong>
+                    Diverifikasi pada: <strong>{profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB</strong>
                   </span>
                 </div>
                 <span>
@@ -405,7 +615,7 @@ export default function VerificationUMKM() {
               </h2>
 
               <p className="text-[#991B1B] text-[13px] leading-relaxed max-w-3xl mb-4">
-                Maaf, akun UMKM <strong>Sambal Bakar Nusantara</strong> Anda
+                Maaf, akun UMKM <strong>{profileData?.businessName || "Sambal Bakar Nusantara"}</strong> Anda
                 tidak dapat diverifikasi pada saat ini. Admin telah meninjau
                 pengajuan Anda dan menemukan beberapa hal yang perlu diperbaiki.
                 Silakan baca keterangan di bawah dan ajukan kembali setelah
@@ -415,7 +625,7 @@ export default function VerificationUMKM() {
               <div className="flex items-center gap-2 text-[#991B1B] text-[12px]">
                 <FiClock className="w-3.5 h-3.5 shrink-0" />
                 <span>
-                  Ditolak pada: <strong>31 Maret 2025, 12.30 WIB</strong>
+                  Ditolak pada: <strong>{profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB</strong>
                 </span>
               </div>
             </div>
@@ -680,8 +890,8 @@ export default function VerificationUMKM() {
                 </div>
               </div>
             </Card>
-            <Button
-              onClick={() => setStatus("step2")}
+             <Button
+              onClick={handleProceedToStep2}
               className="w-full max-w-2xl bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]"
             >
               Lanjut
@@ -932,10 +1142,10 @@ export default function VerificationUMKM() {
               </Button>
               <Button
                 onClick={handleProceedToPending}
-                disabled={!logoFile || !ktpFile || !nibFile}
+                disabled={!logoFile || !ktpFile || !nibFile || submitting}
                 className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                Lanjut
+                {submitting ? "Memproses..." : "Lanjut"}
               </Button>
             </div>
           </div>
@@ -1185,6 +1395,11 @@ export default function VerificationUMKM() {
           key={status}
           className="w-full animate-in fade-in slide-in-from-bottom-3 duration-400"
         >
+          {error && (
+            <div className="w-full max-w-2xl mx-auto mb-6 bg-red-50 border border-red-200 text-red-700 px-5 py-3.5 rounded-2xl text-xs font-semibold">
+              {error}
+            </div>
+          )}
           {renderBanner()}
           {renderContent()}
         </div>

@@ -67,6 +67,45 @@ const UmkmRepository = {
     );
     return rows.length > 0;
   },
+
+  findAllUmkm: async () => {
+    const query = `
+      SELECT p.id_umkm, p.user_id, p.owner_name, p.nib, p.business_name, p.business_category, p.employee_count, p.established_at, p.province, p.regency, p.district, p.subdistrict, p.website_sosmed, p.business_email, p.business_phone, p.status, p.created_at,
+             d.logo_url, d.ktp_url, d.nib_file_url
+      FROM umkm_profiles p
+      LEFT JOIN umkm_documents d ON p.id_umkm = d.umkm_id
+      ORDER BY p.created_at DESC
+    `;
+    const [rows] = await pool.execute(query);
+    return rows;
+  },
+
+  findUmkmById: async (umkmId: number) => {
+    const query = "SELECT * FROM umkm_profiles WHERE id_umkm = ?";
+    const [rows]: any = await pool.execute(query, [umkmId]);
+    return rows[0];
+  },
+
+  updateStatus: async (umkmId: number, status: string) => {
+    const query = "UPDATE umkm_profiles SET status = ? WHERE id_umkm = ?";
+    await pool.execute(query, [status, umkmId]);
+  },
+
+  findUmkmByUserId: async (userId: number) => {
+    const query = `
+      SELECT p.*, d.logo_url, d.ktp_url, d.nib_file_url
+      FROM umkm_profiles p
+      LEFT JOIN umkm_documents d ON p.id_umkm = d.umkm_id
+      WHERE p.user_id = ?
+    `;
+    const [rows]: any = await pool.execute(query, [userId]);
+    return rows[0];
+  },
+
+  updateUserRole: async (userId: number, role: string) => {
+    const query = "UPDATE users SET role = ?, updated_at = NOW() WHERE id = ?";
+    await pool.execute(query, [role, userId]);
+  },
 };
 
 export default UmkmRepository;

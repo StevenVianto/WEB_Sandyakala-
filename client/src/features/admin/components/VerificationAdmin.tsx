@@ -6,6 +6,7 @@ import { SearchInput } from "@/shared/components/ui/search-input";
 import { StatCard } from "@/shared/components/ui/stat-card";
 import { Link } from "react-router-dom";
 import { dataStatCardVerification } from "@/features/admin/constants/data-dashboard";
+import { apiRequest } from "@/shared/lib/api";
 
 const dataCta = [
   {
@@ -23,68 +24,58 @@ export default function VerificationAdmin() {
   const [registeredProfiles, setRegisteredProfiles] = useState<any[]>([]);
 
   useEffect(() => {
-    let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
-    let emails: string[] = [];
-    if (savedEmailsStr) {
-      try {
-        emails = JSON.parse(savedEmailsStr);
-        if (!Array.isArray(emails)) {
-          emails = [];
+    const fetchProfiles = async () => {
+      const response = await apiRequest<any[]>("/umkm");
+      if (response.success && response.data) {
+        const mapped = response.data.map((p: any) => ({
+          id: p.id_umkm,
+          businessName: p.business_name,
+          businessEmail: p.business_email,
+          status: p.status?.toLowerCase() || "pending",
+          email: p.business_email,
+        }));
+        setRegisteredProfiles(mapped);
+      } else {
+        // Fallback to localStorage if API fails
+        let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+        let emails: string[] = [];
+        if (savedEmailsStr) {
+          try {
+            emails = JSON.parse(savedEmailsStr);
+            if (!Array.isArray(emails)) {
+              emails = [];
+            }
+          } catch (e) {
+            emails = [];
+          }
         }
-      } catch (e) {
-        emails = [];
-      }
-    }
 
-    // Migration 1: Scoped latest registered email recovery
-    const latestEmail = localStorage.getItem("latest_registered_umkm_email");
-    if (latestEmail && !emails.includes(latestEmail)) {
-      emails.push(latestEmail);
-      localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
-    }
+        const latestEmail = localStorage.getItem("latest_registered_umkm_email");
+        if (latestEmail && !emails.includes(latestEmail)) {
+          emails.push(latestEmail);
+        }
 
-    // Migration 2: Legacy global profile recovery
-    const legacyProfileStr = localStorage.getItem("registered_umkm_profile");
-    if (legacyProfileStr) {
-      try {
-        const legacyProfile = JSON.parse(legacyProfileStr);
-        const legacyEmail = legacyProfile.businessEmail || "legacy@mail.com";
-        
-        if (!localStorage.getItem(`registered_umkm_profile_${legacyEmail}`)) {
-          localStorage.setItem(`registered_umkm_profile_${legacyEmail}`, legacyProfileStr);
-        }
-        if (!localStorage.getItem(`umkm_verification_status_${legacyEmail}`)) {
-          const legacyStatus = localStorage.getItem("umkm_verification_status") || "pending";
-          localStorage.setItem(`umkm_verification_status_${legacyEmail}`, legacyStatus);
-        }
-        
-        if (!emails.includes(legacyEmail)) {
-          emails.push(legacyEmail);
-          localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
-        }
-      } catch (e) {
-        console.error("Legacy profile migration error:", e);
+        const profiles: any[] = [];
+        emails.forEach((email) => {
+          const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
+          const statusStr = localStorage.getItem(`umkm_verification_status_${email}`) || "pending";
+          if (profileStr) {
+            try {
+              const profile = JSON.parse(profileStr);
+              profiles.push({
+                ...profile,
+                email,
+                status: statusStr,
+              });
+            } catch (e) {
+              console.error("Error parsing profile for email", email, e);
+            }
+          }
+        });
+        setRegisteredProfiles(profiles);
       }
-    }
-
-    const profiles: any[] = [];
-    emails.forEach((email) => {
-      const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
-      const statusStr = localStorage.getItem(`umkm_verification_status_${email}`) || "pending";
-      if (profileStr) {
-        try {
-          const profile = JSON.parse(profileStr);
-          profiles.push({
-            ...profile,
-            email,
-            status: statusStr,
-          });
-        } catch (e) {
-          console.error("Error parsing profile for email", email, e);
-        }
-      }
-    });
-    setRegisteredProfiles(profiles);
+    };
+    fetchProfiles();
   }, []);
 
   return (
