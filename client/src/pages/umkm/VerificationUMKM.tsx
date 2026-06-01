@@ -312,6 +312,14 @@ export default function VerificationUMKM() {
     setStatus("step2");
   };
 
+  // Cek jika status di local storage sudah approved, langsung redirect tanpa nunggu API call
+  useEffect(() => {
+    const savedStatus = localStorage.getItem(statusKey);
+    if (savedStatus === "approved") {
+      navigate("/umkm/home");
+    }
+  }, [statusKey, navigate]);
+
   // Integrasi status dari Backend & Local Storage
   useEffect(() => {
     const fetchLatestStatus = async () => {
@@ -352,6 +360,8 @@ export default function VerificationUMKM() {
                 localStorage.setItem("user", JSON.stringify(userObj));
               }
             }
+            // Pengalihan langsung ke halaman Home UMKM
+            navigate("/umkm/home");
           }
         }
       } else {
@@ -359,12 +369,15 @@ export default function VerificationUMKM() {
         const savedStatus = localStorage.getItem(statusKey);
         if (savedStatus) {
           setStatus(savedStatus as VerificationStatus);
+          if (savedStatus === "approved") {
+            navigate("/umkm/home");
+          }
         }
       }
     };
 
     fetchLatestStatus();
-  }, [statusKey, profileKey]);
+  }, [statusKey, profileKey, navigate]);
 
   const [kategori, setKategori] = useState("");
   const [customKategori, setCustomKategori] = useState("");
