@@ -62,6 +62,13 @@ export const AuthService = {
     };
   },
 
+  updateAccount: async (userId: number, data: { username?: string; password?: string }) => {
+  if (data.password) {
+   data.password = await HashUtil.hashPassword(data.password);
+  }
+  await AuthRepository.updateAccount(userId, data);
+},
+
   getMe: async (userId: number) => {
     const user = await AuthRepository.findUserById(userId);
 

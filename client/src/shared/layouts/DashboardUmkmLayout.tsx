@@ -6,6 +6,7 @@ import logo from "@/assets/images/logo.png";
 import { ModalNotification } from "@/shared/components/ui/modal-notification";
 import { useAppDispatch, useAppSelector } from "../stores/hook";
 import { authLogout } from "@/features/auth/authSlice";
+import { apiRequest } from "../lib/api";
 
 const navItems = [
   { title: "Home", to: "/umkm/home" },
@@ -56,11 +57,11 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setError("");
 
     if (!username && !password) {
@@ -76,7 +77,20 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
       return;
     }
 
-    setShowSuccessModal(true);
+    // ubah username atau password
+    const res = await apiRequest("/auth/update-account", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      body: JSON.stringify({
+        username: username || undefined,
+        password: password || undefined,
+      }),
+    });
+
+    if (res.success) setShowSuccessModal(true);
+    else setError(res.message || "Gagal memperbarui akun");
   };
 
   const handleSuccessClose = () => {
@@ -136,9 +150,15 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukkan password baru"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-10
-                    "
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
               </div>
             </div>
 
@@ -226,10 +246,10 @@ function ProfileMenu() {
 
   const handleKeluar = () => {
     setIsKeluarModalOpen(false);
-
     localStorage.removeItem("user");
     localStorage.removeItem("accessToken");
     dispatch(authLogout());
+    navigate("/login");
   };
 
   return (
@@ -276,7 +296,7 @@ function ProfileMenu() {
         )}
       </div>
 
-      {/* Modal Keamanan Akun — di luar div.relative agar fixed benar */}
+      {/* Modal Keamanan Akun */}
       {isAkunModalOpen && (
         <UbahAkunModal onClose={() => setIsAkunModalOpen(false)} />
       )}
