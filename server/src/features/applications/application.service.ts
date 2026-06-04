@@ -84,7 +84,7 @@ const ApplicationService = {
     if (!app) throw new NotFoundError("Lamaran tidak ditemukan.");
     await verifyUmkmOwnsApplication(app, umkmId);
     await ApplicationRepository.updateStatus(applicationId, "ACCEPTED");
-    await ApplicationRepository.createEmployee(applicationId); // ✅ insert ke employees
+    await ApplicationRepository.createEmployee(applicationId); 
     return true;
   },
 

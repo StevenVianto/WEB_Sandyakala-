@@ -157,7 +157,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  {showPassword ? "text" : "password"}
                 </button>
               </div>
             </div>
@@ -175,6 +175,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition
                  "
               />
+              {showPassword ? "Sembunyikan" : "Lihat"}
             </div>
 
             {error && <p className="text-red-500 text-xs">{error}</p>}
@@ -213,7 +214,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Profile Menu ─────────────────────────────────────────────────────────────
+//  Profile Menu 
 function ProfileMenu() {
   const dispatch = useAppDispatch();
 
@@ -253,7 +254,6 @@ function ProfileMenu() {
   };
 
   return (
-    // Fragment agar modal fixed tidak terkurung di dalam div.relative
     <>
       <div className="relative">
         <button
@@ -269,7 +269,6 @@ function ProfileMenu() {
 
         {isMenuOpen && (
           <>
-            {/* Backdrop tutup dropdown */}
             <div
               className="fixed inset-0 z-10"
               onClick={() => setIsMenuOpen(false)}
@@ -318,7 +317,6 @@ function ProfileMenu() {
   );
 }
 
-// ─── DashboardUmkmLayout ──────────────────────────────────────────────────────
 export default function DashboardUmkmLayout({
   children,
 }: {

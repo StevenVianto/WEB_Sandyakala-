@@ -165,7 +165,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  {showPassword ? "Sembunyikan" : "Lihat"}
                 </button>
               </div>
             </div>
@@ -181,6 +181,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                 placeholder="Ulangi password baru"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
               />
+                  {showPassword ? "text" : "password"}
             </div>
 
             {error && <p className="text-red-500 text-xs">{error}</p>}
@@ -448,7 +449,6 @@ export default function DataTaskLayout({
       </div>
 
       <div className="bg-white w-full max-w-5xl px-4 sm:px-8 lg:px-12 py-6 rounded-lg shadow-md">
-        {/* HEADER */}
         <div className="flex flex-row p-3 sm:p-5 items-center">
           <GoArrowLeft
             className="text-3xl mr-5 cursor-pointer"
@@ -463,7 +463,6 @@ export default function DataTaskLayout({
         {/* STAT CARD */}
         {statCardSlot && <div className="px-6 mt-4">{statCardSlot}</div>}
 
-        {/* TABS */}
         {tabs.length > 0 && (
           <div className="w-full px-2 sm:px-8 mt-6 mb-3 overflow-x-auto">
             <div className="flex gap-4 sm:gap-10 border-b border-neutral-300 text-sm sm:text-lg font-bold text-primary-dark min-w-fit">
@@ -510,7 +509,6 @@ export default function DataTaskLayout({
           )}
         </div>
 
-        {/* CONTENT */}
         {children}
       </div>
     </div>
