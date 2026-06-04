@@ -132,7 +132,6 @@ export default function TabShift() {
   }
 };
 
-  // Flatten workers per shift
   const workerItems: WorkerShiftItem[] = shiftRows.flatMap((row) =>
     row.worker_names.length > 0
       ? row.worker_names.map((name, i) => ({
@@ -155,7 +154,6 @@ export default function TabShift() {
   console.log(workerItems);
 console.log("WORKER ITEMS", workerItems);
 
-  // Filter by active shift tab — pakai normalized uppercase
   const filteredItems =
     activeShift === "SEMUA"
       ? workerItems

@@ -50,7 +50,6 @@ const ApplicationRepository = {
     WHERE j.umkm_id = ?
   `;
 
-  // ✅ Pakai parameterized query untuk LIMIT dan OFFSET
   const [rows]: any = await pool.execute(baseQuery, [umkmId, limit, offset]);
   const [countRows]: any = await pool.execute(countQuery, [umkmId]);
 
@@ -151,7 +150,6 @@ getInterviewByApplicationId: async (applicationId: number) => {
   return (rows as any[])[0] ?? null;
 },
 
-// Tambah fungsi insert ke employees saat diterima
 createEmployee: async (applicationId: number) => {
   const [result]: any = await pool.execute(
     "INSERT INTO employees (application_id, status) VALUES (?, 'Aktif')",

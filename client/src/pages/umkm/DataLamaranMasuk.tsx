@@ -97,7 +97,6 @@ export default function DataLamaranMasuk() {
     });
 
     if (res.success && res.data) {
-      // res.data mungkin berupa array langsung atau object {applicants: [...]}
       const list = Array.isArray(res.data)
         ? res.data
         : Array.isArray(res.data.applicants)
@@ -373,7 +372,6 @@ export default function DataLamaranMasuk() {
                 )}
               </div>
               <hr />
-              {/* Tombol aksi sesuai status */}
               {selected.status === "PENDING" && (
                 <div className="px-6 py-4 flex gap-3">
                   <button

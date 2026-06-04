@@ -253,7 +253,6 @@ export default function HomeUmkm() {
             </p>
           )}
 
-          {/* Card Tambah Pekerja selalu tampil */}
           <Link
             to="/umkm/dashboard/lamaran-masuk"
             className="border border-gray-300 rounded-xl flex flex-col items-center justify-center p-4 gap-7"

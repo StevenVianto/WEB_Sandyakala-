@@ -634,7 +634,7 @@ function DownloadModal({ onClose }: { onClose: () => void }) {
           ))}
         </ol>
 
-        {/* Download button — Android only */}
+        {/* Download button */}
         <a
           href="https://play.google.com/store"
           target="_blank"
