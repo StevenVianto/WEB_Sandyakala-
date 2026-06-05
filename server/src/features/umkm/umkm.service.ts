@@ -63,6 +63,36 @@ const UmkmService = {
       throw error;
     }
   },
+
+  getAllUmkm: async () => {
+    return await UmkmRepository.findAllUmkm();
+  },
+
+  getUmkmByUserId: async (userId: number) => {
+    return await UmkmRepository.findUmkmByUserId(userId);
+  },
+
+  updateUmkmStatus: async (umkmId: number, status: string) => {
+    if (!["APPROVED", "REJECTED", "PENDING"].includes(status)) {
+      throw new BadRequestError("Status verifikasi tidak valid");
+    }
+
+    const umkm = await UmkmRepository.findUmkmById(umkmId);
+    if (!umkm) {
+      throw new BadRequestError("Profil UMKM tidak ditemukan");
+    }
+
+    await UmkmRepository.updateStatus(umkmId, status);
+    
+    // Auto-update user's role on database
+    if (status === "APPROVED") {
+      await UmkmRepository.updateUserRole(umkm.user_id, "UMKM");
+    } else if (status === "REJECTED" || status === "PENDING") {
+      await UmkmRepository.updateUserRole(umkm.user_id, "USER");
+    }
+
+    return { umkm_id: umkmId, status };
+  },
 };
 
 export default UmkmService;

@@ -331,6 +331,7 @@ const JobRepository = {
           shiftParams,
         );
       } else if (data.type === "PROJECT" && data.project_tasks) {
+        // FIX: project_start & project_end sekarang ikut diinsert (sebelumnya hilang)
         const taskPlaceholders = data.project_tasks
           .map(() => "(?, ?, ?, ?, ?, NOW())")
           .join(", ");

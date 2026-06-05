@@ -10,7 +10,7 @@ import taskRoutes from "../features/tasks/task.route.js";
 const router = Router();
 
 router.use("/auth", authRoute);
-router.use("/umkm", safeGuard(["USER"]), umkmRouter);
+router.use("/umkm", safeGuard(["USER", "UMKM", "ADMIN"]), umkmRouter);
 router.use("/skills", safeGuard(["UMKM"]), skillRouter);
 router.use("/jobs", jobRouter); // safeGuard diterapkan di dalam job.route.ts
 router.use("/applications", applicationRouter); // safeGuard diterapkan di dalam application.route.ts

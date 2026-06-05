@@ -165,7 +165,6 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? "Sembunyikan" : "Lihat"}
                 </button>
               </div>
             </div>

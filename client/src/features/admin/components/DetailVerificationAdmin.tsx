@@ -11,6 +11,7 @@ import CardUmkm from "@/assets/images/card-umkm.png";
 import { Modal } from "@/shared/components/ui/modal";
 import { useState, useEffect } from "react";
 import { formatNamaUsaha } from "../utils/formar-nama-usaha";
+import { apiRequest } from "@/shared/lib/api";
 
 export default function DetailVerificationAdmin() {
   const { namaUsaha = "" } = useParams<{ namaUsaha: string }>();
@@ -21,100 +22,119 @@ export default function DetailVerificationAdmin() {
   const [openAccept, setOpenAccept] = useState(false);
   const [registeredProfile, setRegisteredProfile] = useState<any>(null);
   const [selectedEmail, setSelectedEmail] = useState<string>("");
+  const [umkmId, setUmkmId] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
-    let emails: string[] = [];
-    if (savedEmailsStr) {
-      try {
-        emails = JSON.parse(savedEmailsStr);
-        if (!Array.isArray(emails)) {
+    const fetchProfile = async () => {
+      const response = await apiRequest<any[]>("/umkm");
+      if (response.success && response.data) {
+        // Find profile where businessName slug matches namaUsaha
+        const found = response.data.find(
+          (p: any) => p.business_name?.toLowerCase().replace(/\s+/g, "-") === namaUsaha
+        );
+        if (found) {
+          setRegisteredProfile({
+            id_umkm: found.id_umkm,
+            businessName: found.business_name,
+            businessEmail: found.business_email,
+            businessPhone: found.business_phone,
+            businessCategory: found.business_category,
+            ownerName: found.owner_name,
+            nib: found.nib,
+            employeeCount: found.employee_count,
+            establishedAt: found.established_at,
+            address: [found.subdistrict, found.district, found.regency, found.province].filter(Boolean).join(", ") || "Jakarta",
+            createdAt: found.created_at ? new Date(found.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "29 Maret 2026",
+            businessLogo: found.logo_url || "",
+            status: found.status?.toLowerCase() || "pending"
+          });
+          setUmkmId(found.id_umkm);
+          setSelectedEmail(found.business_email);
+          return;
+        }
+      }
+
+      // Fallback to localStorage if not found on backend
+      let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+      let emails: string[] = [];
+      if (savedEmailsStr) {
+        try {
+          emails = JSON.parse(savedEmailsStr);
+          if (!Array.isArray(emails)) {
+            emails = [];
+          }
+        } catch (e) {
           emails = [];
         }
-      } catch (e) {
-        emails = [];
       }
-    }
 
-    // Migration 1: Scoped latest registered email recovery
-    const latestEmail = localStorage.getItem("latest_registered_umkm_email");
-    if (latestEmail && !emails.includes(latestEmail)) {
-      emails.push(latestEmail);
-      localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
-    }
-
-    // Migration 2: Legacy global profile recovery
-    const legacyProfileStr = localStorage.getItem("registered_umkm_profile");
-    if (legacyProfileStr) {
-      try {
-        const legacyProfile = JSON.parse(legacyProfileStr);
-        const legacyEmail = legacyProfile.businessEmail || "legacy@mail.com";
-        
-        if (!localStorage.getItem(`registered_umkm_profile_${legacyEmail}`)) {
-          localStorage.setItem(`registered_umkm_profile_${legacyEmail}`, legacyProfileStr);
+      let foundProfile = null;
+      let foundEmail = "";
+      for (const email of emails) {
+        const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
+        if (profileStr) {
+          try {
+            const parsed = JSON.parse(profileStr);
+            const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
+            if (profileSlug === namaUsaha) {
+              foundProfile = parsed;
+              foundEmail = email;
+              break;
+            }
+          } catch (e) {
+            console.error(e);
+          }
         }
-        if (!localStorage.getItem(`umkm_verification_status_${legacyEmail}`)) {
-          const legacyStatus = localStorage.getItem("umkm_verification_status") || "pending";
-          localStorage.setItem(`umkm_verification_status_${legacyEmail}`, legacyStatus);
-        }
-        
-        if (!emails.includes(legacyEmail)) {
-          emails.push(legacyEmail);
-          localStorage.setItem("registered_umkm_emails", JSON.stringify(emails));
-        }
-      } catch (e) {
-        console.error("Legacy profile migration error:", e);
       }
-    }
 
-    let foundProfile = null;
-    let foundEmail = "";
-    for (const email of emails) {
-      const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
-      if (profileStr) {
-        try {
-          const parsed = JSON.parse(profileStr);
+      if (!foundProfile) {
+        const savedProfile = localStorage.getItem("registered_umkm_profile");
+        if (savedProfile) {
+          const parsed = JSON.parse(savedProfile);
           const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
           if (profileSlug === namaUsaha) {
             foundProfile = parsed;
-            foundEmail = email;
-            break;
           }
-        } catch (e) {
-          console.error(e);
         }
       }
-    }
 
-    // Fallback if not found in array (e.g. legacy/direct keys or default)
-    if (!foundProfile) {
-      const savedProfile = localStorage.getItem("registered_umkm_profile");
-      if (savedProfile) {
-        const parsed = JSON.parse(savedProfile);
-        const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
-        if (profileSlug === namaUsaha) {
-          foundProfile = parsed;
-        }
+      if (foundProfile) {
+        setRegisteredProfile(foundProfile);
+        setSelectedEmail(foundEmail);
       }
-    }
-
-    if (foundProfile) {
-      setRegisteredProfile(foundProfile);
-      setSelectedEmail(foundEmail);
-    }
+    };
+    fetchProfile();
   }, [namaUsaha]);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
+    if (umkmId) {
+      // 1. Update backend MySQL
+      await apiRequest(`/umkm/${umkmId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "APPROVED" }),
+      });
+    }
+    // 2. Local storage fallback
     const statusKey = selectedEmail ? `umkm_verification_status_${selectedEmail}` : "umkm_verification_status";
     localStorage.setItem(statusKey, "approved");
+    
     setOpenAccept(false);
     navigate("/admin/verifikasi-umkm");
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
+    if (umkmId) {
+      // 1. Update backend MySQL
+      await apiRequest(`/umkm/${umkmId}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "REJECTED" }),
+      });
+    }
+    // 2. Local storage fallback
     const statusKey = selectedEmail ? `umkm_verification_status_${selectedEmail}` : "umkm_verification_status";
     localStorage.setItem(statusKey, "rejected");
+
     setOpen(false);
     navigate("/admin/verifikasi-umkm");
   };

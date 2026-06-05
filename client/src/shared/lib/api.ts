@@ -12,14 +12,25 @@ export async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   try {
-    const headers = {
-      "Content-Type": "application/json",
+    const token = localStorage.getItem("accessToken");
+    const headers: Record<string, string> = {};
+
+    if (!(options.body instanceof FormData)) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const mergedHeaders = {
+      ...headers,
       ...(options.headers || {}),
     };
 
     const response = await fetch(`${BASE_URL}${path}`, {
       ...options,
-      headers,
+      headers: mergedHeaders,
     });
 
     const result = await response.json();

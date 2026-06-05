@@ -18,4 +18,19 @@ umkmRouter.post(
   asyncHandler(UmkmController.register),
 );
 
+umkmRouter.get(
+  "/my-profile",
+  asyncHandler(UmkmController.myProfile),
+);
+
+umkmRouter.get(
+  "/",
+  asyncHandler(UmkmController.list),
+);
+
+umkmRouter.patch(
+  "/:id/status",
+  asyncHandler(UmkmController.updateStatus),
+);
+
 export default umkmRouter;
