@@ -25,4 +25,10 @@ router.get(
   asyncHandler(AuthController.getMe),
 );
 
+router.patch(
+  "/update-account",
+  safeGuard(["UMKM", "USER"]),
+  asyncHandler(AuthController.updateAccount)
+);
+
 export default router;

@@ -81,6 +81,10 @@ export default function DashboardLayout({
     navigate("/login");
   };
 
+  if (authSelector.role !== "ADMIN") {
+    return <Navigate to="/" />;
+  }
+
   return (
     <div className="min-h-screen flex bg-info-100/15 overflow-hidden">
       {isSidebarOpen && (

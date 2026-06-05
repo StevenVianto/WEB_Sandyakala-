@@ -180,6 +180,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                 placeholder="Ulangi password baru"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
               />
+                  {showPassword ? "text" : "password"}
             </div>
 
             {error && <p className="text-red-500 text-xs">{error}</p>}

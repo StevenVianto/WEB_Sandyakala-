@@ -23,6 +23,18 @@ export const AuthController = {
     });
   },
 
+  updateAccount: async (req: Request, res: Response) => {
+  const userId = Number(req.user!.id);
+  const { username, password } = req.body;
+
+  if (!username && !password) {
+    throw new BadRequestError("Isi minimal username atau password baru.");
+  }
+
+  await AuthService.updateAccount(userId, { username, password });
+  res.status(200).json({ success: true, message: "Akun berhasil diperbarui." });
+},
+
   getMe: async (req: Request, res: Response) => {
     const userId = req.user.id;
     const user = await AuthService.getMe(userId);
