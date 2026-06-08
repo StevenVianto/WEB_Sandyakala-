@@ -65,11 +65,19 @@ const UmkmService = {
   },
 
   getAllUmkm: async () => {
-    return await UmkmRepository.findAllUmkm();
+    const umkms = (await UmkmRepository.findAllUmkm()) as any[];
+    for (const umkm of umkms) {
+      umkm.reviews = await UmkmRepository.getReviewsByUmkmId(umkm.id_umkm);
+    }
+    return umkms;
   },
 
   getUmkmByUserId: async (userId: number) => {
-    return await UmkmRepository.findUmkmByUserId(userId);
+    const umkm = await UmkmRepository.findUmkmByUserId(userId);
+    if (umkm) {
+      umkm.reviews = await UmkmRepository.getReviewsByUmkmId(umkm.id_umkm);
+    }
+    return umkm;
   },
 
   updateUmkmStatus: async (umkmId: number, status: string) => {
