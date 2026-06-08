@@ -7,7 +7,7 @@ import jobRouter from "../features/jobs/job.route.js";
 import applicationRouter from "../features/applications/application.route.js";
 import taskRoutes from "../features/tasks/task.route.js";
 import freshGraduateRouter from "../features/freshgraduate/freshgraduate.routes.js";
-import reportRouter from "../features/reports/report.router.js";
+import reportsRouter from "../features/reports/reports.routes.js";
 
 const router = Router();
 
@@ -22,6 +22,6 @@ router.use(
   safeGuard(["USER", "UMKM", "ADMIN"]),
   freshGraduateRouter,
 );
-router.use("/reports", reportRouter); // safeGuard diterapkan di dalam report.router.ts
+router.use("/reports", safeGuard(["USER", "UMKM", "ADMIN"]), reportsRouter);
 
 export default router;
