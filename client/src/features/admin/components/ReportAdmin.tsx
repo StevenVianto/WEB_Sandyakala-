@@ -1,13 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import DashboardLayout from "@/shared/layouts/DashboardLayout";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { SearchInput } from "@/shared/components/ui/search-input";
 import { StatCard } from "@/shared/components/ui/stat-card";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+import { apiRequest } from "@/shared/lib/api";
 
-// filter status
 type StatusFilter =
   | ""
   | "Menunggu"
@@ -16,7 +16,6 @@ type StatusFilter =
   | "Blokir"
   | "Ditolak";
 
-// varian warna status
 type VariantStatus =
   | "warning"
   | "orange"
@@ -37,52 +36,44 @@ interface TableReportItem {
   slug: string;
 }
 
-// card 
 const dataStatCardReport: {
   title: string;
-  value: number;
   description: string;
   variant: "blue" | "yellow" | "success2" | "orange" | "red" | "gray";
-  filterStatus: string;
+  filterStatus: StatusFilter;
 }[] = [
   {
     title: "Total Laporan",
-    value: 0,
     description: "Keseluruhan laporan masuk",
     variant: "blue",
     filterStatus: "",
   },
   {
     title: "Menunggu",
-    value: 0,
     description: "Belum ditindaklanjuti",
     variant: "yellow",
     filterStatus: "Menunggu",
   },
   {
     title: "Valid",
-    value: 0,
     description: "Laporan terbukti valid",
     variant: "success2",
     filterStatus: "Valid",
   },
   {
     title: "Peringatan",
-    value: 0,
     description: "UMKM mendapat peringatan",
     variant: "orange",
     filterStatus: "Peringatan",
   },
   {
     title: "Blokir",
-    value: 0,
     description: "UMKM diblokir",
     variant: "red",
     filterStatus: "Blokir",
   },
   {
     title: "Ditolak",
-    value: 0,
     description: "Laporan tidak valid",
     variant: "gray",
     filterStatus: "Ditolak",
@@ -98,67 +89,42 @@ const STATUS_OPTIONS: StatusFilter[] = [
   "Ditolak",
 ];
 
-// data dummy (bisa dihapus)
-const dataTableReport: TableReportItem[] = [
-  {
-    id: 1,
-    namaUsaha: "Warung Maju Jaya",
-    kategoriPelanggaran: "Perizinan Usaha",
-    alasanPelaporan:
-      "Usaha beroperasi tanpa izin resmi dari kelurahan setempat.",
-    status: "Menunggu",
-    variantStatus: "warning",
-    slug: "warung-maju-jaya",
-  },
-  {
-    id: 2,
-    namaUsaha: "Toko Berkah Abadi",
-    kategoriPelanggaran: "Ketenagakerjaan",
-    alasanPelaporan:
-      "Tidak membayar upah minimum karyawan sesuai ketentuan yang berlaku.",
-    status: "Valid",
-    variantStatus: "success2",
-    slug: "toko-berkah-abadi",
-  },
-  {
-    id: 3,
-    namaUsaha: "UD Sinar Terang",
-    kategoriPelanggaran: "Lingkungan Hidup",
-    alasanPelaporan:
-      "Membuang limbah cair ke saluran umum tanpa pengolahan terlebih dahulu.",
-    status: "Ditolak",
-    variantStatus: "gray",
-    slug: "ud-sinar-terang",
-  },
-  {
-    id: 4,
-    namaUsaha: "CV Mitra Sejahtera",
-    kategoriPelanggaran: "Perpajakan",
-    alasanPelaporan:
-      "Tidak melaporkan pajak usaha selama 3 tahun terakhir secara berturut-turut.",
-    status: "Blokir",
-    variantStatus: "error",
-    slug: "cv-mitra-sejahtera",
-  },
-  {
-    id: 5,
-    namaUsaha: "Kedai Rasa Nusantara",
-    kategoriPelanggaran: "Kesehatan & Sanitasi",
-    alasanPelaporan:
-      "Dapur tidak memenuhi standar kebersihan yang ditetapkan oleh Dinas Kesehatan.",
-    status: "Peringatan",
-    variantStatus: "orange",
-    slug: "kedai-rasa-nusantara",
-  },
-];
+const STATUS_VARIANT: Record<StatusFilter, VariantStatus> = {
+  "": "warning",
+  "Menunggu": "warning",
+  "Valid": "success2",
+  "Peringatan": "orange",
+  "Blokir": "error",
+  "Ditolak": "gray"
+};
 
 export default function ReportAdmin() {
+  const [reportsData, setReportsData] = useState<TableReportItem[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  useEffect(() => {
+    const fetchReports = async () => {
+      const response = await apiRequest<any[]>("/reports");
+      if (response.success && response.data) {
+        const mapped: TableReportItem[] = response.data.map((r: any) => ({
+          id: r.id,
+          namaUsaha: r.namaUsaha || "Usaha Anonim",
+          kategoriPelanggaran: r.kategoriPelanggaran || "Umum",
+          alasanPelaporan: r.alasanPelaporan || "-",
+          status: (r.status as StatusFilter) || "Menunggu",
+          variantStatus: STATUS_VARIANT[r.status as StatusFilter] || "warning",
+          slug: (r.namaUsaha || "usaha").toLowerCase().replace(/\s+/g, "-")
+        }));
+        setReportsData(mapped);
+      }
+    };
+    fetchReports();
+  }, []);
+
   const filteredData = useMemo(() => {
-    return dataTableReport.filter((item) => {
+    return reportsData.filter((item) => {
       const q = search.toLowerCase().trim();
       const matchSearch =
         !q ||
@@ -170,16 +136,16 @@ export default function ReportAdmin() {
 
       return matchSearch && matchStatus;
     });
-  }, [search, statusFilter]);
+  }, [search, statusFilter, reportsData]);
 
   const statCardsWithCount = useMemo(() => {
     return dataStatCardReport.map((card) => ({
       ...card,
       value: card.filterStatus
-        ? dataTableReport.filter((d) => d.status === card.filterStatus).length
-        : dataTableReport.length,
+        ? reportsData.filter((d) => d.status === card.filterStatus).length
+        : reportsData.length,
     }));
-  }, []);
+  }, [reportsData]);
 
   function handleStatCardClick(filterStatus: string) {
     setStatusFilter((filterStatus as StatusFilter) ?? "");
@@ -225,7 +191,7 @@ export default function ReportAdmin() {
           <p className="text-sm text-gray-500">
             Klik baris untuk melihat detail laporan &mdash;{" "}
             <span className="font-medium text-gray-700">
-              {filteredData.length} dari {dataTableReport.length} laporan
+              {filteredData.length} dari {reportsData.length} laporan
             </span>
           </p>
         </div>
@@ -296,9 +262,9 @@ export default function ReportAdmin() {
                 </td>
               </tr>
             ) : (
-              filteredData.map((item) => (
+              filteredData.map((item, index) => (
                 <tr key={item.id} className="bg-white">
-                  <td className="table-data font-medium">{item.id}</td>
+                  <td className="table-data font-medium">{index + 1}</td>
                   <td className="table-data font-medium">{item.namaUsaha}</td>
                   <td className="table-data font-medium">
                     {item.kategoriPelanggaran}
@@ -330,7 +296,6 @@ export default function ReportAdmin() {
         </table>
       </div>
 
-            {/* dropdown untuk keluar */}
       {isDropdownOpen && (
         <div
           className="fixed inset-0 z-40"
