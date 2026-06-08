@@ -37,7 +37,7 @@ export default function DashboardAdmin() {
         const [umkmRes, fgRes, reportRes] = await Promise.all([
           apiRequest<any[]>("/umkm"),
           apiRequest<any[]>("/fresh-graduate"),
-          apiRequest<any[]>("/laporan"),
+          apiRequest<any[]>("/reports"),
         ]);
 
         if (umkmRes.success && umkmRes.data) {

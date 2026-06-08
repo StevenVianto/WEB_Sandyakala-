@@ -106,6 +106,12 @@ const UmkmRepository = {
     const query = "UPDATE users SET role = ?, updated_at = NOW() WHERE id = ?";
     await pool.execute(query, [role, userId]);
   },
+
+  getReviewsByUmkmId: async (umkmId: number) => {
+    const query = "SELECT * FROM umkm_reviews WHERE umkm_id = ? ORDER BY created_at DESC";
+    const [rows] = await pool.execute(query, [umkmId]);
+    return rows;
+  },
 };
 
 export default UmkmRepository;
