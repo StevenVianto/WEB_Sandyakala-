@@ -24,4 +24,33 @@ export const AuthRepository = {
 
     return result;
   },
+
+  findUserById: async (userId: number) => {
+    const [userRows]: any = await pool.execute(
+      "SELECT id, fullname, email, role FROM users WHERE id = ?",
+      [userId],
+    );
+
+    return userRows[0];
+  },
+
+  updateAccount: async (userId: number, data: { username?: string; password?: string }) => {
+  const fields = [];
+  const values = [];
+
+  if (data.username) {
+    fields.push("username = ?");
+    values.push(data.username);
+  }
+  if (data.password) {
+    fields.push("password = ?");
+    values.push(data.password);
+  }
+
+  values.push(userId);
+  await pool.execute(
+    `UPDATE users SET ${fields.join(", ")} WHERE id = ?`,
+    values
+  );
+},
 };

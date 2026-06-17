@@ -2,6 +2,7 @@ import pool from "../../config/db.js";
 import type { CreateJobInput } from "./job.schema.js";
 
 const JobRepository = {
+  // buat lowongan
   createJob: async (
     umkmId: number,
     data: CreateJobInput,
@@ -57,7 +58,6 @@ const JobRepository = {
       if (skillIds.length > 0) {
         const skillPlaceholders = skillIds.map(() => "(?, ?)").join(", ");
         const skillParams = skillIds.flatMap((skillId) => [jobId, skillId]);
-
         await connection.execute(
           `INSERT INTO job_skills (job_id, skill_id) VALUES ${skillPlaceholders}`,
           skillParams,
@@ -66,11 +66,7 @@ const JobRepository = {
 
       if (data.type === "SHIFT" && data.shifts) {
         const shiftPlaceholders = data.shifts.map(() => "(?, ?)").join(", ");
-        const shiftParams = data.shifts.flatMap((shiftType) => [
-          jobId,
-          shiftType,
-        ]);
-
+        const shiftParams = data.shifts.flatMap((shiftType) => [jobId, shiftType]);
         await connection.execute(
           `INSERT INTO job_shifts (job_id, shift_type) VALUES ${shiftPlaceholders}`,
           shiftParams,
@@ -86,7 +82,6 @@ const JobRepository = {
           task.project_start,
           task.project_end,
         ]);
-
         await connection.execute(
           `INSERT INTO job_project_tasks (job_id, task_name, task_order, project_start, project_end, created_at) VALUES ${taskPlaceholders}`,
           taskParams,
@@ -140,7 +135,12 @@ const JobRepository = {
       shifts = shiftRows.map((row: any) => row.shift_type);
     } else if (jobData.type === "PROJECT") {
       const [taskRows]: any = await pool.execute(
-        "SELECT id, task_name, task_order, project_start, project_end FROM job_project_tasks WHERE job_id = ? ORDER BY task_order ASC",
+        `SELECT 
+          id, task_name, task_order, project_start, project_end, 
+          status, submission_link, revision_note
+        FROM job_project_tasks 
+        WHERE job_id = ? 
+        ORDER BY task_order ASC`,
         [jobId],
       );
       projectTasks = taskRows;
@@ -220,6 +220,7 @@ const JobRepository = {
     };
   },
 
+  // ambil data lowongan
   getJobsByUmkmId: async (umkmId: number, limit: number, offset: number) => {
     const baseQuery = `
       SELECT 
@@ -248,6 +249,7 @@ const JobRepository = {
     };
   },
 
+  // edit lowongan
   updateJob: async (
     jobId: number,
     umkmId: number,
@@ -287,21 +289,14 @@ const JobRepository = {
         throw new Error("NOT_FOUND_OR_UNAUTHORIZED");
       }
 
-      // wipe relationships
-      await connection.execute("DELETE FROM job_skills WHERE job_id = ?", [
-        jobId,
-      ]);
-      await connection.execute("DELETE FROM job_shifts WHERE job_id = ?", [
-        jobId,
-      ]);
-      await connection.execute(
-        "DELETE FROM job_project_tasks WHERE job_id = ?",
-        [jobId],
-      );
+      // Hapus relasi lama
+      await connection.execute("DELETE FROM job_skills WHERE job_id = ?", [jobId]);
+      await connection.execute("DELETE FROM job_shifts WHERE job_id = ?", [jobId]);
+      await connection.execute("DELETE FROM job_project_tasks WHERE job_id = ?", [jobId]);
 
+      // Cari atau buat skill baru
       const skillIds: number[] = [];
 
-      // Replace : find or create skills
       for (const skillName of uniqueSkills) {
         const [existingSkill]: any = await connection.execute(
           "SELECT id FROM skills WHERE LOWER(skill_name) = ?",
@@ -328,28 +323,27 @@ const JobRepository = {
         );
       }
 
-      // Replace dynamic fields (SHIFT/PROJECT)
       if (data.type === "SHIFT" && data.shifts) {
         const shiftPlaceholders = data.shifts.map(() => "(?, ?)").join(", ");
-        const shiftParams = data.shifts.flatMap((shiftType) => [
-          jobId,
-          shiftType,
-        ]);
+        const shiftParams = data.shifts.flatMap((shiftType) => [jobId, shiftType]);
         await connection.execute(
           `INSERT INTO job_shifts (job_id, shift_type) VALUES ${shiftPlaceholders}`,
           shiftParams,
         );
       } else if (data.type === "PROJECT" && data.project_tasks) {
+        // FIX: project_start & project_end sekarang ikut diinsert (sebelumnya hilang)
         const taskPlaceholders = data.project_tasks
-          .map(() => "(?, ?, ?, NOW())")
+          .map(() => "(?, ?, ?, ?, ?, NOW())")
           .join(", ");
         const taskParams = data.project_tasks.flatMap((task) => [
           jobId,
           task.task_name,
           task.task_order,
+          task.project_start,
+          task.project_end,
         ]);
         await connection.execute(
-          `INSERT INTO job_project_tasks (job_id, task_name, task_order, created_at) VALUES ${taskPlaceholders}`,
+          `INSERT INTO job_project_tasks (job_id, task_name, task_order, project_start, project_end, created_at) VALUES ${taskPlaceholders}`,
           taskParams,
         );
       }
@@ -364,6 +358,7 @@ const JobRepository = {
     }
   },
 
+  // hapus lowongan
   deleteJob: async (jobId: number, umkmId: number) => {
     const [result]: any = await pool.execute(
       "DELETE FROM jobs WHERE id = ? AND umkm_id = ?",
@@ -401,6 +396,7 @@ const JobRepository = {
     }
   },
 
+  // untuk simpan lowongan
   getMySavedJobs: async (userId: number, limit: number, offset: number) => {
     const baseQuery = `
       SELECT 

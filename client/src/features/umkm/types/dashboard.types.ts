@@ -58,7 +58,7 @@ export type Shift = {
   nama_pekerja_shift: string;
   waktu_mulai_shift: string;
   waktu_selesai_shift: string;
-  jenis_shift: "pagi" | "siang" | "malam";
+  jenis_shift: "Pagi" | "Siang" | "Malam" | "pagi" | "siang" | "malam";
   tanggal_shift: string;
   jam_masuk: string;
   jam_pulang: string;

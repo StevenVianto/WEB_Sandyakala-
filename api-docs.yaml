@@ -1,0 +1,335 @@
+openapi: 3.0.0
+info:
+  title: freshstart
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - default
+      summary: "[AUTH] Login"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: dani@gmail.com
+                password: dani123
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/register:
+    post:
+      tags:
+        - default
+      summary: "[AUTH] Register"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                fullname: budi
+                email: budi@gmail.com
+                password: budi123
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/umkm/register:
+    post:
+      tags:
+        - default
+      summary: "[UMKM] Register"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                owner_name:
+                  type: string
+                  example: Dani
+                nib:
+                  type: integer
+                  example: "1234567890120"
+                business_name:
+                  type: string
+                  example: Usaha Geprek Ayam
+                business_category:
+                  type: string
+                  example: Kuliner
+                employee_count:
+                  type: integer
+                  example: "4"
+                established_at:
+                  type: integer
+                  example: "2022"
+                province:
+                  type: string
+                  example: JAWA TIMUR
+                regency:
+                  type: string
+                  example: KABUPATEN MALANG
+                district:
+                  type: string
+                  example: DAMPIT
+                subdistrict:
+                  type: string
+                  example: BUMIREJO
+                business_email:
+                  type: string
+                  example: ayam@geprek.com
+                business_phone:
+                  type: integer
+                  example: "08123456789"
+                logo:
+                  type: string
+                  format: binary
+                ktp:
+                  type: string
+                  format: binary
+                nib_document:
+                  type: string
+                  format: binary
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/skills:
+    get:
+      tags:
+        - default
+      summary: "[UMKM] Get All Skills"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/jobs:
+    post:
+      tags:
+        - default
+      summary: "[UMKM] Create Job Shift"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                title: Kasir Toko Baju
+                job_category: Retail
+                description: >-
+                  Dibutuhkan kasir berpengalaman untuk toko FreshStart cabang
+                  utama. Bersedia bekerja dalam sistem shift.
+                type: SHIFT
+                salary_min: 1500000
+                salary_max: 2500000
+                worker_needed: 2
+                deadline: "2026-06-30"
+                minimum_education: SMA/SMK
+                qualification_description: Jujur, teliti, dan bisa menggunakan mesin kasir POS.
+                portfolio_requirement: OPTIONAL
+                skills:
+                  - Kasir
+                  - Komunikasi
+                  - Pelayanan Pelanggan
+                  - Ms. Excel
+                  - Ms. Word
+                shifts:
+                  - PAGI
+                  - MALAM
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - default
+      summary: "[FG] Get All Job"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/jobs/{jobId}:
+    get:
+      tags:
+        - default
+      summary: "[UMKM - FG] Get Detail Job"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: "3"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - default
+      summary: "[UMKM] Update Job Shift"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                title: Kasir Toko Baju
+                job_category: Retail
+                description: >-
+                  Dibutuhkan kasir berpengalaman untuk toko FreshStart cabang
+                  utama. Bersedia bekerja dalam sistem shift.
+                type: SHIFT
+                salary_min: 1500000
+                salary_max: 2500000
+                worker_needed: 2
+                deadline: "2026-06-30"
+                minimum_education: SMA/SMK
+                qualification_description: Jujur, teliti, dan bisa menggunakan mesin kasir POS.
+                portfolio_requirement: OPTIONAL
+                skills:
+                  - Kasir
+                  - Komunikasi
+                  - Pelayanan Pelanggan
+                  - Ms. Excel
+                shifts:
+                  - PAGI
+                  - SIANG
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: "3"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - default
+      summary: "[UMKM] Delete Job"
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: "1"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/jobs/umkm/me:
+    get:
+      tags:
+        - default
+      summary: "[UMKM] Get All Job"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/jobs/{jobId}/toggle-save:
+    post:
+      tags:
+        - default
+      summary: "[FG] Toggle Save"
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: "3"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/jobs/saved/me:
+    get:
+      tags:
+        - default
+      summary: "[FG] Get My Saved Jobs"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/applications/{jobId}/apply:
+    post:
+      tags:
+        - default
+      summary: "[FG] Apply Job"
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: "3"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}
+  /api/applications/umkm:
+    get:
+      tags:
+        - default
+      summary: "[UMKM] Get Applicant Detail"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json: {}

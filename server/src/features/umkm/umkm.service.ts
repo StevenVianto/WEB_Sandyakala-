@@ -63,6 +63,105 @@ const UmkmService = {
       throw error;
     }
   },
+
+  getAllUmkm: async () => {
+    const umkms = (await UmkmRepository.findAllUmkm()) as any[];
+    for (const umkm of umkms) {
+      umkm.reviews = await UmkmRepository.getReviewsByUmkmId(umkm.id_umkm);
+    }
+    return umkms;
+  },
+
+  getUmkmByUserId: async (userId: number) => {
+    const umkm = await UmkmRepository.findUmkmByUserId(userId);
+    if (umkm) {
+      umkm.reviews = await UmkmRepository.getReviewsByUmkmId(umkm.id_umkm);
+    }
+    return umkm;
+  },
+
+  updateUmkmStatus: async (umkmId: number, status: string, rejectionReason: string | null = null) => {
+    if (!["APPROVED", "REJECTED", "PENDING"].includes(status)) {
+      throw new BadRequestError("Status verifikasi tidak valid");
+    }
+
+    const umkm = await UmkmRepository.findUmkmById(umkmId);
+    if (!umkm) {
+      throw new BadRequestError("Profil UMKM tidak ditemukan");
+    }
+
+    const reason = status === "REJECTED" ? rejectionReason : null;
+    await UmkmRepository.updateStatus(umkmId, status, reason);
+    
+    if (status === "APPROVED") {
+      await UmkmRepository.updateUserRole(umkm.user_id, "UMKM");
+    } else if (status === "REJECTED" || status === "PENDING") {
+      await UmkmRepository.updateUserRole(umkm.user_id, "USER");
+    }
+
+    return { umkm_id: umkmId, status, rejection_reason: reason };
+  },
+
+  getBenefits: async (umkmId: number) => {
+    return UmkmRepository.getBenefitsByUmkmId(umkmId);
+  },
+ 
+  addBenefit: async (umkmId: number, title: string, description: string) => {
+    if (!title || title.trim().length === 0) {
+      throw new BadRequestError("Judul fasilitas wajib diisi");
+    }
+    if (title.trim().length < 3) {
+      throw new BadRequestError("Judul fasilitas minimal 3 karakter");
+    }
+    if (title.trim().length > 100) {
+      throw new BadRequestError("Judul fasilitas maksimal 100 karakter");
+    }
+    if (description && description.trim().length > 500) {
+      throw new BadRequestError("Deskripsi fasilitas maksimal 500 karakter");
+    }
+  
+    const insertId = await UmkmRepository.createBenefit(
+      umkmId,
+      title.trim(),
+      description?.trim() || "",
+    );
+  
+    return {
+      id_benefit: insertId,
+      id_umkm: umkmId,
+      title: title.trim(),
+      description: description?.trim() || "",
+    };
+  },
+  
+  deleteBenefit: async (benefitId: number, umkmId: number) => {
+    if (!benefitId || isNaN(benefitId)) {
+      throw new BadRequestError("ID fasilitas tidak valid");
+    }
+    const deleted = await UmkmRepository.deleteBenefit(benefitId, umkmId);
+    if (!deleted) {
+      throw new BadRequestError("Fasilitas tidak ditemukan atau bukan milik Anda");
+    }
+    return true;
+  },
+  
+  
+  updateDescription: async (umkmId: number, description: string) => {
+    if (!description || description.trim().length === 0) {
+      throw new BadRequestError("Deskripsi usaha wajib diisi");
+    }
+    if (description.trim().length < 20) {
+      throw new BadRequestError("Deskripsi usaha minimal 20 karakter");
+    }
+    if (description.trim().length > 2000) {
+      throw new BadRequestError("Deskripsi usaha maksimal 2000 karakter");
+    }
+    await UmkmRepository.updateDescription(umkmId, description.trim());
+    return true;
+  },
+  getReviewsByUmkmId: async (umkmId: number) => {
+    return UmkmRepository.getReviewsByUmkmId(umkmId);
+  },
 };
 
 export default UmkmService;

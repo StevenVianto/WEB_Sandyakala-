@@ -18,4 +18,44 @@ umkmRouter.post(
   asyncHandler(UmkmController.register),
 );
 
+umkmRouter.get(
+  "/my-profile",
+  asyncHandler(UmkmController.myProfile),
+);
+
+umkmRouter.get(
+  "/",
+  asyncHandler(UmkmController.list),
+);
+
+umkmRouter.patch(
+  "/:id/status",
+  asyncHandler(UmkmController.updateStatus),
+);
+
+umkmRouter.get(
+  "/benefits",
+  asyncHandler(UmkmController.getBenefits),
+);
+ 
+umkmRouter.post(
+  "/benefits",
+  asyncHandler(UmkmController.addBenefit),
+);
+ 
+umkmRouter.delete(
+  "/benefits/:benefitId",
+  asyncHandler(UmkmController.deleteBenefit),
+);
+ 
+umkmRouter.patch(
+  "/description",
+  asyncHandler(UmkmController.updateDescription),
+);
+ 
+umkmRouter.get(
+  "/reviews",
+  asyncHandler(UmkmController.getReviews),
+);
+
 export default umkmRouter;

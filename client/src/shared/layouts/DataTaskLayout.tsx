@@ -8,6 +8,9 @@ import logo from "@/assets/images/logo.png";
 import { IoClose } from "react-icons/io5";
 import { cn } from "../lib/utils";
 import { ModalNotification } from "../components/ui/modal-notification";
+import { apiRequest } from "../lib/api";
+import { authLogout } from "@/features/auth/authSlice";
+import { useAppDispatch } from "../stores/hook";
 
 interface DataTaskLayoutProps {
   children: React.ReactNode;
@@ -73,13 +76,11 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const handleSubmit = () => {
-    setError("");
-
+  const handleSubmit = async () => {
     if (!username && !password) {
       setError("Isi minimal username atau password baru.");
       return;
@@ -93,7 +94,18 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
       return;
     }
 
-     setShowSuccessModal(true);
+    const res = await apiRequest("/auth/update-account", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      body: JSON.stringify({
+        username: username || undefined,
+        password: password || undefined,
+      }),
+    });
+    if (res.success) setShowSuccessModal(true);
+    else setError(res.message || "Gagal memperbarui akun");
   };
 
   const handleSuccessClose = () => {
@@ -148,6 +160,12 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   placeholder="Masukkan password baru"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-24"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                </button>
               </div>
             </div>
 
@@ -162,6 +180,7 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                 placeholder="Ulangi password baru"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
               />
+                  {showPassword ? "text" : "password"}
             </div>
 
             {error && <p className="text-red-500 text-xs">{error}</p>}
@@ -185,16 +204,16 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* Modal Notifikasi Sukses setelah Simpan */}
-            <ModalNotification
-              visible={showSuccessModal}
-              title="Akun berhasil diperbarui!"
-              subtitle="Perubahan username dan password kamu telah disimpan."
-              button={{
-                type: "single",
-                label: "Kembali",
-                onPress: handleSuccessClose,
-              }}
-            />
+      <ModalNotification
+        visible={showSuccessModal}
+        title="Akun berhasil diperbarui!"
+        subtitle="Perubahan username dan password kamu telah disimpan."
+        button={{
+          type: "single",
+          label: "Kembali",
+          onPress: handleSuccessClose,
+        }}
+      />
     </>
   );
 }
@@ -204,6 +223,18 @@ function ProfileMenu() {
   const [isAkunModalOpen, setIsAkunModalOpen] = React.useState(false);
   const [isKeluarModalOpen, setIsKeluarModalOpen] = React.useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const profileKey = userEmail
+    ? `registered_umkm_profile_${userEmail}`
+    : "registered_umkm_profile";
+  const savedProfileStr = localStorage.getItem(profileKey);
+  const savedProfile = savedProfileStr ? JSON.parse(savedProfileStr) : null;
+  const logoUsaha =
+    savedProfile?.businessLogo || "https://i.pravatar.cc/150?img=11";
 
   const handleClick = (path: string) => {
     setIsMenuOpen(false);
@@ -218,7 +249,10 @@ function ProfileMenu() {
 
   const handleKeluar = () => {
     setIsKeluarModalOpen(false);
-    navigate("/auth/login");
+    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    dispatch(authLogout());
+    navigate("/login");
   };
 
   return (
@@ -229,7 +263,7 @@ function ProfileMenu() {
           className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 focus:outline-none cursor-pointer"
         >
           <img
-            src="https://i.pravatar.cc/150?img=11"
+            src={logoUsaha}
             alt="profile"
             className="h-8 w-8 rounded-full border border-gray-900 object-cover"
           />
@@ -299,6 +333,17 @@ export default function DataTaskLayout({
 
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const profileKey = userEmail
+    ? `registered_umkm_profile_${userEmail}`
+    : "registered_umkm_profile";
+  const savedProfileStr = localStorage.getItem(profileKey);
+  const savedProfile = savedProfileStr ? JSON.parse(savedProfileStr) : null;
+  const logoUsaha =
+    savedProfile?.businessLogo || "https://i.pravatar.cc/150?img=11";
 
   return (
     <div className="bg-neutral-400 min-h-screen p-4 sm:p-10 lg:p-25 flex justify-center">
@@ -373,13 +418,15 @@ export default function DataTaskLayout({
           <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
             <div className="h-12 w-12 bg-gray-100 rounded-full overflow-hidden border border-slate-300">
               <img
-                src="https://i.pravatar.cc/150?img=11"
+                src={logoUsaha}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
             <div>
-              <h2 className="font-bold text-mint-300 text-sm">UMKM Partner</h2>
+              <h2 className="font-bold text-mint-300 text-sm">
+                {savedProfile?.businessName || "UMKM Partner"}
+              </h2>
               <p className="text-xs text-gray-500">Lihat Profil</p>
             </div>
           </div>
@@ -401,7 +448,6 @@ export default function DataTaskLayout({
       </div>
 
       <div className="bg-white w-full max-w-5xl px-4 sm:px-8 lg:px-12 py-6 rounded-lg shadow-md">
-        {/* HEADER */}
         <div className="flex flex-row p-3 sm:p-5 items-center">
           <GoArrowLeft
             className="text-3xl mr-5 cursor-pointer"
@@ -416,7 +462,6 @@ export default function DataTaskLayout({
         {/* STAT CARD */}
         {statCardSlot && <div className="px-6 mt-4">{statCardSlot}</div>}
 
-        {/* TABS */}
         {tabs.length > 0 && (
           <div className="w-full px-2 sm:px-8 mt-6 mb-3 overflow-x-auto">
             <div className="flex gap-4 sm:gap-10 border-b border-neutral-300 text-sm sm:text-lg font-bold text-primary-dark min-w-fit">
@@ -463,7 +508,6 @@ export default function DataTaskLayout({
           )}
         </div>
 
-        {/* CONTENT */}
         {children}
       </div>
     </div>

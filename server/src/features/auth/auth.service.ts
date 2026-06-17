@@ -1,5 +1,6 @@
 import {
   BadRequestError,
+  NotFoundError,
   UnauthorizedError,
 } from "../../common/utils/AppError.js";
 import HashUtil from "../../common/utils/password.js";
@@ -48,7 +49,6 @@ export const AuthService = {
     const token = signToken(tokenPayload);
 
     const {
-      id,
       password,
       is_verified,
       created_at,
@@ -60,5 +60,22 @@ export const AuthService = {
       user: userWithoutPassword,
       accessToken: token,
     };
+  },
+
+  updateAccount: async (userId: number, data: { username?: string; password?: string }) => {
+  if (data.password) {
+   data.password = await HashUtil.hashPassword(data.password);
+  }
+  await AuthRepository.updateAccount(userId, data);
+},
+
+  getMe: async (userId: number) => {
+    const user = await AuthRepository.findUserById(userId);
+
+    if (user.length === 0) {
+      throw new NotFoundError("User tidak ditemukan.");
+    }
+
+    return user
   },
 };

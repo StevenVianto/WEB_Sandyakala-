@@ -32,8 +32,15 @@ import ReportUMKM from "./pages/umkm/ReportUMKM";
 import AddLowonganPage from "./pages/umkm/AddLowonganPage";
 import VerificationUMKM from "./pages/umkm/VerificationUMKM";
 import ChatPage from "./pages/ChatPage";
+import { useHydration } from "./shared/hooks/useHydration";
 
 function App() {
+  const { isHydrated } = useHydration();
+
+  if (!isHydrated) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
@@ -69,6 +76,7 @@ function App() {
         <Route path="profile" element={<ProfileUmkmPage />} />
         <Route path="report" element={<ReportUMKM />} />
         <Route path="add-lowongan" element={<AddLowonganPage />} />
+        <Route path="add-lowongan/edit/:id" element={<AddLowonganPage />} />
         <Route path="verification" element={<VerificationUMKM />} />
 
         <Route path="dashboard" element={<TaskLayoutContent />}>

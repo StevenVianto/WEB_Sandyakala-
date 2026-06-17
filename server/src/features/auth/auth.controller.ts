@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.service.js";
+import { BadRequestError } from "../../common/utils/AppError.js";
 
 export const AuthController = {
   register: async (req: Request, res: Response) => {
@@ -27,4 +28,31 @@ export const AuthController = {
       data: result,
     });
   },
+<<<<<<< HEAD
 };
+=======
+
+  updateAccount: async (req: Request, res: Response) => {
+  const userId = Number(req.user!.id);
+  const { username, password } = req.body;
+
+  if (!username && !password) {
+    throw new BadRequestError("Isi minimal username atau password baru.");
+  }
+
+  await AuthService.updateAccount(userId, { username, password });
+  res.status(200).json({ success: true, message: "Akun berhasil diperbarui." });
+},
+
+  getMe: async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const user = await AuthService.getMe(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Berhasil mendapatkan data user",
+      data: user,
+    });
+  },
+};
+>>>>>>> 28ba8fd211518570253587f0d305f7fd3cfcd065

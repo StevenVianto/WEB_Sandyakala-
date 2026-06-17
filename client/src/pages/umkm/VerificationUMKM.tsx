@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
+import { apiRequest } from "@/shared/lib/api";
 import {
   FiClock,
   FiCheck,
@@ -15,6 +16,7 @@ import {
   FiUploadCloud,
 } from "react-icons/fi";
 import { HiOutlineBadgeCheck } from "react-icons/hi";
+import { useAppSelector } from "@/shared/stores/hook";
 
 type VerificationStatus =
   | "step1"
@@ -38,19 +40,393 @@ const ForkKnifeIcon = ({ className }: { className?: string }) => (
 );
 
 export default function VerificationUMKM() {
+  const { role } = useAppSelector((state) => state.auth);
   const [status, setStatus] = useState<VerificationStatus>("step1");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // Integrasi status dari Local Storage
-  useEffect(() => {
-    const savedStatus = localStorage.getItem("umkm_verification_status");
-    if (savedStatus) {
-      setStatus(savedStatus as VerificationStatus);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [ktpFile, setKtpFile] = useState<File | null>(null);
+  const [nibFile, setNibFile] = useState<File | null>(null);
+
+  const [dragActiveLogo, setDragActiveLogo] = useState(false);
+  const [dragActiveKtp, setDragActiveKtp] = useState(false);
+  const [dragActiveNib, setDragActiveNib] = useState(false);
+
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const ktpInputRef = useRef<HTMLInputElement>(null);
+  const nibInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrag = (
+    e: React.DragEvent,
+    type: "logo" | "ktp" | "nib",
+    active: boolean,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === "logo") setDragActiveLogo(active);
+    if (type === "ktp") setDragActiveKtp(active);
+    if (type === "nib") setDragActiveNib(active);
+  };
+
+  const handleDrop = (e: React.DragEvent, type: "logo" | "ktp" | "nib") => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (type === "logo") setDragActiveLogo(false);
+    if (type === "ktp") setDragActiveKtp(false);
+    if (type === "nib") setDragActiveNib(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (type === "logo") setLogoFile(file);
+      if (type === "ktp") setKtpFile(file);
+      if (type === "nib") setNibFile(file);
     }
-  }, []);
+  };
+
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "logo" | "ktp" | "nib",
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (type === "logo") setLogoFile(file);
+      if (type === "ktp") setKtpFile(file);
+      if (type === "nib") setNibFile(file);
+    }
+  };
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const statusKey = userEmail
+    ? "umkm_verification_status_" + userEmail
+    : "umkm_verification_status";
+  const profileKey = userEmail
+    ? "registered_umkm_profile_" + userEmail
+    : "registered_umkm_profile";
+
+  const handleProceedToPending = async () => {
+    setError(null);
+    setSubmitting(true);
+
+    const selectedProvinsiName = provinsi.find((p) => p.id === selectedProvinsi)?.name || "";
+    const selectedKabupatenName = kabupaten.find((k) => k.id === selectedKabupaten)?.name || "";
+    const selectedKecamatanName = kecamatan.find((kc) => kc.id === selectedKecamatan)?.name || "";
+    const selectedDesaName = desa.find((d) => d.id === selectedDesa)?.name || "";
+
+    // Extract maximum number of employees (e.g. "11 - 50" -> 50) to satisfy z.coerce.number()
+    let count = 1;
+    if (employeeCount) {
+      const match = employeeCount.match(/\d+/g);
+      if (match) {
+        count = parseInt(match[match.length - 1]);
+      }
+    }
+
+    const formData = new FormData();
+    formData.append("owner_name", ownerName);
+    formData.append("nib", nib);
+    formData.append("business_name", businessName);
+    formData.append("business_category", kategori === "Lainnya" ? customKategori : kategori);
+    formData.append("employee_count", String(count));
+    formData.append("established_at", String(parseInt(establishedAt) || new Date().getFullYear()));
+    formData.append("province", selectedProvinsiName);
+    formData.append("regency", selectedKabupatenName);
+    formData.append("district", selectedKecamatanName);
+    formData.append("subdistrict", selectedDesaName);
+    formData.append("website_sosmed", websiteSosmed || "");
+    formData.append("business_email", businessEmail);
+    formData.append("business_phone", businessPhone);
+
+    // Files
+    if (logoFile) formData.append("logo", logoFile);
+    if (ktpFile) formData.append("ktp", ktpFile);
+    if (nibFile) formData.append("nib_document", nibFile);
+
+    const saveToLocalStorageAndState = (logoBase64?: string) => {
+      const profile = {
+        ownerName,
+        nib,
+        businessName,
+        businessCategory: kategori === "Lainnya" ? customKategori : kategori,
+        employeeCount,
+        establishedAt,
+        businessEmail,
+        businessPhone,
+        websiteSosmed,
+        address:
+          [
+            selectedDesaName,
+            selectedKecamatanName,
+            selectedKabupatenName,
+            selectedProvinsiName,
+          ]
+            .filter(Boolean)
+            .join(", ") || "Jakarta",
+        createdAt: new Date().toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        businessLogo: logoBase64 || "",
+      };
+      localStorage.setItem(profileKey, JSON.stringify(profile));
+      localStorage.setItem(statusKey, "pending");
+      if (userEmail) {
+        localStorage.setItem("latest_registered_umkm_email", userEmail);
+
+        let registeredEmails = [];
+        const savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+        if (savedEmailsStr) {
+          try {
+            registeredEmails = JSON.parse(savedEmailsStr);
+            if (!Array.isArray(registeredEmails)) {
+              registeredEmails = [];
+            }
+          } catch (e) {
+            registeredEmails = [];
+          }
+        }
+        if (!registeredEmails.includes(userEmail)) {
+          registeredEmails.push(userEmail);
+          localStorage.setItem(
+            "registered_umkm_emails",
+            JSON.stringify(registeredEmails),
+          );
+        }
+      }
+      setStatus("pending");
+    };
+
+    try {
+      const response = await apiRequest<{ umkm_id: number; status: string }>("/umkm/register", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.success) {
+        if (response.errors && response.errors.length > 0) {
+          // Show the first validation error beautifully
+          const errDetail = response.errors[0];
+          setError(`Kesalahan pada ${errDetail.field}: ${errDetail.message}`);
+        } else {
+          setError(response.message || "Pendaftaran gagal. Silakan periksa kembali data Anda.");
+        }
+        setSubmitting(false);
+        return;
+      }
+
+      if (logoFile && logoFile.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          saveToLocalStorageAndState(reader.result as string);
+        };
+        reader.readAsDataURL(logoFile);
+      } else {
+        saveToLocalStorageAndState();
+      }
+    } catch (e: any) {
+      console.error(e);
+      setError("Terjadi kesalahan jaringan saat mendaftarkan UMKM.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleProceedToStep2 = () => {
+    setError(null);
+
+    // 1. Owner Name
+    if (!ownerName.trim()) {
+      setError("Nama pemilik wajib diisi");
+      return;
+    }
+
+    // 2. NIB
+    if (!nib.trim()) {
+      setError("NIB wajib diisi");
+      return;
+    }
+    if (!/^\d{13}$/.test(nib.trim())) {
+      setError("NIB harus berupa 13 digit angka");
+      return;
+    }
+
+    // 3. Business Name
+    if (!businessName.trim()) {
+      setError("Nama usaha wajib diisi");
+      return;
+    }
+
+    // 4. Kategori
+    if (!kategori) {
+      setError("Kategori usaha wajib diisi");
+      return;
+    }
+    if (kategori === "Lainnya" && !customKategori.trim()) {
+      setError("Tuliskan kategori usaha kustom Anda");
+      return;
+    }
+
+    // 5. Employee Count
+    if (!employeeCount) {
+      setError("Jumlah karyawan wajib dipilih");
+      return;
+    }
+
+    // 6. Established Year
+    if (!establishedAt.trim()) {
+      setError("Tahun berdiri wajib diisi");
+      return;
+    }
+    const year = parseInt(establishedAt);
+    const currentYear = new Date().getFullYear();
+    if (isNaN(year) || year < 1886 || year > currentYear + 1) {
+      setError(`Tahun berdiri harus berupa angka antara 1886 dan ${currentYear + 1}`);
+      return;
+    }
+
+    // 7. Location (Provinsi, Kabupaten, Kecamatan, Desa)
+    if (!selectedProvinsi) {
+      setError("Provinsi wajib dipilih");
+      return;
+    }
+    if (!selectedKabupaten) {
+      setError("Kabupaten/Kota wajib dipilih");
+      return;
+    }
+    if (!selectedKecamatan) {
+      setError("Kecamatan wajib dipilih");
+      return;
+    }
+    if (!selectedDesa) {
+      setError("Desa/Kelurahan wajib dipilih");
+      return;
+    }
+
+    // 8. Business Email
+    if (!businessEmail.trim()) {
+      setError("Email usaha wajib diisi");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessEmail.trim())) {
+      setError("Format email usaha tidak valid");
+      return;
+    }
+
+    // 9. Phone
+    if (!businessPhone.trim()) {
+      setError("Nomor telepon usaha wajib diisi");
+      return;
+    }
+
+    // 10. Website/Sosmed
+    if (websiteSosmed.trim()) {
+      let url = websiteSosmed.trim();
+      if (!/^https?:\/\//i.test(url)) {
+        url = "https://" + url;
+      }
+      try {
+        new URL(url);
+        setWebsiteSosmed(url);
+      } catch (e) {
+        setError("Format URL Website/Sosial Media tidak valid (contoh: https://instagram.com/akun atau instagram.com)");
+        return;
+      }
+    }
+
+    setStatus("step2");
+  };
+
+  // Cek jika status di local storage sudah approved, langsung redirect tanpa nunggu API call
+  useEffect(() => {
+    const savedStatus = localStorage.getItem(statusKey);
+    if (savedStatus === "approved") {
+      navigate("/umkm/home");
+    }
+  }, [statusKey, navigate]);
+
+  // Integrasi status dari Backend & Local Storage
+  useEffect(() => {
+    const fetchLatestStatus = async () => {
+      const response = await apiRequest<any>("/umkm/my-profile");
+      if (response.success && response.data) {
+        const dbStatus = response.data.status; // e.g. "APPROVED", "REJECTED", "PENDING"
+        if (dbStatus) {
+          const mappedStatus = dbStatus.toLowerCase() as VerificationStatus;
+          setStatus(mappedStatus);
+          localStorage.setItem(statusKey, mappedStatus);
+
+          // Update profileData with the latest data from the backend as well
+          const updatedProfile = {
+            ownerName: response.data.owner_name,
+            nib: response.data.nib,
+            businessName: response.data.business_name,
+            businessCategory: response.data.business_category,
+            employeeCount: response.data.employee_count,
+            establishedAt: response.data.established_at,
+            businessEmail: response.data.business_email,
+            businessPhone: response.data.business_phone,
+            websiteSosmed: response.data.website_sosmed,
+            address: [response.data.subdistrict, response.data.district, response.data.regency, response.data.province].filter(Boolean).join(", ") || "Jakarta",
+            createdAt: response.data.created_at ? new Date(response.data.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "29 Maret 2026",
+            businessLogo: response.data.logo_url || "",
+            rejectionReason: response.data.rejection_reason || localStorage.getItem(response.data.business_email ? `umkm_rejection_reason_${response.data.business_email}` : "umkm_rejection_reason") || ""
+          };
+          setProfileData(updatedProfile);
+          localStorage.setItem(profileKey, JSON.stringify(updatedProfile));
+
+          // Also, if the status is approved, we should update the local "user" item's role to "UMKM"
+          // so that route guards and navbar links sync instantly
+          if (mappedStatus === "approved") {
+            const userStr = localStorage.getItem("user");
+            if (userStr) {
+              const userObj = JSON.parse(userStr);
+              if (userObj.role !== "UMKM") {
+                userObj.role = "UMKM";
+                localStorage.setItem("user", JSON.stringify(userObj));
+              }
+            }
+            // Pengalihan langsung ke halaman Home UMKM
+            navigate("/umkm/home");
+          }
+        }
+      } else {
+        // Fallback to local storage if API fails or returns no profile
+        const savedStatus = localStorage.getItem(statusKey);
+        if (savedStatus) {
+          setStatus(savedStatus as VerificationStatus);
+          if (savedStatus === "approved") {
+            navigate("/umkm/home");
+          }
+        }
+      }
+    };
+
+    fetchLatestStatus();
+  }, [statusKey, profileKey, navigate]);
 
   const [kategori, setKategori] = useState("");
   const [customKategori, setCustomKategori] = useState("");
+
+  const [ownerName, setOwnerName] = useState("");
+  const [nib, setNib] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [employeeCount, setEmployeeCount] = useState("");
+  const [establishedAt, setEstablishedAt] = useState("");
+  const [businessEmail, setBusinessEmail] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
+  const [websiteSosmed, setWebsiteSosmed] = useState("");
+  const [profileData, setProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    const savedProfile = localStorage.getItem(profileKey);
+    if (savedProfile) {
+      setProfileData(JSON.parse(savedProfile));
+    }
+  }, [status, profileKey]);
 
   const [provinsi, setProvinsi] = useState<any[]>([]);
   const [selectedProvinsi, setSelectedProvinsi] = useState("");
@@ -233,7 +609,7 @@ export default function VerificationUMKM() {
               </h2>
 
               <p className="text-[#166534] text-[13px] leading-relaxed max-w-3xl mb-4">
-                Akun <strong>Sambal Bakar Nusantara</strong> milik Jane Doe
+                Akun <strong>{profileData?.businessName || "Sambal Bakar Nusantara"}</strong> milik <strong>{profileData?.ownerName || "Jane Doe"}</strong>{" "}
                 telah resmi terverifikasi oleh tim FreshStart. Kini Anda dapat
                 mengakses seluruh fitur platform secara penuh, mulai dari
                 membuka lowongan kerja, mengelola profil usaha, hingga
@@ -244,7 +620,7 @@ export default function VerificationUMKM() {
                 <div className="flex items-center gap-2">
                   <FiClock className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    Diverifikasi pada: <strong>31 Maret 2025, 12.30 WIB</strong>
+                    Diverifikasi pada: <strong>{profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB</strong>
                   </span>
                 </div>
                 <span>
@@ -281,7 +657,7 @@ export default function VerificationUMKM() {
               </h2>
 
               <p className="text-[#991B1B] text-[13px] leading-relaxed max-w-3xl mb-4">
-                Maaf, akun UMKM <strong>Sambal Bakar Nusantara</strong> Anda
+                Maaf, akun UMKM <strong>{profileData?.businessName || "Sambal Bakar Nusantara"}</strong> Anda
                 tidak dapat diverifikasi pada saat ini. Admin telah meninjau
                 pengajuan Anda dan menemukan beberapa hal yang perlu diperbaiki.
                 Silakan baca keterangan di bawah dan ajukan kembali setelah
@@ -291,7 +667,7 @@ export default function VerificationUMKM() {
               <div className="flex items-center gap-2 text-[#991B1B] text-[12px]">
                 <FiClock className="w-3.5 h-3.5 shrink-0" />
                 <span>
-                  Ditolak pada: <strong>31 Maret 2025, 12.30 WIB</strong>
+                  Ditolak pada: <strong>{profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB</strong>
                 </span>
               </div>
             </div>
@@ -319,6 +695,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan nama lengkap pemilik usaha"
+                    value={ownerName}
+                    onChange={(e) => setOwnerName(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -329,6 +707,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan NIB usaha"
+                    value={nib}
+                    onChange={(e) => setNib(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -339,6 +719,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan nama usaha atau UMKM"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -351,7 +733,7 @@ export default function VerificationUMKM() {
                     onChange={(e) => setKategori(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="" selected disabled>
+                    <option value="" disabled>
                       Pilih Kategori Usaha
                     </option>
                     <option value="Kuliner">Kuliner (Makanan & Minuman)</option>
@@ -393,7 +775,11 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Jumlah Karyawan
                   </label>
-                  <select className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                  <select
+                    value={employeeCount}
+                    onChange={(e) => setEmployeeCount(e.target.value)}
+                    className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
                     <option value="" selected disabled>
                       Pilih jumlah karyawan
                     </option>
@@ -403,7 +789,7 @@ export default function VerificationUMKM() {
                     <option value="11 - 50">
                       11 - 50 Karyawan (Usaha Kecil)
                     </option>
-                    <option value="51 - 50">
+                    <option value="51 - 100">
                       51 - 100 Karyawan (Usaha Menengah)
                     </option>
                     <option value="100+">100+ Karyawan (Usaha Besar)</option>
@@ -416,10 +802,12 @@ export default function VerificationUMKM() {
                   <input
                     type="number"
                     placeholder="2020, 2021, 2022, 2023"
+                    value={establishedAt}
+                    onChange={(e) => setEstablishedAt(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
-                
+
                 {/* LOKASI */}
                 <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* PROVINSI */}
@@ -513,6 +901,8 @@ export default function VerificationUMKM() {
                   <input
                     type="email"
                     placeholder="example@gmail.com"
+                    value={businessEmail}
+                    onChange={(e) => setBusinessEmail(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -523,6 +913,8 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="081234567890"
+                    value={businessPhone}
+                    onChange={(e) => setBusinessPhone(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -533,13 +925,15 @@ export default function VerificationUMKM() {
                   <input
                     type="text"
                     placeholder="Masukkan website atau sosial media usaha"
+                    value={websiteSosmed}
+                    onChange={(e) => setWebsiteSosmed(e.target.value)}
                     className="border border-gray-200 rounded-lg px-4 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               </div>
             </Card>
-            <Button
-              onClick={() => setStatus("step2")}
+             <Button
+              onClick={handleProceedToStep2}
               className="w-full max-w-2xl bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]"
             >
               Lanjut
@@ -561,19 +955,73 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Upload Logo Usaha
                   </label>
-                  <div className="border-[1.5px] border-dashed border-[#CBD5E1] bg-[#F8FAFC] rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                    <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
-                      <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                  <input
+                    type="file"
+                    ref={logoInputRef}
+                    onChange={(e) => handleFileChange(e, "logo")}
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                  />
+                  {logoFile ? (
+                    <div className="border border-green-200 bg-green-50/20 rounded-xl p-4 flex items-center justify-between transition-colors">
+                      <div className="flex items-center gap-3">
+                        {logoFile.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(logoFile)}
+                            alt="Logo Preview"
+                            className="w-10 h-10 object-cover rounded-lg border border-green-200"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                            <FiFileText className="w-5 h-5 text-green-600" />
+                          </div>
+                        )}
+                        <div className="flex flex-col text-left">
+                          <span className="text-[12px] font-bold text-gray-800 truncate max-w-xs sm:max-w-md">
+                            {logoFile.name}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {(logoFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLogoFile(null);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-50 transition"
+                      >
+                        Hapus
+                      </button>
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
-                        Click or drag files to upload
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
-                        PNG, JPG or PDF up to 10MB
-                      </span>
+                  ) : (
+                    <div
+                      onClick={() => logoInputRef.current?.click()}
+                      onDragEnter={(e) => handleDrag(e, "logo", true)}
+                      onDragOver={(e) => handleDrag(e, "logo", true)}
+                      onDragLeave={(e) => handleDrag(e, "logo", false)}
+                      onDrop={(e) => handleDrop(e, "logo")}
+                      className={`border-[1.5px] border-dashed rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer transition-colors ${
+                        dragActiveLogo
+                          ? "border-blue-500 bg-blue-50/50"
+                          : "border-[#CBD5E1] bg-[#F8FAFC] hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
+                        <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
+                          Click or drag files to upload
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+                          PNG, JPG or PDF up to 10MB
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Upload Item 2 */}
@@ -581,19 +1029,73 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Upload Foto KTP
                   </label>
-                  <div className="border-[1.5px] border-dashed border-[#CBD5E1] bg-[#F8FAFC] rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                    <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
-                      <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                  <input
+                    type="file"
+                    ref={ktpInputRef}
+                    onChange={(e) => handleFileChange(e, "ktp")}
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                  />
+                  {ktpFile ? (
+                    <div className="border border-green-200 bg-green-50/20 rounded-xl p-4 flex items-center justify-between transition-colors">
+                      <div className="flex items-center gap-3">
+                        {ktpFile.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(ktpFile)}
+                            alt="KTP Preview"
+                            className="w-10 h-10 object-cover rounded-lg border border-green-200"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                            <FiFileText className="w-5 h-5 text-green-600" />
+                          </div>
+                        )}
+                        <div className="flex flex-col text-left">
+                          <span className="text-[12px] font-bold text-gray-800 truncate max-w-xs sm:max-w-md">
+                            {ktpFile.name}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {(ktpFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setKtpFile(null);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-50 transition"
+                      >
+                        Hapus
+                      </button>
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
-                        Click or drag files to upload
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
-                        PNG, JPG or PDF up to 10MB
-                      </span>
+                  ) : (
+                    <div
+                      onClick={() => ktpInputRef.current?.click()}
+                      onDragEnter={(e) => handleDrag(e, "ktp", true)}
+                      onDragOver={(e) => handleDrag(e, "ktp", true)}
+                      onDragLeave={(e) => handleDrag(e, "ktp", false)}
+                      onDrop={(e) => handleDrop(e, "ktp")}
+                      className={`border-[1.5px] border-dashed rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer transition-colors ${
+                        dragActiveKtp
+                          ? "border-blue-500 bg-blue-50/50"
+                          : "border-[#CBD5E1] bg-[#F8FAFC] hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
+                        <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
+                          Click or drag files to upload
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+                          PNG, JPG or PDF up to 10MB
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Upload Item 3 */}
@@ -601,19 +1103,73 @@ export default function VerificationUMKM() {
                   <label className="text-[13px] font-bold text-gray-800">
                     Upload NIB (Nomor Induk Berusaha)
                   </label>
-                  <div className="border-[1.5px] border-dashed border-[#CBD5E1] bg-[#F8FAFC] rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
-                    <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
-                      <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                  <input
+                    type="file"
+                    ref={nibInputRef}
+                    onChange={(e) => handleFileChange(e, "nib")}
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                  />
+                  {nibFile ? (
+                    <div className="border border-green-200 bg-green-50/20 rounded-xl p-4 flex items-center justify-between transition-colors">
+                      <div className="flex items-center gap-3">
+                        {nibFile.type.startsWith("image/") ? (
+                          <img
+                            src={URL.createObjectURL(nibFile)}
+                            alt="NIB Preview"
+                            className="w-10 h-10 object-cover rounded-lg border border-green-200"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
+                            <FiFileText className="w-5 h-5 text-green-600" />
+                          </div>
+                        )}
+                        <div className="flex flex-col text-left">
+                          <span className="text-[12px] font-bold text-gray-800 truncate max-w-xs sm:max-w-md">
+                            {nibFile.name}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            {(nibFile.size / (1024 * 1024)).toFixed(2)} MB
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setNibFile(null);
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-50 transition"
+                      >
+                        Hapus
+                      </button>
                     </div>
-                    <div className="flex flex-col text-left">
-                      <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
-                        Click or drag files to upload
-                      </span>
-                      <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
-                        PNG, JPG or PDF up to 10MB
-                      </span>
+                  ) : (
+                    <div
+                      onClick={() => nibInputRef.current?.click()}
+                      onDragEnter={(e) => handleDrag(e, "nib", true)}
+                      onDragOver={(e) => handleDrag(e, "nib", true)}
+                      onDragLeave={(e) => handleDrag(e, "nib", false)}
+                      onDrop={(e) => handleDrop(e, "nib")}
+                      className={`border-[1.5px] border-dashed rounded-xl py-4 flex items-center justify-center gap-4 cursor-pointer transition-colors ${
+                        dragActiveNib
+                          ? "border-blue-500 bg-blue-50/50"
+                          : "border-[#CBD5E1] bg-[#F8FAFC] hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="w-9 h-9 bg-[#E2E8F0] rounded-full flex items-center justify-center shrink-0">
+                        <FiUploadCloud className="w-4.5 h-4.5 text-[#3B5998]" />
+                      </div>
+                      <div className="flex flex-col text-left">
+                        <span className="text-[12px] font-extrabold text-gray-900 leading-tight mb-0.5">
+                          Click or drag files to upload
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wide">
+                          PNG, JPG or PDF up to 10MB
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </Card>
@@ -622,18 +1178,16 @@ export default function VerificationUMKM() {
               <Button
                 onClick={() => setStatus("step1")}
                 variant="outline"
-                className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50"
+                className="flex-1 border-[#3B5998] text-[#3B5998] py-5 rounded-xl font-bold text-[15px] hover:bg-blue-50 animate-duration-200"
               >
                 Kembali
               </Button>
               <Button
-                onClick={() => {
-                  localStorage.setItem("umkm_verification_status", "pending");
-                  setStatus("pending");
-                }}
-                className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]"
+                onClick={handleProceedToPending}
+                disabled={!logoFile || !ktpFile || !nibFile || submitting}
+                className="flex-1 bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                Lanjut
+                {submitting ? "Memproses..." : "Lanjut"}
               </Button>
             </div>
           </div>
@@ -659,13 +1213,13 @@ export default function VerificationUMKM() {
                 </div>
                 <div>
                   <h4 className="font-bold text-[15px] text-gray-900 mb-0.5">
-                    Sambal Bakar Nusantara
+                    {profileData?.businessName || "Sambal Bakar Nusantara"}
                   </h4>
                   <p className="text-[12px] text-gray-500 mb-1.5">
-                    Kategori: Kuliner
+                    Kategori: {profileData?.businessCategory || "Kuliner"}
                   </p>
                   <div className="bg-[#F1F5F9] text-[#64748B] text-[10px] px-2 py-0.5 rounded font-medium inline-block border border-gray-200">
-                    NIB: 1232131231
+                    NIB: {profileData?.nib || "1232131231"}
                   </div>
                 </div>
               </div>
@@ -680,12 +1234,27 @@ export default function VerificationUMKM() {
             {/* Detail grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-12">
               {[
-                { label: "Nama Pemilik", value: "Jane Doe" },
-                { label: "Email", value: "janedoe@gmail.com" },
-                { label: "No Telepon", value: "08123456789" },
-                { label: "Jumlah Karyawan", value: "10-50 Karyawan" },
-                { label: "Alamat", value: "Jakarta" },
-                { label: "Tanggal Bergabung", value: "29 Maret 2025" },
+                {
+                  label: "Nama Pemilik",
+                  value: profileData?.ownerName || "Jane Doe",
+                },
+                {
+                  label: "Email",
+                  value: profileData?.businessEmail || "janedoe@gmail.com",
+                },
+                {
+                  label: "No Telepon",
+                  value: profileData?.businessPhone || "08123456789",
+                },
+                {
+                  label: "Jumlah Karyawan",
+                  value: profileData?.employeeCount || "10-50 Karyawan",
+                },
+                { label: "Alamat", value: profileData?.address || "Jakarta" },
+                {
+                  label: "Tanggal Bergabung",
+                  value: profileData?.createdAt || "29 Maret 2025",
+                },
               ].map(({ label, value }) => (
                 <div key={label} className="flex flex-col gap-0.5">
                   <span className="text-[12px] text-gray-400">{label}</span>
@@ -788,13 +1357,8 @@ export default function VerificationUMKM() {
                     Pesan Penolakan
                   </span>
                 </div>
-                <p className="text-[#334155] text-[13px] leading-relaxed">
-                  Setelah kami tinjau, pengajuan verifikasi akun UMKM Anda tidak
-                  dapat kami setujui karena dokumen yang diunggah belum memenuhi
-                  persyaratan yang berlaku. Foto KTP yang dikirimkan buram dan
-                  tidak terbaca dengan jelas, serta SIUP yang Anda lampirkan
-                  sudah kadaluarsa sejak Desember 2023. Mohon segera perbaiki
-                  dan ajukan kembali dengan dokumen yang valid.
+                <p className="text-[#334155] text-[13px] leading-relaxed whitespace-pre-wrap">
+                  {profileData?.rejectionReason || "Pengajuan verifikasi akun UMKM Anda ditolak. Silakan perbaiki dokumen Anda dan ajukan kembali."}
                 </p>
               </div>
 
@@ -830,10 +1394,14 @@ export default function VerificationUMKM() {
     }
   };
 
+  // Guard
+  if (role !== "USER") {
+    navigate("/");
+  }
+
   /* ─────────────────────── RENDER ─────────────────────── */
   return (
     <div className="w-full min-h-screen bg-[#F1F5F9]">
-
       {/* ── Page Header ── */}
       <div className="bg-[#E2E8F0] pt-10 pb-20 px-4 md:px-8">
         <div className="container mx-auto max-w-4xl">
@@ -883,6 +1451,11 @@ export default function VerificationUMKM() {
           key={status}
           className="w-full animate-in fade-in slide-in-from-bottom-3 duration-400"
         >
+          {error && (
+            <div className="w-full max-w-2xl mx-auto mb-6 bg-red-50 border border-red-200 text-red-700 px-5 py-3.5 rounded-2xl text-xs font-semibold">
+              {error}
+            </div>
+          )}
           {renderBanner()}
           {renderContent()}
         </div>

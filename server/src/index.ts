@@ -9,15 +9,26 @@ import morgan from "morgan";
 import { AppError } from "./common/utils/AppError.js";
 import router from "./routes/index.js";
 
+<<<<<<< HEAD
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+=======
+const port = process.env.PORT || 3000;
+>>>>>>> 28ba8fd211518570253587f0d305f7fd3cfcd065
 const app = express();
 const port = process.env.PORT || 3000;
 
 // --- CONFIG ---
 const corsOptions = {
+<<<<<<< HEAD
   origin: true,
+=======
+  origin: (_origin: any, callback: any) => {
+
+    callback(null, true);
+  },
+>>>>>>> 28ba8fd211518570253587f0d305f7fd3cfcd065
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   credentials: true,
@@ -67,7 +78,12 @@ app.use((_: Request, res: Response) => {
   res.status(404).json({ message: "Resource Not Found" });
 });
 
+<<<<<<< HEAD
 // --- LISTEN ---
 app.listen(Number(port), '0.0.0.0', () => {
   console.log(`Server berjalan di http://0.0.0.0:${port}`);
+=======
+app.listen(Number(port), "0.0.0.0", () => {
+  console.log(`Server running at http://localhost:${port}`);
+>>>>>>> 28ba8fd211518570253587f0d305f7fd3cfcd065
 });

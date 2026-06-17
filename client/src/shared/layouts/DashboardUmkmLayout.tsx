@@ -1,9 +1,12 @@
 import { cn } from "@/shared/lib/utils";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import logo from "@/assets/images/logo.png";
 import { ModalNotification } from "@/shared/components/ui/modal-notification";
+import { useAppDispatch, useAppSelector } from "../stores/hook";
+import { authLogout } from "@/features/auth/authSlice";
+import { apiRequest } from "../lib/api";
 
 const navItems = [
   { title: "Home", to: "/umkm/home" },
@@ -54,11 +57,11 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setError("");
 
     if (!username && !password) {
@@ -74,7 +77,20 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
       return;
     }
 
-    setShowSuccessModal(true);
+    // ubah username atau password
+    const res = await apiRequest("/auth/update-account", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      body: JSON.stringify({
+        username: username || undefined,
+        password: password || undefined,
+      }),
+    });
+
+    if (res.success) setShowSuccessModal(true);
+    else setError(res.message || "Gagal memperbarui akun");
   };
 
   const handleSuccessClose = () => {
@@ -134,9 +150,14 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukkan password baru"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-10
-                    "
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                </button>
               </div>
             </div>
 
@@ -191,12 +212,25 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ─── Profile Menu ─────────────────────────────────────────────────────────────
+//  Profile Menu 
 function ProfileMenu() {
+  const dispatch = useAppDispatch();
+
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isAkunModalOpen, setIsAkunModalOpen] = React.useState(false);
   const [isKeluarModalOpen, setIsKeluarModalOpen] = React.useState(false);
   const navigate = useNavigate();
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const profileKey = userEmail
+    ? `registered_umkm_profile_${userEmail}`
+    : "registered_umkm_profile";
+  const savedProfileStr = localStorage.getItem(profileKey);
+  const savedProfile = savedProfileStr ? JSON.parse(savedProfileStr) : null;
+  const logoUsaha =
+    savedProfile?.businessLogo || "https://i.pravatar.cc/150?img=11";
 
   const handleClick = (path: string) => {
     setIsMenuOpen(false);
@@ -211,11 +245,13 @@ function ProfileMenu() {
 
   const handleKeluar = () => {
     setIsKeluarModalOpen(false);
+    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    dispatch(authLogout());
     navigate("/auth/login");
   };
 
   return (
-    // Fragment agar modal fixed tidak terkurung di dalam div.relative
     <>
       <div className="relative">
         <button
@@ -223,7 +259,7 @@ function ProfileMenu() {
           className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 focus:outline-none cursor-pointer"
         >
           <img
-            src="https://i.pravatar.cc/150?img=11"
+            src={logoUsaha}
             alt="profile"
             className="h-8 w-8 rounded-full border border-gray-900 object-cover"
           />
@@ -231,7 +267,6 @@ function ProfileMenu() {
 
         {isMenuOpen && (
           <>
-            {/* Backdrop tutup dropdown */}
             <div
               className="fixed inset-0 z-10"
               onClick={() => setIsMenuOpen(false)}
@@ -258,7 +293,7 @@ function ProfileMenu() {
         )}
       </div>
 
-      {/* Modal Keamanan Akun — di luar div.relative agar fixed benar */}
+      {/* Modal Keamanan Akun */}
       {isAkunModalOpen && (
         <UbahAkunModal onClose={() => setIsAkunModalOpen(false)} />
       )}
@@ -280,13 +315,28 @@ function ProfileMenu() {
   );
 }
 
-// ─── DashboardUmkmLayout ──────────────────────────────────────────────────────
 export default function DashboardUmkmLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const authSelector = useAppSelector((state) => state.auth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
+  if (authSelector.role !== "UMKM") {
+    return <Navigate to="/" />;
+  }
+
+  const userStr = localStorage.getItem("user");
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userEmail = user?.email || "";
+  const profileKey = userEmail
+    ? `registered_umkm_profile_${userEmail}`
+    : "registered_umkm_profile";
+  const savedProfileStr = localStorage.getItem(profileKey);
+  const savedProfile = savedProfileStr ? JSON.parse(savedProfileStr) : null;
+  const logoUsaha =
+    savedProfile?.businessLogo || "https://i.pravatar.cc/150?img=11";
 
   return (
     <>
@@ -365,13 +415,15 @@ export default function DashboardUmkmLayout({
           <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
             <div className="h-12 w-12 bg-gray-100 rounded-full overflow-hidden border border-slate-300">
               <img
-                src="https://i.pravatar.cc/150?img=11"
+                src={logoUsaha}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
             <div>
-              <h2 className="font-bold text-mint-300 text-sm">UMKM Partner</h2>
+              <h2 className="font-bold text-mint-300 text-sm">
+                {savedProfile?.businessName || "UMKM Partner"}
+              </h2>
               <p className="text-xs text-gray-500">Lihat Profil</p>
             </div>
           </div>
