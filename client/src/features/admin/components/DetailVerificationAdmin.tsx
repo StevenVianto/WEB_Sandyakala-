@@ -32,7 +32,7 @@ export default function DetailVerificationAdmin() {
       if (response.success && response.data) {
         // Find profile where businessName slug matches namaUsaha
         const found = response.data.find(
-          (p: any) => p.business_name?.toLowerCase().replace(/\s+/g, "-") === namaUsaha
+          (p: any) => p.business_name?.toLowerCase().replace(/\s+/g, "-") === namaUsaha.toLowerCase()
         );
         if (found) {
           setRegisteredProfile({
@@ -78,7 +78,7 @@ export default function DetailVerificationAdmin() {
           try {
             const parsed = JSON.parse(profileStr);
             const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
-            if (profileSlug === namaUsaha) {
+            if (profileSlug === namaUsaha.toLowerCase()) {
               foundProfile = parsed;
               foundEmail = email;
               break;
@@ -94,7 +94,7 @@ export default function DetailVerificationAdmin() {
         if (savedProfile) {
           const parsed = JSON.parse(savedProfile);
           const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
-          if (profileSlug === namaUsaha) {
+          if (profileSlug === namaUsaha.toLowerCase()) {
             foundProfile = parsed;
           }
         }
