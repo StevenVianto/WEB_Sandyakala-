@@ -15,6 +15,13 @@ export const validate =
       return next();
     } catch (err) {
       if (err instanceof ZodError) {
+        // --- INI KODE DETEKTIF ---
+        // Kita paksa server mencetak error-nya ke terminal supaya kamu bisa lihat
+        console.error("!!! VALIDATION FAILED !!!");
+        console.error(JSON.stringify(err.issues, null, 2));
+        console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        // -------------------------
+
         return res.status(400).json({
           success: false,
           message: "Validation error",

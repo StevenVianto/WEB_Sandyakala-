@@ -3,6 +3,12 @@ import { AuthService } from "./auth.service.js";
 
 export const AuthController = {
   register: async (req: Request, res: Response) => {
+    // --- TAMBAHKAN LOG INI ---
+    console.log("--- DEBUG DATA DARI FLUTTER ---");
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log("--------------------------------");
+    // ------------------------
+
     const user = await AuthService.registerUser(req.body);
 
     res.status(201).json({

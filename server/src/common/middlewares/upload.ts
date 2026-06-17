@@ -8,14 +8,22 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback,
 ) => {
-  const allowedMimeTypes = ["image/jpeg", "image/jpg", "image/png"];
+  // --- UPDATE: Tambahkan MIME type untuk PDF dan Word ---
+  const allowedMimeTypes = [
+    "image/jpeg", 
+    "image/jpg", 
+    "image/png",
+    "application/pdf", // untuk .pdf
+    "application/msword", // untuk .doc
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" // untuk .docx
+  ];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(
       new BadRequestError(
-        `File ${file.fieldname} not supported. Only JPG, JPEG or PNG files are allowed.`,
+        `File ${file.fieldname} tidak didukung. Hanya file JPG, PNG, PDF, atau DOC/DOCX yang diizinkan.`,
       ),
     );
   }
@@ -23,6 +31,6 @@ const fileFilter = (
 
 export const uploadMiddleware = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // Batas 5MB
   fileFilter: fileFilter,
 });

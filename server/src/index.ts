@@ -1,34 +1,47 @@
 import "dotenv/config";
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
+import cors from "cors";
+import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
+import morgan from "morgan";
 import { AppError } from "./common/utils/AppError.js";
 import router from "./routes/index.js";
-import multer from "multer";
-import cors from "cors";
 
-const port = 3000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
+const port = process.env.PORT || 3000;
 
+// --- CONFIG ---
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:62637"],
+  origin: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   credentials: true,
 };
 
 app.use(cors(corsOptions));
-
+app.use(morgan("dev")); 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Folder statis untuk foto profil
+app.use("/uploads", express.static(path.join(__dirname, "../uploads"))); 
+
+// --- ROUTER ---
 app.get("/", (_: Request, res: Response) => {
-  res.send("Hello, World!");
+  res.send("Server FreshStart Berjalan Lancar!");
 });
 
 app.use("/api", router);
 
-// Global error handler
+// --- ERROR HANDLING ---
 app.use((err: Error, _: Request, res: Response, __: NextFunction) => {
+  console.error("Error Detail:", err);
+
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       status: err.status,
@@ -36,17 +49,10 @@ app.use((err: Error, _: Request, res: Response, __: NextFunction) => {
     });
   }
 
-  // Multer
   if (err instanceof multer.MulterError) {
-    if (err.code === "LIMIT_FILE_SIZE") {
-      return res.status(400).json({
-        success: false,
-        message: "Ukuran file terlalu besar. Maksimal 5MB.",
-      });
-    }
     return res.status(400).json({
       success: false,
-      message: err.message,
+      message: err.code === "LIMIT_FILE_SIZE" ? "File terlalu besar (Max 5MB)." : err.message,
     });
   }
 
@@ -57,13 +63,11 @@ app.use((err: Error, _: Request, res: Response, __: NextFunction) => {
   });
 });
 
-// 404 Not Found handler
 app.use((_: Request, res: Response) => {
-  res.status(404).json({
-    message: "Resource Not Found",
-  });
+  res.status(404).json({ message: "Resource Not Found" });
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+// --- LISTEN ---
+app.listen(Number(port), '0.0.0.0', () => {
+  console.log(`Server berjalan di http://0.0.0.0:${port}`);
 });

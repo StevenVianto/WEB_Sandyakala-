@@ -4,6 +4,7 @@ import umkmRouter from "../features/umkm/umkm.routes.js";
 import { safeGuard } from "../common/middlewares/safeGuard.js";
 import skillRouter from "../features/skills/skill.route.js";
 import jobRouter from "../features/jobs/job.route.js";
+import applicationRouter from "../features/applications/application.route.js";
 
 const router = Router();
 
@@ -11,5 +12,6 @@ router.use("/auth", authRoute);
 router.use("/umkm", safeGuard(["USER"]), umkmRouter);
 router.use("/skills", safeGuard(["UMKM"]), skillRouter);
 router.use("/jobs", jobRouter); // safeGuard diterapkan di dalam job.route.ts
+router.use("/applications", applicationRouter);
 
 export default router;

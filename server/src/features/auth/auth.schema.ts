@@ -2,19 +2,30 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
   fullname: z
-    .string("Fullname wajib diisi")
-    .min(1, "Fullname tidak boleh kosong"),
-  email: z.string("Email wajib diisi").email("Format email tidak valid"),
+    .string()
+    .min(1, "Fullname wajib diisi"),
+    
+  email: z
+    .string()
+    .min(1, "Email wajib diisi")
+    .email("Format email tidak valid"),
+    
   password: z
-    .string("Password wajib diisi")
+    .string()
     .min(6, "Password minimal 6 karakter"),
+    
+  role: z.enum(['USER', 'UMKM']).default('USER'),
 });
 
 export const loginSchema = z.object({
-  email: z.string("Email wajib diisi").email("Format email tidak valid"),
+  email: z
+    .string()
+    .min(1, "Email wajib diisi")
+    .email("Format email tidak valid"),
+    
   password: z
-    .string("Password wajib diisi")
-    .min(1, "Password tidak boleh kosong"),
+    .string()
+    .min(1, "Password wajib diisi"),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
