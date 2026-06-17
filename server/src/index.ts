@@ -6,7 +6,7 @@ import router from "./routes/index.js";
 import multer from "multer";
 import cors from "cors";
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 const app = express();
 
 const corsOptions = {
@@ -67,6 +67,6 @@ app.use((_: Request, res: Response) => {
   });
 });
 
-app.listen(port, () => {
+app.listen(Number(port), "0.0.0.0", () => {
   console.log(`Server running at http://localhost:${port}`);
 });
