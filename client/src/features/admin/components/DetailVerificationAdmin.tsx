@@ -23,6 +23,7 @@ export default function DetailVerificationAdmin() {
   const [registeredProfile, setRegisteredProfile] = useState<any>(null);
   const [selectedEmail, setSelectedEmail] = useState<string>("");
   const [umkmId, setUmkmId] = useState<number | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -128,12 +129,17 @@ export default function DetailVerificationAdmin() {
       // 1. Update backend MySQL
       await apiRequest(`/umkm/${umkmId}/status`, {
         method: "PATCH",
-        body: JSON.stringify({ status: "REJECTED" }),
+        body: JSON.stringify({
+          status: "REJECTED",
+          rejection_reason: rejectionReason,
+        }),
       });
     }
     // 2. Local storage fallback
     const statusKey = selectedEmail ? `umkm_verification_status_${selectedEmail}` : "umkm_verification_status";
     localStorage.setItem(statusKey, "rejected");
+    const reasonKey = selectedEmail ? `umkm_rejection_reason_${selectedEmail}` : "umkm_rejection_reason";
+    localStorage.setItem(reasonKey, rejectionReason);
 
     setOpen(false);
     navigate("/admin/verifikasi-umkm");
@@ -245,7 +251,12 @@ export default function DetailVerificationAdmin() {
               Pesan Penolakan :
             </label>
 
-            <textarea className="w-full h-28 border-2 border-slate-300 rounded-md p-2 text-sm outline-none resize-none" />
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              className="w-full h-28 border-2 border-slate-300 rounded-md p-2 text-sm outline-none resize-none"
+              placeholder="Tulis alasan penolakan..."
+            />
           </form>
 
           <div className="flex justify-end mt-4">

@@ -38,9 +38,9 @@ const UmkmController = {
 
   updateStatus: async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, rejection_reason } = req.body;
 
-    const result = await UmkmService.updateUmkmStatus(Number(id), status);
+    const result = await UmkmService.updateUmkmStatus(Number(id), status, rejection_reason || null);
     res.status(200).json({
       success: true,
       message: `Status verifikasi akun berhasil diubah menjadi ${status}.`,

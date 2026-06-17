@@ -70,7 +70,7 @@ const UmkmRepository = {
 
   findAllUmkm: async () => {
     const query = `
-      SELECT p.id_umkm, p.user_id, p.owner_name, p.nib, p.business_name, p.business_category, p.employee_count, p.established_at, p.province, p.regency, p.district, p.subdistrict, p.website_sosmed, p.business_email, p.business_phone, p.status, p.created_at,
+      SELECT p.id_umkm, p.user_id, p.owner_name, p.nib, p.business_name, p.business_category, p.employee_count, p.established_at, p.province, p.regency, p.district, p.subdistrict, p.website_sosmed, p.business_email, p.business_phone, p.status, p.rejection_reason, p.created_at,
       d.logo_url, d.ktp_url, d.nib_file_url
       FROM umkm_profiles p
       LEFT JOIN umkm_documents d ON p.id_umkm = d.umkm_id
@@ -86,9 +86,9 @@ const UmkmRepository = {
     return rows[0];
   },
 
-  updateStatus: async (umkmId: number, status: string) => {
-    const query = "UPDATE umkm_profiles SET status = ? WHERE id_umkm = ?";
-    await pool.execute(query, [status, umkmId]);
+  updateStatus: async (umkmId: number, status: string, rejectionReason: string | null = null) => {
+    const query = "UPDATE umkm_profiles SET status = ?, rejection_reason = ? WHERE id_umkm = ?";
+    await pool.execute(query, [status, rejectionReason, umkmId]);
   },
 
   findUmkmByUserId: async (userId: number) => {

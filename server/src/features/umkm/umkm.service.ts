@@ -80,7 +80,7 @@ const UmkmService = {
     return umkm;
   },
 
-  updateUmkmStatus: async (umkmId: number, status: string) => {
+  updateUmkmStatus: async (umkmId: number, status: string, rejectionReason: string | null = null) => {
     if (!["APPROVED", "REJECTED", "PENDING"].includes(status)) {
       throw new BadRequestError("Status verifikasi tidak valid");
     }
@@ -90,7 +90,8 @@ const UmkmService = {
       throw new BadRequestError("Profil UMKM tidak ditemukan");
     }
 
-    await UmkmRepository.updateStatus(umkmId, status);
+    const reason = status === "REJECTED" ? rejectionReason : null;
+    await UmkmRepository.updateStatus(umkmId, status, reason);
     
     if (status === "APPROVED") {
       await UmkmRepository.updateUserRole(umkm.user_id, "UMKM");
@@ -98,7 +99,7 @@ const UmkmService = {
       await UmkmRepository.updateUserRole(umkm.user_id, "USER");
     }
 
-    return { umkm_id: umkmId, status };
+    return { umkm_id: umkmId, status, rejection_reason: reason };
   },
 
   getBenefits: async (umkmId: number) => {

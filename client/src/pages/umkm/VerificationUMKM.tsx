@@ -372,7 +372,8 @@ export default function VerificationUMKM() {
             websiteSosmed: response.data.website_sosmed,
             address: [response.data.subdistrict, response.data.district, response.data.regency, response.data.province].filter(Boolean).join(", ") || "Jakarta",
             createdAt: response.data.created_at ? new Date(response.data.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "29 Maret 2026",
-            businessLogo: response.data.logo_url || ""
+            businessLogo: response.data.logo_url || "",
+            rejectionReason: response.data.rejection_reason || localStorage.getItem(response.data.business_email ? `umkm_rejection_reason_${response.data.business_email}` : "umkm_rejection_reason") || ""
           };
           setProfileData(updatedProfile);
           localStorage.setItem(profileKey, JSON.stringify(updatedProfile));
@@ -1356,13 +1357,8 @@ export default function VerificationUMKM() {
                     Pesan Penolakan
                   </span>
                 </div>
-                <p className="text-[#334155] text-[13px] leading-relaxed">
-                  Setelah kami tinjau, pengajuan verifikasi akun UMKM Anda tidak
-                  dapat kami setujui karena dokumen yang diunggah belum memenuhi
-                  persyaratan yang berlaku. Foto KTP yang dikirimkan buram dan
-                  tidak terbaca dengan jelas, serta SIUP yang Anda lampirkan
-                  sudah kadaluarsa sejak Desember 2023. Mohon segera perbaiki
-                  dan ajukan kembali dengan dokumen yang valid.
+                <p className="text-[#334155] text-[13px] leading-relaxed whitespace-pre-wrap">
+                  {profileData?.rejectionReason || "Pengajuan verifikasi akun UMKM Anda ditolak. Silakan perbaiki dokumen Anda dan ajukan kembali."}
                 </p>
               </div>
 
