@@ -10,8 +10,10 @@ const port = 3000;
 const app = express();
 
 const corsOptions = {
-  // origin: ["http://localhost:5173", "http://localhost:62637"],
-  origin: "*", // untuk sementara
+  origin: (_origin: any, callback: any) => {
+
+    callback(null, true);
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"],
   credentials: true,
