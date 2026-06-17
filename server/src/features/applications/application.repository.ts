@@ -50,7 +50,7 @@ const ApplicationRepository = {
     WHERE j.umkm_id = ?
   `;
 
-  const [rows]: any = await pool.execute(baseQuery, [umkmId, limit, offset]);
+  const [rows]: any = await pool.query(baseQuery, [umkmId, limit, offset]);
   const [countRows]: any = await pool.execute(countQuery, [umkmId]);
 
   return { data: rows, total: countRows[0].total };
