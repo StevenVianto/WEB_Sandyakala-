@@ -17,12 +17,10 @@ const TaskService = {
       throw new Error("Tugas tidak ditemukan!");
     }
 
-    // Tugas yang sudah SELESAI tidak bisa disubmit ulang
     if (task.status === STATUS.SELESAI) {
       throw new Error("Tugas sudah selesai dan tidak bisa diubah lagi.");
     }
 
-    // Pastikan FG sudah diterima pada lowongan yang memiliki tugas ini
     const application = await TaskRepository.checkUserApplication(
       userId,
       task.job_id,
@@ -34,7 +32,6 @@ const TaskService = {
       );
     }
 
-    // Simpan ke riwayat revisi terlebih dahulu
     await TaskRepository.createRevisionHistory(
       taskId,
       userId,
@@ -42,7 +39,6 @@ const TaskService = {
       data.note,
     );
 
-    // Update status dan submission_link di task utama
     await TaskRepository.updateTaskSubmit(taskId, data.submission_link);
   },
 
@@ -53,19 +49,15 @@ const TaskService = {
       throw new Error("Tugas tidak ditemukan!");
     }
 
-    // Hanya task berstatus REVIEW dan REVISI yang bisa di-tinjau
     if (task.status !== STATUS.REVIEW || STATUS.REVISI) {
       throw new Error("Tugas ini tidak dalam status menunggu tinjauan.");
     }
 
-    // Jika disetujui = SELESAI, jika tidak = REVISI
     const status = data.is_approved ? STATUS.SELESAI : STATUS.REVISI;
     const finalNote = data.is_approved ? null : (data.revision_note ?? null);
 
-    // Update task utama
     await TaskRepository.updateTaskReview(taskId, status, finalNote);
 
-    // Update catatan revisi UMKM pada entri riwayat terbaru
     await TaskRepository.updateLatestRevisionNote(taskId, status, finalNote);
   },
 

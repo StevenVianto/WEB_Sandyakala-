@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DataTaskLayout from "@/shared/layouts/DataTaskLayout";
 import { FiEdit2 } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoCheckmark, IoClose } from "react-icons/io5";
-import { GoArrowLeft } from "react-icons/go";
 import { apiRequest } from "@/shared/lib/api";
 
 interface Job {
@@ -17,7 +17,7 @@ interface Job {
   salary_max?: number;
 }
 
-type ModalStep = "edit" | "batalEdit" | "simpanBerhasil" | "konfirmasiHapus" | "batalHapus" | "hapusBerhasil" | null;
+type ModalStep = "konfirmasiHapus" | "batalHapus" | "hapusBerhasil" | null;
 
 const tabs = [
   { label: "Lamaran Masuk", path: "/umkm/dashboard/lamaran-masuk", key: "lamaranMasuk" },
@@ -28,6 +28,7 @@ const tabs = [
 const isJobOpen = (deadline: string) => new Date(deadline) >= new Date();
 
 export default function DataPosisiTerbuka() {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,10 +36,6 @@ export default function DataPosisiTerbuka() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [modalStep, setModalStep] = useState<ModalStep>(null);
   const [selected, setSelected] = useState<Job | null>(null);
-
-  // State edit
-  const [editTitle, setEditTitle] = useState("");
-  const [editDeadline, setEditDeadline] = useState("");
 
   const token = localStorage.getItem("accessToken");
 
@@ -73,10 +70,7 @@ export default function DataPosisiTerbuka() {
   });
 
   const openEdit = (job: Job) => {
-    setSelected(job);
-    setEditTitle(job.title);
-    setEditDeadline(job.deadline?.slice(0, 10) ?? "");
-    setModalStep("edit");
+    navigate(`/umkm/add-lowongan/edit/${job.id}`);
   };
 
   const openHapus = (job: Job) => {
@@ -85,47 +79,6 @@ export default function DataPosisiTerbuka() {
   };
 
   const closeModal = () => { setModalStep(null); setSelected(null); };
-
-  const handleSimpan = async () => {
-    if (!selected) return;
-
-    const detailRes = await apiRequest<any>(`/jobs/${selected.id}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!detailRes.success || !detailRes.data) return;
-
-    const job = detailRes.data;
-    const body: any = {
-      title: editTitle,
-      job_category: job.job_category,
-      description: job.description,
-      type: job.type,
-      salary_min: job.salary_min ?? undefined,
-      salary_max: job.salary_max ?? undefined,
-      worker_needed: job.worker_needed,
-      minimum_education: job.minimum_education,
-      qualification_description: job.qualification_description,
-      portfolio_requirement: job.portfolio_requirement,
-      deadline: editDeadline,
-      skills: (job.skills ?? []).map((s: any) => s.skill_name ?? s),
-    };
-
-    if (job.type === "SHIFT" && job.shifts) body.shifts = job.shifts;
-    if (job.type === "PROJECT" && job.project_tasks) body.project_tasks = job.project_tasks;
-
-    const res = await apiRequest(`/jobs/${selected.id}`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(body),
-    });
-
-    if (res.success) {
-      await fetchJobs();
-      setModalStep("simpanBerhasil");
-    }
-  };
 
   const handleHapus = async () => {
     if (!selected) return;
@@ -207,59 +160,8 @@ export default function DataPosisiTerbuka() {
         )}
       </div>
 
-      {/* ── MODALS ───────────────────────────────────────────────────────────── */}
       {modalStep && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-
-          {modalStep === "edit" && selected && (
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
-              <div className="px-6 pt-6 pb-4 flex items-center gap-3">
-                <button onClick={() => setModalStep("batalEdit")} className="text-gray-600 hover:text-gray-900">
-                  <GoArrowLeft className="text-xl" />
-                </button>
-                <div>
-                  <h2 className="font-extrabold text-lg">Edit Lowongan</h2>
-                  <p className="text-gray-400 text-sm">Perbarui informasi posisi yang tersedia</p>
-                </div>
-              </div>
-              <hr />
-              <div className="px-6 py-5 space-y-4">
-                <div>
-                  <label className="text-sm text-gray-700 mb-1 block">Judul Lowongan</label>
-                  <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300" />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-700 mb-1 block">Deadline</label>
-                  <input type="date" value={editDeadline} onChange={(e) => setEditDeadline(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300" />
-                </div>
-              </div>
-              <hr />
-              <div className="px-6 py-4 flex gap-3">
-                <button onClick={() => setModalStep("batalEdit")} className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-50">Batal</button>
-                <button onClick={handleSimpan} className="flex-1 py-3 rounded-xl bg-slate-700 text-white font-bold text-sm hover:bg-slate-800">Simpan Perubahan</button>
-              </div>
-            </div>
-          )}
-
-          {modalStep === "batalEdit" && (
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl px-8 py-10 text-center">
-              <h2 className="font-extrabold text-xl mb-3">Perubahan tidak tersimpan</h2>
-              <p className="text-gray-400 text-sm mb-8">Lakukan simpan ulang jika ingin menyimpan perubahan</p>
-              <button onClick={closeModal} className="w-full py-3 rounded-xl bg-slate-700 text-white font-bold text-sm hover:bg-slate-800">Tutup</button>
-            </div>
-          )}
-
-          {modalStep === "simpanBerhasil" && (
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl px-8 py-10 text-center">
-              <div className="w-14 h-14 rounded-full bg-teal-500 flex items-center justify-center mx-auto mb-4">
-                <IoCheckmark className="text-2xl text-white" />
-              </div>
-              <h2 className="font-extrabold text-xl mb-3">Lowongan berhasil diperbarui</h2>
-              <button onClick={closeModal} className="w-full py-3 rounded-xl bg-slate-700 text-white font-bold text-sm hover:bg-slate-800">Lihat Lowongan</button>
-            </div>
-          )}
 
           {modalStep === "konfirmasiHapus" && selected && (
             <div className="bg-white rounded-2xl w-full max-w-md shadow-xl px-8 py-10 text-center">

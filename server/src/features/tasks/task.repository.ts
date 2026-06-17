@@ -1,6 +1,5 @@
 import pool from "../../config/db.js";
 
-// Enum status sesuai database: 'REVIEW' | 'REVISI' | 'SELESAI'
 const STATUS = {
   REVIEW: "REVIEW",
   REVISI: "REVISI",
@@ -8,7 +7,6 @@ const STATUS = {
 } as const;
 
 const TaskRepository = {
-  // [UMKM] Ambil semua tugas berdasarkan ID Lowongan
   getTasksByJobId: async (jobId: number) => {
     const query = `
       SELECT 
@@ -28,7 +26,6 @@ const TaskRepository = {
     return rows;
   },
 
-  // [KEAMANAN] Cek detail tugas apakah ada di database
   getTaskById: async (taskId: number) => {
     const query = `
       SELECT id, job_id, status 
@@ -39,7 +36,6 @@ const TaskRepository = {
     return (rows as any[])[0];
   },
 
-  // [KEAMANAN] Cek apakah FG benar-benar diterima di lowongan ini
   checkUserApplication: async (userId: number, jobId: number) => {
     const query = `
       SELECT id, status 
@@ -50,7 +46,6 @@ const TaskRepository = {
     return (rows as any[])[0];
   },
 
-  // [FG] Update link hasil kerja dan set status jadi REVIEW
   updateTaskSubmit: async (taskId: number, submissionLink: string) => {
     const query = `
       UPDATE job_project_tasks 
@@ -60,7 +55,6 @@ const TaskRepository = {
     await pool.execute(query, [submissionLink, STATUS.REVIEW, taskId] as any[]);
   },
 
-  // [UMKM] Update status dan catatan revisi di task utama
   updateTaskReview: async (
     taskId: number,
     status: string,
@@ -74,7 +68,6 @@ const TaskRepository = {
     await pool.execute(query, [status, revisionNote, taskId] as any[]);
   },
 
-  // [FG] Simpan riwayat setiap submit ke tabel task_revisions
   createRevisionHistory: async (
     taskId: number,
     submittedBy: number,
@@ -94,7 +87,6 @@ const TaskRepository = {
     ] as any[]);
   },
 
-  // [UMKM & FG] Ambil seluruh riwayat revisi sebuah task
   getRevisionsByTaskId: async (taskId: number) => {
     const query = `
       SELECT 
@@ -114,7 +106,6 @@ const TaskRepository = {
     return rows;
   },
 
-  // [UMKM] Update catatan revisi UMKM pada riwayat terbaru setelah review
   updateLatestRevisionNote: async (
     taskId: number,
     status: string,

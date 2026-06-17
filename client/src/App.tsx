@@ -76,6 +76,7 @@ function App() {
         <Route path="profile" element={<ProfileUmkmPage />} />
         <Route path="report" element={<ReportUMKM />} />
         <Route path="add-lowongan" element={<AddLowonganPage />} />
+        <Route path="add-lowongan/edit/:id" element={<AddLowonganPage />} />
         <Route path="verification" element={<VerificationUMKM />} />
 
         <Route path="dashboard" element={<TaskLayoutContent />}>

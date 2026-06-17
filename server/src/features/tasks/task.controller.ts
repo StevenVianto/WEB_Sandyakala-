@@ -3,7 +3,6 @@ import TaskService from "./task.service.js";
 import type { SubmitTaskInput, ReviewTaskInput } from "./task.schema.js";
 
 const TaskController = {
-  // [UMKM] Mengambil daftar tugas berdasarkan ID Lowongan
   getTasksByJob: async (req: Request, res: Response) => {
     try {
       const jobId = Number(req.params.jobId);
@@ -28,7 +27,6 @@ const TaskController = {
     }
   },
 
-  // [FG] Freshgraduate mengirim hasil kerja
   submitTask: async (req: Request, res: Response) => {
     try {
       const taskId = Number(req.params.taskId);
@@ -75,7 +73,6 @@ const TaskController = {
     }
   },
 
-  // [UMKM] UMKM meninjau tugas (setujui atau minta revisi)
   reviewTask: async (req: Request, res: Response) => {
     try {
       const taskId = Number(req.params.taskId);
@@ -110,7 +107,6 @@ const TaskController = {
     }
   },
 
-  // [UMKM & FG] Mengambil riwayat revisi sebuah tugas
   getRevisions: async (req: Request, res: Response) => {
     try {
       const taskId = Number(req.params.taskId);

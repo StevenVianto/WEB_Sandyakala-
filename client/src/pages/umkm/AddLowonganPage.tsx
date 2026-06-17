@@ -2,7 +2,7 @@ import DashboardUmkmLayout from "@/shared/layouts/DashboardUmkmLayout";
 import { Card } from "@/features/umkm/components/ui/Card";
 import { Button } from "@/shared/components/ui/button";
 import { FiArrowLeft, FiArrowRight, FiX, FiPlus } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -39,6 +39,9 @@ const InputField = ({
 
 export default function AddLowonganPage() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+  const [isLoadingJob, setIsLoadingJob] = useState(isEditMode);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -62,6 +65,7 @@ export default function AddLowonganPage() {
     watch,
     setValue,
     trigger,
+    reset,
     formState: { errors },
   } = useForm<CreateJobInput>({
     resolver: zodResolver(createJobSchema as any),
@@ -80,6 +84,75 @@ export default function AddLowonganPage() {
   useEffect(() => {
     register("project_tasks");
   }, [register]);
+
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const fetchJob = async () => {
+      const token = localStorage.getItem("accessToken");
+      const res = await apiRequest<any>(`/jobs/${id}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.success && res.data) {
+        const job = res.data;
+        const jobSkills = (job.skills ?? []).map((s: any) => s.skill_name ?? s);
+
+        reset({
+          title: job.title,
+          job_category: job.job_category,
+          description: job.description,
+          type: job.type,
+          salary_min: job.salary_min ?? undefined,
+          salary_max: job.salary_max ?? undefined,
+          worker_needed: job.worker_needed,
+          minimum_education: job.minimum_education,
+          qualification_description: job.qualification_description,
+          deadline: job.deadline?.slice(0, 10),
+          skills: jobSkills,
+          project_tasks: job.project_tasks?.length
+            ? job.project_tasks
+            : [
+                {
+                  task_name: "",
+                  task_order: 1,
+                  project_start: "",
+                  project_end: "",
+                },
+              ],
+        } as any);
+
+        setSkills(jobSkills);
+        setPortfolio(job.portfolio_requirement ?? "REQUIRED");
+        setSalaryMinDisplay(
+          job.salary_min ? formatRupiah(String(job.salary_min)) : "",
+        );
+        setSalaryMaxDisplay(
+          job.salary_max ? formatRupiah(String(job.salary_max)) : "",
+        );
+
+        if (job.type === "SHIFT" && job.shifts?.length) {
+          setSelectedShifts(job.shifts);
+        }
+
+        if (job.type === "PROJECT" && job.project_tasks?.length) {
+          setTasks(
+            job.project_tasks.map((t: any) => ({
+              task_name: t.task_name,
+              task_order: t.task_order,
+              project_start: t.project_start?.slice(0, 10) ?? "",
+              project_end: t.project_end?.slice(0, 10) ?? "",
+            })),
+          );
+        }
+      }
+
+      setIsLoadingJob(false);
+    };
+
+    fetchJob();
+  }, [id]);
 
   const formatRupiah = (v: string) =>
     v.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -178,7 +251,6 @@ export default function AddLowonganPage() {
     setIsSubmitting(true);
     setSubmitError("");
 
-    // Ambil token dari localStorage
     const token = localStorage.getItem("accessToken");
 
     const body: any = {
@@ -199,18 +271,31 @@ export default function AddLowonganPage() {
     if (jobType === "SHIFT") body.shifts = selectedShifts;
     if (jobType === "PROJECT") body.project_tasks = tasks;
 
-    const res = await apiRequest<{ job_id: number }>("/jobs", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(body),
-    });
+    const res = isEditMode
+      ? await apiRequest(`/jobs/${id}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify(body),
+        })
+      : await apiRequest<{ job_id: number }>("/jobs", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify(body),
+        });
 
     setIsSubmitting(false);
 
     if (res.success) {
-      navigate("/umkm/lowongan");
+      navigate(
+        isEditMode ? "/umkm/dashboard/posisi-terbuka" : "/umkm/lowongan",
+      );
     } else {
-      setSubmitError(res.message || "Gagal mempublikasikan lowongan.");
+      setSubmitError(
+        res.message ||
+          (isEditMode
+            ? "Gagal menyimpan perubahan."
+            : "Gagal mempublikasikan lowongan."),
+      );
     }
   };
 
@@ -715,7 +800,7 @@ export default function AddLowonganPage() {
           </svg>
         </div>
         <h3 className="text-2xl font-extrabold text-gray-900 mb-3">
-          Siap Dipublikasi!
+          {isEditMode ? "Siap Disimpan!" : "Siap Dipublikasi!"}
         </h3>
         <p className="text-gray-500 mb-6 max-w-md text-sm leading-relaxed">
           Semua data lowongan telah lengkap. Pastikan informasi sudah benar
@@ -741,12 +826,26 @@ export default function AddLowonganPage() {
           disabled={isSubmitting}
           className="bg-[#0F766E] hover:bg-[#0D645E] text-white px-10 py-2.5 rounded-lg font-bold"
         >
-          {isSubmitting ? "Memproses..." : "Publikasikan"}{" "}
+          {isSubmitting
+            ? "Memproses..."
+            : isEditMode
+              ? "Simpan Perubahan"
+              : "Publikasikan"}{" "}
           {!isSubmitting && <FiArrowRight className="ml-2" />}
         </Button>
       </div>
     </div>
   );
+
+  if (isLoadingJob) {
+    return (
+      <DashboardUmkmLayout>
+        <div className="w-full min-h-screen flex items-center justify-center">
+          <p className="text-neutral-500 text-sm">Memuat data lowongan...</p>
+        </div>
+      </DashboardUmkmLayout>
+    );
+  }
 
   return (
     <DashboardUmkmLayout>
@@ -757,7 +856,8 @@ export default function AddLowonganPage() {
               onClick={() => navigate(-1)}
               className="flex items-center gap-3 text-[#1E293B] hover:text-black font-extrabold text-xl mb-2"
             >
-              <FiArrowLeft strokeWidth={3} /> Buka Lowongan
+              <FiArrowLeft strokeWidth={3} />{" "}
+              {isEditMode ? "Edit Lowongan" : "Buka Lowongan"}
             </button>
           </div>
         </div>
