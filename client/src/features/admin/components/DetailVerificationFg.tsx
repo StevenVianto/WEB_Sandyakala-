@@ -11,6 +11,7 @@ import { Modal } from "@/shared/components/ui/modal";
 import { useState, useEffect } from "react";
 import { BiFile, BiImage, BiSolidUser } from "react-icons/bi";
 import { apiRequest } from "@/shared/lib/api";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 interface DocumentCardProps {
   label: string;
@@ -145,8 +146,52 @@ export default function DetailVerificationFg() {
   if (loading) {
     return (
       <DashboardLayout title="Memuat Detail Akun..." showBackButton>
-        <div className="flex justify-center py-20 text-gray-500 font-semibold">
-          Memuat data profil...
+        <div className="flex justify-center">
+          <Card className="max-w-2xl w-full border-2 border-info-100 animate-pulse">
+            <CardHeader className="flex justify-between items-center border-b-2 border-info-100">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-6 w-24 rounded-full" />
+            </CardHeader>
+            <CardBody>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-10">
+                <Skeleton className="w-28 h-28 rounded-full shrink-0" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 w-full">
+                  <div className="flex flex-col space-y-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-4 w-40" />
+                  </div>
+                  <div className="flex flex-col sm:col-span-2 space-y-2">
+                    <Skeleton className="h-3 w-28" />
+                    <Skeleton className="h-4 w-60" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={idx} className="flex flex-col gap-2">
+                    <Skeleton className="h-3 w-36" />
+                    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+                      <div className="flex items-center gap-4 w-full">
+                        <Skeleton className="w-12 h-12 rounded-lg shrink-0" />
+                        <div className="flex flex-col space-y-2 w-3/4">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+            <CardFooter className="bg-info-100/30 flex gap-5 justify-between px-10 border-t-2 border-info-100">
+              <Skeleton className="h-10 w-1/2 rounded-md" />
+              <Skeleton className="h-10 w-1/2 rounded-md" />
+            </CardFooter>
+          </Card>
         </div>
       </DashboardLayout>
     );

@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { apiRequest } from "@/shared/lib/api";
 import { IoIosWarning } from "react-icons/io";
 import { FaCircleCheck } from "react-icons/fa6";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type StatusType = "pending" | "approved" | "rejected";
 
@@ -30,9 +31,11 @@ export default function DashboardAdmin() {
   const [umkmProfiles, setUmkmProfiles] = useState<UmkmProfile[]>([]);
   const [fgProfiles, setFgProfiles] = useState<FgProfile[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [umkmRes, fgRes, reportRes] = await Promise.all([
           apiRequest<any[]>("/umkm"),
@@ -65,6 +68,8 @@ export default function DashboardAdmin() {
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -142,28 +147,28 @@ export default function DashboardAdmin() {
         <StatCard
           variant="green"
           title="UMKM Terverifikasi"
-          value={stats.verifiedUmkm}
+          value={loading ? <Skeleton className="h-9 w-12 bg-success/20" /> : stats.verifiedUmkm}
           description="UMKM aktif di platform"
         />
 
         <StatCard
           variant="blue"
           title="Fresh Graduate"
-          value={stats.verifiedFg}
+          value={loading ? <Skeleton className="h-9 w-12 bg-info-300/20" /> : stats.verifiedFg}
           description="FG terverifikasi"
         />
 
         <StatCard
           variant="yellow"
           title="Menunggu Verifikasi"
-          value={stats.pendingVerification}
+          value={loading ? <Skeleton className="h-9 w-12 bg-warning/20" /> : stats.pendingVerification}
           description="Belum direview admin"
         />
 
         <StatCard
           variant="red"
           title="Laporan Masuk"
-          value={stats.totalReports}
+          value={loading ? <Skeleton className="h-9 w-12 bg-error/20" /> : stats.totalReports}
           description="Perlu ditindaklanjuti"
         />
       </div>
@@ -176,18 +181,35 @@ export default function DashboardAdmin() {
                 Kategori UMKM Terpopuler
               </h1>
               <h2 className="font-semibold text-sm">
-                {stats.verifiedUmkm} UMKM Aktif
+                {loading ? <Skeleton className="h-4 w-8 bg-info-300/20" /> : `${stats.verifiedUmkm} UMKM Aktif`}
               </h2>
             </CardHeader>
             <CardBody className="bg-white space-y-4 pb-6">
-              {popularCategories.map((item, index) => (
-                <PopularUmkm
-                  key={index}
-                  rank={index + 1}
-                  category={item.category}
-                  count={item.count}
-                />
-              ))}
+              {loading ? (
+                Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex items-center justify-between rounded-xl border border-slate-100 p-3">
+                    <div className="flex items-center gap-3 w-full">
+                      <Skeleton className="w-10 h-10 rounded-lg shrink-0" />
+                      <div className="space-y-2 w-1/2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-12 shrink-0" />
+                  </div>
+                ))
+              ) : popularCategories.length === 0 ? (
+                <p className="text-center text-sm text-gray-400 py-6">Tidak ada data kategori.</p>
+              ) : (
+                popularCategories.map((item, index) => (
+                  <PopularUmkm
+                    key={index}
+                    rank={index + 1}
+                    category={item.category}
+                    count={item.count}
+                  />
+                ))
+              )}
             </CardBody>
           </Card>
         </div>
@@ -198,16 +220,32 @@ export default function DashboardAdmin() {
               <h1 className="font-bold text-base">Aksi Cepat</h1>
             </CardHeader>
             <CardBody className="bg-white space-y-4 pt-5 pb-10">
-              {actionCards.map((item, index) => (
-                <ActionCard
-                  key={index}
-                  title={item.title}
-                  description={item.description}
-                  icon={<item.icon className={item.iconStyle} />}
-                  to={item.to}
-                  variant={item.variant}
-                />
-              ))}
+              {loading ? (
+                Array.from({ length: 2 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="flex gap-2 justify-between items-center mb-5 py-4 px-3 w-full rounded-3xl border-2 border-slate-100 bg-slate-50/50"
+                  >
+                    <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                    <div className="flex flex-col flex-1 space-y-2 ml-2">
+                      <Skeleton className="h-4 w-1/3" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                    <Skeleton className="h-6 w-6 rounded-full shrink-0" />
+                  </div>
+                ))
+              ) : (
+                actionCards.map((item, index) => (
+                  <ActionCard
+                    key={index}
+                    title={item.title}
+                    description={item.description}
+                    icon={<item.icon className={item.iconStyle} />}
+                    to={item.to}
+                    variant={item.variant}
+                  />
+                ))
+              )}
             </CardBody>
           </Card>
         </div>
@@ -215,3 +253,4 @@ export default function DashboardAdmin() {
     </DashboardLayout>
   );
 }
+

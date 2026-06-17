@@ -6,6 +6,7 @@ import { SearchInput } from "@/shared/components/ui/search-input";
 import { StatCard } from "@/shared/components/ui/stat-card";
 import { Link } from "react-router-dom";
 import { apiRequest } from "@/shared/lib/api";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type StatusType = "pending" | "approved" | "rejected";
 
@@ -47,62 +48,70 @@ export default function VerificationAdmin() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("semua");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfiles = async () => {
-      const response = await apiRequest<any[]>("/umkm");
-      if (response.success && response.data) {
-        const mapped: UmkmProfile[] = response.data.map((p: any) => ({
-          id: p.id_umkm,
-          businessName: p.business_name,
-          businessEmail: p.business_email,
-          status: (p.status?.toLowerCase() as StatusType) || "pending",
-          email: p.business_email,
-        }));
-        setRegisteredProfiles(mapped);
-      } else {
-        // fallback localStorage
-        let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
-        let emails: string[] = [];
-        if (savedEmailsStr) {
-          try {
-            const parsed = JSON.parse(savedEmailsStr);
-            if (Array.isArray(parsed)) emails = parsed;
-          } catch {
-            emails = [];
-          }
-        }
-
-        const latestEmail = localStorage.getItem(
-          "latest_registered_umkm_email",
-        );
-        if (latestEmail && !emails.includes(latestEmail)) {
-          emails.push(latestEmail);
-        }
-
-        const profiles: UmkmProfile[] = [];
-        const seenEmails = new Set<string>();
-        emails.forEach((email) => {
-          if (seenEmails.has(email)) return; // ✅ skip duplikat
-          seenEmails.add(email);
-
-          const profileStr = localStorage.getItem(
-            `registered_umkm_profile_${email}`,
-          );
-          const status =
-            (localStorage.getItem(
-              `umkm_verification_status_${email}`,
-            ) as StatusType) || "pending";
-          if (profileStr) {
+      setLoading(true);
+      try {
+        const response = await apiRequest<any[]>("/umkm");
+        if (response.success && response.data) {
+          const mapped: UmkmProfile[] = response.data.map((p: any) => ({
+            id: p.id_umkm,
+            businessName: p.business_name,
+            businessEmail: p.business_email,
+            status: (p.status?.toLowerCase() as StatusType) || "pending",
+            email: p.business_email,
+          }));
+          setRegisteredProfiles(mapped);
+        } else {
+          // fallback localStorage
+          let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+          let emails: string[] = [];
+          if (savedEmailsStr) {
             try {
-              const profile = JSON.parse(profileStr);
-              profiles.push({ ...profile, email, status });
-            } catch (e) {
-              console.error("Error parsing profile for email", email, e);
+              const parsed = JSON.parse(savedEmailsStr);
+              if (Array.isArray(parsed)) emails = parsed;
+            } catch {
+              emails = [];
             }
           }
-        });
-        setRegisteredProfiles(profiles);
+
+          const latestEmail = localStorage.getItem(
+            "latest_registered_umkm_email",
+          );
+          if (latestEmail && !emails.includes(latestEmail)) {
+            emails.push(latestEmail);
+          }
+
+          const profiles: UmkmProfile[] = [];
+          const seenEmails = new Set<string>();
+          emails.forEach((email) => {
+            if (seenEmails.has(email)) return; // ✅ skip duplikat
+            seenEmails.add(email);
+
+            const profileStr = localStorage.getItem(
+              `registered_umkm_profile_${email}`,
+            );
+            const status =
+              (localStorage.getItem(
+                `umkm_verification_status_${email}`,
+              ) as StatusType) || "pending";
+            if (profileStr) {
+              try {
+                const profile = JSON.parse(profileStr);
+                profiles.push({ ...profile, email, status });
+              } catch (e) {
+                console.error("Error parsing profile for email", email, e);
+              }
+            }
+          });
+          setRegisteredProfiles(profiles);
+        }
+      } catch (e) {
+        console.error("Error fetching profiles", e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProfiles();
@@ -146,25 +155,25 @@ export default function VerificationAdmin() {
         <StatCard
           variant="blue"
           title="Total Pengajuan"
-          value={stats.total}
+          value={loading ? <Skeleton className="h-9 w-12 bg-info-300/20" /> : stats.total}
           description="Semua akun yang masuk"
         />
         <StatCard
           variant="yellow"
           title="Menunggu"
-          value={stats.pending}
+          value={loading ? <Skeleton className="h-9 w-12 bg-warning/20" /> : stats.pending}
           description="Belum diverifikasi"
         />
         <StatCard
           variant="green"
           title="Diverifikasi"
-          value={stats.approved}
+          value={loading ? <Skeleton className="h-9 w-12 bg-success/20" /> : stats.approved}
           description="Akun telah disetujui"
         />
         <StatCard
           variant="red"
           title="Ditolak"
-          value={stats.rejected}
+          value={loading ? <Skeleton className="h-9 w-12 bg-error/20" /> : stats.rejected}
           description="Akun tidak disetujui"
         />
       </div>
@@ -218,7 +227,17 @@ export default function VerificationAdmin() {
           </thead>
 
           <tbody className="text-sm">
-            {filteredProfiles.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <tr key={idx} className="bg-white border-b border-gray-100">
+                  <td className="table-data"><Skeleton className="h-4 w-4" /></td>
+                  <td className="table-data"><Skeleton className="h-4 w-32" /></td>
+                  <td className="table-data"><Skeleton className="h-4 w-48" /></td>
+                  <td className="table-data"><Skeleton className="h-5 w-16 rounded-full" /></td>
+                  <td className="table-data"><Skeleton className="h-7 w-16 rounded-md" /></td>
+                </tr>
+              ))
+            ) : filteredProfiles.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -270,3 +289,4 @@ export default function VerificationAdmin() {
     </DashboardLayout>
   );
 }
+

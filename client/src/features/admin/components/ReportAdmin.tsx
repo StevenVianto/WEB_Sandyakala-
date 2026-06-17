@@ -7,6 +7,7 @@ import { StatCard } from "@/shared/components/ui/stat-card";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { apiRequest } from "@/shared/lib/api";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 type StatusFilter =
   | ""
@@ -103,21 +104,29 @@ export default function ReportAdmin() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchReports = async () => {
-      const response = await apiRequest<any[]>("/reports");
-      if (response.success && response.data) {
-        const mapped: TableReportItem[] = response.data.map((r: any) => ({
-          id: r.id,
-          namaUsaha: r.namaUsaha || "Usaha Anonim",
-          kategoriPelanggaran: r.kategoriPelanggaran || "Umum",
-          alasanPelaporan: r.alasanPelaporan || "-",
-          status: (r.status as StatusFilter) || "Menunggu",
-          variantStatus: STATUS_VARIANT[r.status as StatusFilter] || "warning",
-          slug: (r.namaUsaha || "usaha").toLowerCase().replace(/\s+/g, "-")
-        }));
-        setReportsData(mapped);
+      setLoading(true);
+      try {
+        const response = await apiRequest<any[]>("/reports");
+        if (response.success && response.data) {
+          const mapped: TableReportItem[] = response.data.map((r: any) => ({
+            id: r.id,
+            namaUsaha: r.namaUsaha || "Usaha Anonim",
+            kategoriPelanggaran: r.kategoriPelanggaran || "Umum",
+            alasanPelaporan: r.alasanPelaporan || "-",
+            status: (r.status as StatusFilter) || "Menunggu",
+            variantStatus: STATUS_VARIANT[r.status as StatusFilter] || "warning",
+            slug: (r.namaUsaha || "usaha").toLowerCase().replace(/\s+/g, "-")
+          }));
+          setReportsData(mapped);
+        }
+      } catch (e) {
+        console.error("Error fetching reports", e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchReports();
@@ -173,7 +182,7 @@ export default function ReportAdmin() {
             <StatCard
               variant={item.variant}
               title={item.title}
-              value={item.value}
+              value={loading ? <Skeleton className="h-9 w-12 bg-white/20" /> : item.value}
               description={item.description}
               className={
                 statusFilter === (item.filterStatus ?? "")
@@ -191,7 +200,18 @@ export default function ReportAdmin() {
           <p className="text-sm text-gray-500">
             Klik baris untuk melihat detail laporan &mdash;{" "}
             <span className="font-medium text-gray-700">
-              {filteredData.length} dari {reportsData.length} laporan
+              {loading ? (
+                <Skeleton className="inline-block h-4 w-12 mr-1" />
+              ) : (
+                filteredData.length
+              )}{" "}
+              dari{" "}
+              {loading ? (
+                <Skeleton className="inline-block h-4 w-12 mr-1" />
+              ) : (
+                reportsData.length
+              )}{" "}
+              laporan
             </span>
           </p>
         </div>
@@ -252,7 +272,18 @@ export default function ReportAdmin() {
           </thead>
 
           <tbody className="text-sm">
-            {filteredData.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <tr key={idx} className="bg-white border-b border-gray-100">
+                  <td className="table-data"><Skeleton className="h-4 w-4" /></td>
+                  <td className="table-data"><Skeleton className="h-4 w-32" /></td>
+                  <td className="table-data"><Skeleton className="h-4 w-28" /></td>
+                  <td className="table-data"><Skeleton className="h-4 w-48" /></td>
+                  <td className="table-data"><Skeleton className="h-5 w-16 rounded-full" /></td>
+                  <td className="table-data"><Skeleton className="h-7 w-16 rounded-md" /></td>
+                </tr>
+              ))
+            ) : filteredData.length === 0 ? (
               <tr>
                 <td
                   colSpan={6}
@@ -305,3 +336,4 @@ export default function ReportAdmin() {
     </DashboardLayout>
   );
 }
+

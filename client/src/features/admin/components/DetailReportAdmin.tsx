@@ -13,6 +13,7 @@ import { PiWarningCircle } from "react-icons/pi";
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { apiRequest } from "@/shared/lib/api";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export default function DetailReportAdmin() {
   const { namaUsaha = "" } = useParams<{ namaUsaha: string }>();
@@ -50,8 +51,36 @@ export default function DetailReportAdmin() {
   if (loading) {
     return (
       <DashboardLayout title="Memuat Detail Laporan..." showBackButton>
-        <div className="flex justify-center py-20 text-gray-500 font-semibold">
-          Memuat data laporan...
+        <div className="flex justify-center">
+          <Card className="max-w-2xl w-full border-2 border-info-100 animate-pulse">
+            <CardHeader className="flex justify-between items-center border-b-2 border-info-100">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-6 w-20 rounded-full" />
+            </CardHeader>
+            <CardBody>
+              <Skeleton className="h-8 w-1/2 mb-4" />
+              <Skeleton className="h-4 w-1/3 mb-2" />
+              <Skeleton className="h-4 w-1/3 mb-6" />
+
+              <div className="mb-4 space-y-2">
+                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            </CardBody>
+            <CardFooter className="bg-info-100/30 flex gap-5 justify-between px-10 border-t-2 border-info-100">
+              <div className="grid w-full grid-cols-2 gap-6 md:grid-cols-2">
+                <Skeleton className="h-16 w-full rounded-md" />
+                <Skeleton className="h-16 w-full rounded-md" />
+                <Skeleton className="h-16 w-full rounded-md" />
+                <Skeleton className="h-16 w-full rounded-md" />
+              </div>
+            </CardFooter>
+          </Card>
         </div>
       </DashboardLayout>
     );

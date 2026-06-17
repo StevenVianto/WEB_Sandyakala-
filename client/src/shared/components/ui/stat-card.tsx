@@ -26,7 +26,7 @@ interface StatCardProps
     React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof statCardVariants> {
   title: string;
-  value: string | number;
+  value: React.ReactNode;
   description: string;
 }
 

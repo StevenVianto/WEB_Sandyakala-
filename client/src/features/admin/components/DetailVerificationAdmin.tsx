@@ -12,6 +12,7 @@ import { Modal } from "@/shared/components/ui/modal";
 import { useState, useEffect } from "react";
 import { formatNamaUsaha } from "../utils/formar-nama-usaha";
 import { apiRequest } from "@/shared/lib/api";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 
 export default function DetailVerificationAdmin() {
   const { namaUsaha = "" } = useParams<{ namaUsaha: string }>();
@@ -24,85 +25,92 @@ export default function DetailVerificationAdmin() {
   const [selectedEmail, setSelectedEmail] = useState<string>("");
   const [umkmId, setUmkmId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const response = await apiRequest<any[]>("/umkm");
-      if (response.success && response.data) {
-        // Find profile where businessName slug matches namaUsaha
-        const found = response.data.find(
-          (p: any) => p.business_name?.toLowerCase().replace(/\s+/g, "-") === namaUsaha.toLowerCase()
-        );
-        if (found) {
-          setRegisteredProfile({
-            id_umkm: found.id_umkm,
-            businessName: found.business_name,
-            businessEmail: found.business_email,
-            businessPhone: found.business_phone,
-            businessCategory: found.business_category,
-            ownerName: found.owner_name,
-            nib: found.nib,
-            employeeCount: found.employee_count,
-            establishedAt: found.established_at,
-            address: [found.subdistrict, found.district, found.regency, found.province].filter(Boolean).join(", ") || "Jakarta",
-            createdAt: found.created_at ? new Date(found.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "29 Maret 2026",
-            businessLogo: found.logo_url || "",
-            status: found.status?.toLowerCase() || "pending"
-          });
-          setUmkmId(found.id_umkm);
-          setSelectedEmail(found.business_email);
-          return;
+      setLoading(true);
+      try {
+        const response = await apiRequest<any[]>("/umkm");
+        if (response.success && response.data) {
+          const found = response.data.find(
+            (p: any) => p.business_name?.toLowerCase().replace(/\s+/g, "-") === namaUsaha.toLowerCase()
+          );
+          if (found) {
+            setRegisteredProfile({
+              id_umkm: found.id_umkm,
+              businessName: found.business_name,
+              businessEmail: found.business_email,
+              businessPhone: found.business_phone,
+              businessCategory: found.business_category,
+              ownerName: found.owner_name,
+              nib: found.nib,
+              employeeCount: found.employee_count,
+              establishedAt: found.established_at,
+              address: [found.subdistrict, found.district, found.regency, found.province].filter(Boolean).join(", ") || "Jakarta",
+              createdAt: found.created_at ? new Date(found.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "29 Maret 2026",
+              businessLogo: found.logo_url || "",
+              status: found.status?.toLowerCase() || "pending"
+            });
+            setUmkmId(found.id_umkm);
+            setSelectedEmail(found.business_email);
+            return;
+          }
         }
-      }
 
-      // Fallback to localStorage if not found on backend
-      let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
-      let emails: string[] = [];
-      if (savedEmailsStr) {
-        try {
-          emails = JSON.parse(savedEmailsStr);
-          if (!Array.isArray(emails)) {
+        // Fallback to localStorage if not found on backend
+        let savedEmailsStr = localStorage.getItem("registered_umkm_emails");
+        let emails: string[] = [];
+        if (savedEmailsStr) {
+          try {
+            emails = JSON.parse(savedEmailsStr);
+            if (!Array.isArray(emails)) {
+              emails = [];
+            }
+          } catch (e) {
             emails = [];
           }
-        } catch (e) {
-          emails = [];
         }
-      }
 
-      let foundProfile = null;
-      let foundEmail = "";
-      for (const email of emails) {
-        const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
-        if (profileStr) {
-          try {
-            const parsed = JSON.parse(profileStr);
+        let foundProfile = null;
+        let foundEmail = "";
+        for (const email of emails) {
+          const profileStr = localStorage.getItem(`registered_umkm_profile_${email}`);
+          if (profileStr) {
+            try {
+              const parsed = JSON.parse(profileStr);
+              const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
+              if (profileSlug === namaUsaha.toLowerCase()) {
+                foundProfile = parsed;
+                foundEmail = email;
+                break;
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        }
+
+        if (!foundProfile) {
+          const savedProfile = localStorage.getItem("registered_umkm_profile");
+          if (savedProfile) {
+            const parsed = JSON.parse(savedProfile);
             const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
             if (profileSlug === namaUsaha.toLowerCase()) {
               foundProfile = parsed;
-              foundEmail = email;
-              break;
             }
-          } catch (e) {
-            console.error(e);
           }
         }
-      }
 
-      if (!foundProfile) {
-        const savedProfile = localStorage.getItem("registered_umkm_profile");
-        if (savedProfile) {
-          const parsed = JSON.parse(savedProfile);
-          const profileSlug = parsed.businessName.toLowerCase().replace(/\s+/g, "-");
-          if (profileSlug === namaUsaha.toLowerCase()) {
-            foundProfile = parsed;
-          }
+        if (foundProfile) {
+          setRegisteredProfile(foundProfile);
+          setSelectedEmail(foundEmail);
         }
-      }
-
-      if (foundProfile) {
-        setRegisteredProfile(foundProfile);
-        setSelectedEmail(foundEmail);
+      } catch (e) {
+        console.error("Error fetching profiles", e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchProfile();
@@ -144,6 +152,57 @@ export default function DetailVerificationAdmin() {
     setOpen(false);
     navigate("/admin/verifikasi-umkm");
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout
+        title={`Detail Akun - ${namaUsahaFormatted}`}
+        description="Memuat detail pengajuan..."
+        showBackButton
+      >
+        <div className="flex justify-center">
+          <Card className="max-w-2xl w-full border-2 border-info-100">
+            <CardHeader className="flex justify-between items-center border-b-2 border-info-100">
+              <Skeleton className="h-6 w-32" />
+              <Skeleton className="h-6 w-24 rounded-full" />
+            </CardHeader>
+            <CardBody>
+              <div className="flex gap-6 justify-between items-center mb-6">
+                <Skeleton className="shrink-0 w-40 h-40 rounded-lg" />
+                <div className="space-y-3 w-full">
+                  <Skeleton className="h-8 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-7 w-32 rounded-md" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} className="space-y-2">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-4 w-40" />
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div key={idx} className="space-y-2">
+                      <Skeleton className="h-3 w-20" />
+                      <Skeleton className="h-4 w-40" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardBody>
+            <CardFooter className="bg-info-100/30 flex gap-5 justify-between px-10 border-t-2 border-info-100">
+              <Skeleton className="h-10 w-1/2 rounded-md" />
+              <Skeleton className="h-10 w-1/2 rounded-md" />
+            </CardFooter>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout
