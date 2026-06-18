@@ -115,6 +115,7 @@ export default function DataProject() {
       (job.project_tasks ?? []).forEach((task) => {
         rows.push({
           ...task,
+          job_id: job.id, 
           job_title: job.title,
           worker_needed: job.worker_needed,
           worker_names: workerNames,
