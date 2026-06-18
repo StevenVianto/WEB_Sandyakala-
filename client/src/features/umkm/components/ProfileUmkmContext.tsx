@@ -24,10 +24,22 @@ export type Review = {
   created_at: string;
 };
 
+export type Report = {
+  id: number;
+  kategoriPelanggaran: string;
+  alasanPelaporan: string;
+  status: string;
+  created_at: string;
+};
+
+export type ReportStatus = "normal" | "warning" | "inactive" | "disabled";
+
 type ProfileUmkmContextType = {
   modalState: any;
   benefits: Benefit[];
   reviews: Review[];
+  reports: Report[];
+  reportStatus: ReportStatus;
   umkmId: number | null;
   isLoading: boolean;
   [key: string]: any;
@@ -43,6 +55,16 @@ const getAuthHeaders = () => {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
+};
+
+const determineReportStatus = (reports: Report[]): ReportStatus => {
+  if (reports.length === 0) return "normal";
+  const statuses = reports.map((r) => r.status);
+  if (statuses.includes("Blokir")) return "disabled";
+  if (statuses.includes("Peringatan")) return "warning";
+  if (statuses.includes("Valid") || statuses.includes("Menunggu"))
+    return "inactive";
+  return "normal";
 };
 
 export function ProfileUmkmProvider({
@@ -88,7 +110,6 @@ export function ProfileUmkmProvider({
   const [umkmId, setUmkmId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Profile
   const [namaUsaha, setNamaUsaha] = useState(
     savedProfile?.businessName || "Sambal Bakar Nusantara",
   );
@@ -124,13 +145,10 @@ export function ProfileUmkmProvider({
     savedProfile?.address || "Jl. Kemang Raya No. 45, Jaksel",
   );
   const [logoUsaha, setLogoUsaha] = useState(savedProfile?.businessLogo || "");
-
-  // Tentang Kami
   const [deskripsiUsaha, setDeskripsiUsaha] = useState("");
   const [deskripsiError, setDeskripsiError] = useState("");
   const [isSavingDeskripsi, setIsSavingDeskripsi] = useState(false);
 
-  // Benefits
   const [benefits, setBenefits] = useState<Benefit[]>([]);
   const [benefitsLoading, setBenefitsLoading] = useState(true);
   const [judulFasilitas, setJudulFasilitas] = useState("");
@@ -141,9 +159,11 @@ export function ProfileUmkmProvider({
   });
   const [isSavingBenefit, setIsSavingBenefit] = useState(false);
 
-  // Reviews
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+
+  const [reports, setReports] = useState<Report[]>([]);
+  const [reportStatus, setReportStatus] = useState<ReportStatus>("normal");
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -205,6 +225,25 @@ export function ProfileUmkmProvider({
     }
   }, []);
 
+  const fetchReports = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch("/api/reports/umkm/me", {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        setReports(json.data);
+        setReportStatus(determineReportStatus(json.data));
+      }
+    } catch (err) {
+      console.error("Gagal memuat laporan:", err);
+    }
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -214,6 +253,7 @@ export function ProfileUmkmProvider({
           fetchProfile();
           fetchBenefits();
           fetchReviews();
+          fetchReports();
         }
       }, 500);
       return () => clearTimeout(timer);
@@ -222,7 +262,8 @@ export function ProfileUmkmProvider({
     fetchProfile();
     fetchBenefits();
     fetchReviews();
-  }, [fetchProfile, fetchBenefits, fetchReviews]);
+    fetchReports();
+  }, [fetchProfile, fetchBenefits, fetchReviews, fetchReports]);
 
   useEffect(() => {
     if (!profileKey) return;
@@ -264,7 +305,6 @@ export function ProfileUmkmProvider({
     profileKey,
   ]);
 
-  // Validasi & save deskripsi
   const handleSaveDeskripsi = async () => {
     setDeskripsiError("");
 
@@ -301,7 +341,6 @@ export function ProfileUmkmProvider({
     }
   };
 
-  // Validasi & tambah benefit
   const handleTambahFasilitas = async () => {
     const errors = { title: "", description: "" };
     let hasError = false;
@@ -358,7 +397,6 @@ export function ProfileUmkmProvider({
     }
   };
 
-  // Hapus benefit
   const handleHapusFasilitas = async (id: number) => {
     setBenefits((prev) => prev.filter((b) => b.id_benefit !== id));
     try {
@@ -419,6 +457,8 @@ export function ProfileUmkmProvider({
         handleHapusFasilitas,
         reviews,
         reviewsLoading,
+        reports,
+        reportStatus,
         umkmId,
         isLoading,
       }}

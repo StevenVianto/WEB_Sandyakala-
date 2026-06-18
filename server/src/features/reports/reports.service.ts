@@ -28,6 +28,21 @@ const ReportsService = {
     await ReportsRepository.updateStatus(id, status);
     return { id, status };
   },
+  createReport: async (
+  reporterUserId: number,
+  reportedUmkmId: number,
+  violationCategory: string,
+  reportReason: string,
+) => {
+  if (!violationCategory?.trim()) throw new BadRequestError("Kategori pelanggaran wajib diisi.");
+  if (!reportReason?.trim()) throw new BadRequestError("Alasan pelaporan wajib diisi.");
+  if (reportReason.trim().length < 20) throw new BadRequestError("Alasan pelaporan minimal 20 karakter.");
+  return await ReportsRepository.createReport(reporterUserId, reportedUmkmId, violationCategory.trim(), reportReason.trim());
+},
+
+getMyReports: async (userId: number) => {
+  return await ReportsRepository.findByUmkmUserId(userId);
+},
 };
 
 export default ReportsService;
