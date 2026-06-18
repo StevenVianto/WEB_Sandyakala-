@@ -47,11 +47,14 @@ const FreshGraduateController = {
 
   upsertProfile: async (req: Request, res: Response) => {
     const userId = req.user.id;
-    const { last_education, no_hp } = req.body;
+    const { last_education, lastEducation, no_hp, phone } = req.body;
+
+    const targetEducation = last_education || lastEducation;
+    const targetPhone = no_hp || phone;
 
     const result = await FreshGraduateService.upsertProfile(
       Number(userId),
-      { lastEducation: last_education, phone: no_hp },
+      { lastEducation: targetEducation, phone: targetPhone },
       req.files
     );
 
