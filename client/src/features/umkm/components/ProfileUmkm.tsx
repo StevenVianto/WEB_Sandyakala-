@@ -92,6 +92,21 @@ const SkeletonLines = ({ count = 3 }: { count?: number }) => (
   </div>
 );
 
+const getReportBadgeClass = (status: string) => {
+  switch (status) {
+    case "Blokir":
+      return "bg-red-100 text-red-700";
+    case "Peringatan":
+      return "bg-yellow-100 text-yellow-700";
+    case "Valid":
+      return "bg-green-100 text-green-700";
+    case "Ditolak":
+      return "bg-neutral-200 text-neutral-600";
+    default:
+      return "bg-blue-100 text-blue-700";
+  }
+};
+
 function ProfileUmkmContent() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const {
@@ -114,18 +129,83 @@ function ProfileUmkmContent() {
     reviews,
     reviewsLoading,
     isLoading,
+    reports,
+    reportStatus,
   } = useProfileUmkm();
 
   return (
     <DashboardUmkmLayout>
+      {/* {reportStatus === "warning" && (
+        <div className="w-full bg-[#FEF9C3] text-[#A16207] px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <span className="text-sm font-semibold text-center sm:text-left">
+            Akun Anda mendapat peringatan: Melanggar syarat & ketentuan (Terms of Service)
+          </span>
+          <button className="bg-[#FDE047] text-[#A16207] px-5 py-1.5 rounded text-xs font-bold hover:bg-[#FACC15] shrink-0">
+            Lihat
+          </button>
+        </div>
+      )}
+      {reportStatus === "inactive" && (
+        <div className="w-full mt-20 bg-info-100 text-info-300 px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <span className="text-sm font-semibold text-center sm:text-left">
+            Akun Anda sedang dalam peninjauan. Terdapat laporan yang masuk terhadap usaha Anda.
+          </span>
+          <button className="bg-info-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-info-200 shrink-0">
+            Lihat
+          </button>
+        </div>
+      )}
+      {reportStatus === "disabled" && (
+        <div className="w-full bg-[#FEE2E2] text-[#B91C1C] px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <span className="text-sm font-semibold text-center sm:text-left">
+            Akun Anda telah diblokir karena pelanggaran serius.
+          </span>
+          <button className="bg-[#EF4444] text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-[#DC2626] shrink-0">
+            Lihat
+          </button>
+        </div>
+      )} */}
+
       <section className="w-full pt-7 md:pt-12 bg-white">
         <div
           className="relative bg-cover bg-center h-70 w-full"
           style={{ backgroundImage: `url(${BgImgRekrutmen})` }}
-        />
+        >
+          {reportStatus === "warning" && (
+            <div className="absolute top-10 z-30 left-0 right-0 bg-warning-100 text-warning-300 px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+              <span className="text-sm font-semibold text-center sm:text-left">
+                Akun Anda mendapat peringatan: Melanggar syarat & ketentuan
+                (Terms of Service)
+              </span>
+              <button className="bg-warning-300 text-warning-100 px-5 py-1.5 rounded text-xs font-bold hover:bg-warning-200 shrink-0">
+                Lihat
+              </button>
+            </div>
+          )}
+          {reportStatus === "inactive" && (
+            <div className="absolute top-10 z-30 left-0 right-0 bg-info-100 text-info-300 px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+              <span className="text-sm font-semibold text-center sm:text-left">
+                Akun Anda sedang dalam peninjauan. Terdapat laporan yang masuk
+                terhadap usaha Anda.
+              </span>
+              <button className="bg-info-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-info-200 shrink-0">
+                Lihat
+              </button>
+            </div>
+          )}
+          {reportStatus === "disabled" && (
+            <div className="absolute top-10 z-30 left-0 right-0 bg-error-100 text-error-300 px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
+              <span className="text-sm font-semibold text-center sm:text-left">
+                Akun Anda telah diblokir karena pelanggaran serius.
+              </span>
+              <button className="bg-error-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-error-200 shrink-0">
+                Lihat
+              </button>
+            </div>
+          )}
+        </div>
         <div className="relative z-20 container mx-auto md:px-8 md:-mt-19 -mt-15 sm:-mt-20 pb-12">
           <Card className="w-full flex flex-col md:h-60 md:flex-row items-start md:items-center gap-6 relative">
-            {/* Logo */}
             <div className="w-24 h-24 md:w-34 md:h-34 rounded-full overflow-hidden bg-[#FFEDD5] flex items-center justify-center shrink-0 border border-gray-100 shadow-sm">
               {logoUsaha ? (
                 <img
@@ -163,12 +243,30 @@ function ProfileUmkmContent() {
                     <InfoBadge icon={<HiViewGridAdd />} text={kategoriUsaha} />
                   </div>
                 </div>
-                <button
-                  onClick={() => openModal("profile")}
-                  className="absolute top-6 right-6 md:static px-5 py-1.5 rounded-full border border-teal-300 text-teal-500 text-xs md:text-sm font-semibold hover:bg-teal-50 transition-colors shrink-0 cursor-pointer"
-                >
-                  Ubah
-                </button>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {reportStatus === "warning" && (
+                    <span className="bg-warning-200 text-warning-300 px-3 py-1 rounded-full text-xs font-bold">
+                      Peringatan
+                    </span>
+                  )}
+                  {reportStatus === "inactive" && (
+                    <span className="bg-info-100 text-info-300 px-3 py-1 rounded-full text-xs font-bold">
+                      Dalam Peninjauan
+                    </span>
+                  )}
+                  {reportStatus === "disabled" && (
+                    <span className="bg-error-100 text-error-300 px-3 py-1 rounded-full text-xs font-bold">
+                      Diblokir
+                    </span>
+                  )}
+                  <button
+                    onClick={() => openModal("profile")}
+                    className="px-5 py-1.5 rounded-full border border-teal-300 text-teal-500 text-xs md:text-sm font-semibold hover:bg-teal-50 transition-colors shrink-0 cursor-pointer"
+                  >
+                    Ubah
+                  </button>
+                </div>
               </div>
             </div>
           </Card>
@@ -177,6 +275,44 @@ function ProfileUmkmContent() {
 
       <div className="container mx-auto p-4 md:p-8 min-h-screen">
         <div className="max-w-6xl mx-auto flex flex-col gap-6">
+          {reports.length > 0 && (
+            <Card>
+              <SectionHeader title="Laporan Terhadap Usaha Anda" />
+              <div className="flex flex-col gap-3">
+                {reports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="border border-neutral-200 rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm font-semibold text-neutral-800">
+                        {report.kategoriPelanggaran}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        {report.alasanPelaporan}
+                      </p>
+                      <p className="text-xs text-neutral-400">
+                        {new Date(report.created_at).toLocaleDateString(
+                          "id-ID",
+                          {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          },
+                        )}
+                      </p>
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold shrink-0 ${getReportBadgeClass(report.status)}`}
+                    >
+                      {report.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-8 flex flex-col gap-6">
               <Card>
@@ -201,7 +337,6 @@ function ProfileUmkmContent() {
                 )}
               </Card>
 
-              {/* Keuntungan & Fasilitas */}
               <Card>
                 <SectionHeader
                   title="Keuntungan & Fasilitas"
@@ -259,7 +394,10 @@ function ProfileUmkmContent() {
                 />
                 <div className="space-y-3">
                   {[
-                    { label: "Website/Sosial Media",  value: website?.replace(/^https?:\/\//, "") },
+                    {
+                      label: "Website/Sosial Media",
+                      value: website?.replace(/^https?:\/\//, ""),
+                    },
                     { label: "Email Usaha", value: emailHrd },
                     { label: "Telepon", value: telepon },
                     { label: "Alamat", value: alamat },
@@ -282,7 +420,6 @@ function ProfileUmkmContent() {
             </div>
           </div>
 
-          {/*  Kata Karyawan Kami  */}
           <Card>
             <SectionHeader title="Kata Karyawan Kami" />
             {reviewsLoading ? (
@@ -335,16 +472,13 @@ function ProfileUmkmContent() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-md">
             <h3 className="text-lg font-semibold mb-2">Hapus Fasilitas</h3>
-
             <p className="text-sm text-gray-600 mb-6">
               Apakah Anda yakin ingin menghapus fasilitas ini?
             </p>
-
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setDeleteId(null)}>
                 Batal
               </Button>
-
               <Button
                 className="bg-red-500 hover:bg-red-600 text-white"
                 onClick={async () => {

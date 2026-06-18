@@ -44,6 +44,33 @@ const ReportsRepository = {
     const query = "UPDATE umkm_reports SET status = ? WHERE id = ?";
     await pool.execute(query, [status, id]);
   },
+
+  createReport: async (
+  reporterUserId: number,
+  reportedUmkmId: number,
+  violationCategory: string,
+  reportReason: string,
+) => {
+  const [result]: any = await pool.execute(
+    `INSERT INTO umkm_reports (reporter_user_id, reported_umkm_id, violation_category, report_reason, status)
+     VALUES (?, ?, ?, ?, 'Menunggu')`,
+    [reporterUserId, reportedUmkmId, violationCategory, reportReason],
+  );
+  return { id: result.insertId };
+},
+
+findByUmkmUserId: async (userId: number) => {
+  const [rows]: any = await pool.execute(
+    `SELECT ur.id, ur.violation_category AS kategoriPelanggaran, 
+            ur.report_reason AS alasanPelaporan, ur.status, ur.created_at
+     FROM umkm_reports ur
+     JOIN umkm_profiles up ON ur.reported_umkm_id = up.id_umkm
+     WHERE up.user_id = ?
+     ORDER BY ur.created_at DESC`,
+    [userId],
+  );
+  return rows;
+},
 };
 
 export default ReportsRepository;
