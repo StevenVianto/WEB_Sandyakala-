@@ -100,13 +100,11 @@ function UbahAkunModal({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative"
@@ -322,6 +320,10 @@ export default function DashboardUmkmLayout({
 }) {
   const authSelector = useAppSelector((state) => state.auth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+
+  console.log("AUTH SELECTOR:", JSON.stringify(authSelector, null, 2));
+console.log("ROLE:", authSelector.role);
+console.log("LOCAL USER:", localStorage.getItem("user"));
 
   if (authSelector.role !== "UMKM") {
     return <Navigate to="/" />;

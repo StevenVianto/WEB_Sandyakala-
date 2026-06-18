@@ -78,4 +78,22 @@ export const AuthService = {
 
     return user
   },
+
+  refreshToken: async (userId: number) => {
+  const user = await AuthRepository.findUserById(userId);
+  
+  if (!user || user.length === 0) {
+    throw new UnauthorizedError("User tidak ditemukan.");
+  }
+
+  const userData = Array.isArray(user) ? user[0] : user;
+
+  const newToken = signToken({
+    id: userData.id,
+    email: userData.email,
+    role: userData.role,
+  });
+
+  return { accessToken: newToken };
+},
 };

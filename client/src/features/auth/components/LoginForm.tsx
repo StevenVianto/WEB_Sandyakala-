@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import AuthLayout from "@/shared/layouts/AuthLayout";
@@ -14,6 +14,15 @@ export default function LoginForm() {
   const dispatch = useAppDispatch();
 
   const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  useEffect(() => {
+  const message = localStorage.getItem("verification_success");
+
+  if (message) {
+    setSuccessMessage(message);
+    localStorage.removeItem("verification_success");
+  }
+}, []);
   const {
     register,
     handleSubmit,
@@ -60,6 +69,12 @@ export default function LoginForm() {
           {serverError}
         </div>
       )}
+
+      {successMessage && (
+  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2.5 rounded-xl text-xs mb-4">
+    {successMessage}
+  </div>
+)}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <Input

@@ -37,6 +37,7 @@ const getStatusBadge = (status: string) => {
     REVISI: "bg-error-100 text-error",
     SELESAI: "bg-primary/50 text-primary-dark",
     PENDING: "bg-neutral-200 text-neutral-600",
+    SUBMITTED: "bg-blue-100 text-blue-700",
   };
   return map[status?.toUpperCase()] ?? "bg-neutral-200 text-neutral-600";
 };
@@ -52,13 +53,14 @@ export default function DataProject() {
 
   const token = localStorage.getItem("accessToken");
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
     setError("");
 
-    // Fetch jobs & applications sekaligus
     const [listRes, appsRes] = await Promise.all([
       apiRequest<any>("/jobs/umkm/me", {
         method: "GET",
@@ -76,7 +78,6 @@ export default function DataProject() {
       return;
     }
 
-    // Group nama pekerja ACCEPTED per job_id
     const acceptedByJobId: Record<number, string[]> = {};
     if (appsRes.success && appsRes.data) {
       const apps = Array.isArray(appsRes.data)
@@ -92,12 +93,10 @@ export default function DataProject() {
         });
     }
 
-    // Filter hanya PROJECT
     const projectJobs: JobWithTasks[] = (listRes.data as any[]).filter(
       (j: any) => j.type === "PROJECT"
     );
 
-    // Fetch detail tiap job
     const details = await Promise.all(
       projectJobs.map((job) =>
         apiRequest<JobWithTasks>(`/jobs/${job.id}`, {
@@ -107,7 +106,6 @@ export default function DataProject() {
       )
     );
 
-    // Flatten tasks
     const rows: TaskRow[] = [];
     details.forEach((res) => {
       if (!res.success || !res.data) return;
@@ -134,6 +132,14 @@ export default function DataProject() {
         row.task_name.toLowerCase().includes(searchQuery.toLowerCase())
       : true
   );
+
+  const grouped = filtered.reduce((acc, row) => {
+    if (!acc[row.job_id]) acc[row.job_id] = [];
+    acc[row.job_id].push(row);
+    return acc;
+  }, {} as Record<number, TaskRow[]>);
+
+  const groupedEntries = Object.entries(grouped);
 
   if (showRevisi && selectedTask) {
     return (
@@ -182,71 +188,102 @@ export default function DataProject() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.length > 0 ? (
-                    filtered.map((row, index) => (
-                      <tr key={row.id} className="hover:bg-neutral-100 transition text-center text-xs">
-                        <td className="border px-3 py-2">{index + 1}</td>
-                        <td className="border px-3 py-2">{row.job_title}</td>
-                        <td className="border px-3 py-2">{row.task_name}</td>
-                        <td className="border px-3 py-2">
-                          {row.worker_names.length > 0 ? (
-                            <div className="flex flex-col gap-0.5 items-center">
-                              {row.worker_names.map((name, i) => (
-                                <span key={i} className="text-xs">{name}</span>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-neutral-500 text-xs italic">Belum ada</span>
-                          )}
-                        </td>
-                        <td className="border px-3 py-2">
-                          {new Date(row.project_start).toLocaleDateString("id-ID", {
-                            day: "numeric", month: "long", year: "numeric",
-                          })}
-                        </td>
-                        <td className="border px-3 py-2 whitespace-nowrap">
-                          {new Date(row.project_end).toLocaleDateString("id-ID", {
-                            day: "numeric", month: "long", year: "numeric",
-                          })}
-                        </td>
-                        <td className="border px-3 py-2">
-                          <span className={`px-2 py-1 rounded-md text-xs font-semibold ${getStatusBadge(row.status)}`}>
-                            {row.status}
-                          </span>
-                        </td>
-                        <td className="border px-3 py-2">
-                          <div className="flex flex-col items-center gap-1">
-                            <button
-                              onClick={() => setModalDetailProject({
-                                id: String(row.id),
-                                nama_project: row.job_title,
-                                divisi_project: row.task_name,
-                                deskripsi_project: `Tugas ke-${row.task_order}`,
-                                tanggal_mulai_project: row.project_start,
-                                tanggal_selesai_project: row.project_end,
-                                status_project: row.status as any,
-                                anggota_tim_project: row.worker_names.length > 0
-                                  ? row.worker_names.join(", ")
-                                  : "Belum ada anggota",
-                                penanggung_jawab_project: row.worker_names[0] ?? "-",
-                                list_tugas_project: [],
-                              } as any)}
-                              className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer"
-                            >
-                              Detail
-                            </button>
-                            {["REVIEW", "REVISI"].includes(row.status?.toUpperCase()) && (
-                              <button
-                                onClick={() => { setSelectedTask(row); setShowRevisi(true); }}
-                                className="border border-warning-300 px-3 py-1 text-xs rounded-md hover:bg-warning-200 transition cursor-pointer whitespace-nowrap"
+                  {groupedEntries.length > 0 ? (
+                    groupedEntries.map(([, tasks], groupIndex) =>
+                      tasks.map((row, taskIndex) => (
+                        <tr
+                          key={row.id}
+                          className="hover:bg-neutral-100 transition text-center text-xs"
+                        >
+                          {taskIndex === 0 && (
+                            <>
+                              <td
+                                className="border px-3 py-2 bg-neutral-50 font-medium"
+                                rowSpan={tasks.length}
                               >
-                                Tinjau
-                              </button>
+                                {groupIndex + 1}
+                              </td>
+                              <td
+                                className="border px-3 py-2 bg-neutral-50 font-medium"
+                                rowSpan={tasks.length}
+                              >
+                                {row.job_title}
+                              </td>
+                            </>
+                          )}
+                          <td className="border px-3 py-2 text-left">{row.task_name}</td>
+                          <td className="border px-3 py-2">
+                            {row.worker_names.length > 0 ? (
+                              <div className="flex flex-col gap-0.5 items-center">
+                                {row.worker_names.map((name, i) => (
+                                  <span key={i} className="text-xs">{name}</span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-neutral-400 italic">Belum ada</span>
                             )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                          </td>
+                          <td className="border px-3 py-2 whitespace-nowrap">
+                            {new Date(row.project_start).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </td>
+                          <td className="border px-3 py-2 whitespace-nowrap">
+                            {new Date(row.project_end).toLocaleDateString("id-ID", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </td>
+                          <td className="border px-3 py-2">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(row.status)}`}
+                            >
+                              {row.status}
+                            </span>
+                          </td>
+                          <td className="border px-3 py-2">
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                onClick={() =>
+                                  setModalDetailProject({
+                                    id: String(row.id),
+                                    nama_project: row.job_title,
+                                    divisi_project: row.task_name,
+                                    deskripsi_project: `Tugas ke-${row.task_order}`,
+                                    tanggal_mulai_project: row.project_start,
+                                    tanggal_selesai_project: row.project_end,
+                                    status_project: row.status as any,
+                                    anggota_tim_project:
+                                      row.worker_names.length > 0
+                                        ? row.worker_names.join(", ")
+                                        : "Belum ada anggota",
+                                    penanggung_jawab_project: row.worker_names[0] ?? "-",
+                                    list_tugas_project: [],
+                                  } as any)
+                                }
+                                className="border border-primary-dark px-3 py-1 text-xs rounded-md hover:bg-primary-dark hover:text-white transition cursor-pointer"
+                              >
+                                Detail
+                              </button>
+                              {["REVIEW", "REVISI"].includes(row.status?.toUpperCase()) && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedTask(row);
+                                    setShowRevisi(true);
+                                  }}
+                                  className="border border-warning-300 px-3 py-1 text-xs rounded-md hover:bg-warning-200 transition cursor-pointer whitespace-nowrap"
+                                >
+                                  Tinjau
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )
                   ) : (
                     <tr>
                       <td colSpan={8} className="text-center py-5 text-neutral-500">

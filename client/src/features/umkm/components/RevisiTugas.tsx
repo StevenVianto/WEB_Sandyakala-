@@ -287,12 +287,12 @@ export default function RevisiTugas({ task, onBack }: RevisiTugasProps) {
                     </p>
                     {rev.note && (
                       <div className="bg-neutral-200 p-3 rounded-lg mr-2">
-                        <p className="text-10 text-neutral-700">{rev.note}</p>
+                        <p className="text-xs text-neutral-700">{rev.note}</p>
                       </div>
                     )}
                     {rev.revision_note && (
                       <div className="bg-orange-100 p-3 rounded-lg mr-2 mt-1">
-                        <p className="text-10 text-orange-700">
+                        <p className="text-xs text-orange-700">
                           Catatan UMKM: {rev.revision_note}
                         </p>
                       </div>
