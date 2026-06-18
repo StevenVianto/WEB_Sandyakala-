@@ -59,11 +59,13 @@ const FreshGraduateRepository = {
     data: { lastEducation: string; phone: string },
     files: { cvUrl: string; ktpUrl: string; portfolioUrl?: string | null; profilePic?: string | null }
   ) => {
-    const [existing]: any = await pool.execute("SELECT id FROM fg_profiles WHERE user_id = ?", [userId]);
+    const [existing]: any = await pool.execute("SELECT id, status FROM fg_profiles WHERE user_id = ?", [userId]);
     if (existing.length > 0) {
+      const currentStatus = existing[0].status;
+      const nextStatus = currentStatus === "APPROVED" ? "APPROVED" : "PENDING";
       const query = `
         UPDATE fg_profiles 
-        SET last_education = ?, no_hp = ?, cv_url = ?, ktp_url = ?, portfolio_url = COALESCE(?, portfolio_url), profile_pic = COALESCE(?, profile_pic), status = 'PENDING', rejection_reason = NULL
+        SET last_education = ?, no_hp = ?, cv_url = ?, ktp_url = ?, portfolio_url = COALESCE(?, portfolio_url), profile_pic = COALESCE(?, profile_pic), status = ?, rejection_reason = NULL
         WHERE user_id = ?
       `;
       await pool.execute(query, [
@@ -73,6 +75,7 @@ const FreshGraduateRepository = {
         files.ktpUrl,
         files.portfolioUrl || null,
         files.profilePic || null,
+        nextStatus,
         userId
       ]);
       return existing[0].id;
