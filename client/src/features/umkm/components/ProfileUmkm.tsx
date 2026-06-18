@@ -2,7 +2,13 @@ import DashboardUmkmLayout from "@/shared/layouts/DashboardUmkmLayout";
 import BgImgRekrutmen from "@/assets/images/Bg Img Dashboard Umkm.png";
 import { Card } from "./ui/Card";
 import { FiTrash } from "react-icons/fi";
-import { IoLocationSharp, IoPeople } from "react-icons/io5";
+import {
+  IoLocationSharp,
+  IoPeople,
+  IoWarning,
+  IoPause,
+  IoCloseCircle,
+} from "react-icons/io5";
 import { MdStore, MdVerified } from "react-icons/md";
 import { HiOutlineMenuAlt2, HiViewGridAdd } from "react-icons/hi";
 import { FaGift, FaStar } from "react-icons/fa6";
@@ -10,7 +16,12 @@ import InfoBadge from "./ui/InfoBadge";
 import { Button } from "@/shared/components/ui/button";
 import type { IconType } from "react-icons";
 import { cn } from "@/shared/lib/utils";
-import { ProfileUmkmProvider, useProfileUmkm } from "./ProfileUmkmContext";
+import {
+  ProfileUmkmProvider,
+  useProfileUmkm,
+  type Report,
+  type ReportStatus,
+} from "./ProfileUmkmContext";
 import ProfileUmkmModals from "./ProfileUmkmModals";
 import { useState } from "react";
 
@@ -107,8 +118,120 @@ const getReportBadgeClass = (status: string) => {
   }
 };
 
+
+const STATUS_TO_REPORT_STATUS: Record<string, string[]> = {
+  warning: ["Peringatan"],
+  disabled: ["Blokir"],
+  inactive: ["Valid", "Menunggu"],
+};
+
+function getRelevantReport(reports: Report[], reportStatus: ReportStatus) {
+  const targets = STATUS_TO_REPORT_STATUS[reportStatus] || [];
+  return reports.find((r) => targets.includes(r.status)) ?? reports[0];
+}
+
+const VIOLATION_CONFIG = {
+  warning: {
+    icon: IoWarning,
+    headerClass: "bg-warning-300 text-white",
+    title: "Anda mendapat peringatan",
+    tindakanFallback: "Anda mendapat peringatan",
+    actionLabel: "Mengerti, saya akan perbaiki",
+    actionClass: "bg-warning-300 hover:bg-warning-400 text-white",
+  },
+  inactive: {
+    icon: IoPause,
+    headerClass: "bg-info-300 text-white",
+    title: "Akun Anda ditangguhkan",
+    tindakanFallback: "Akun Anda ditangguhkan sementara",
+    actionLabel: "Pelajari lebih lanjut",
+    actionClass: "bg-info-300 hover:bg-info-400 text-white",
+  },
+  disabled: {
+    icon: IoCloseCircle,
+    headerClass: "bg-error-300 text-white",
+    title: "Akun Anda ditangguhkan",
+    tindakanFallback: "Akun Anda telah dinonaktifkan",
+    actionLabel: "Hubungi tim FreshStart",
+    actionClass: "bg-error-300 hover:bg-error-400 text-white",
+  },
+} as const;
+
+type ViolationStatus = keyof typeof VIOLATION_CONFIG;
+
+function ViolationDetailModal({
+  status,
+  report,
+  onClose,
+}: {
+  status: ViolationStatus;
+  report?: Report;
+  onClose: () => void;
+}) {
+  const config = VIOLATION_CONFIG[status];
+  const Icon = config.icon;
+  const waktu = report?.created_at
+    ? new Date(report.created_at).toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " WIB"
+    : "-";
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-xl">
+        <div
+          className={cn(
+            "flex items-center gap-3 px-5 py-4",
+            config.headerClass,
+          )}
+        >
+          <Icon className="w-5 h-5 shrink-0" />
+          <h3 className="font-semibold text-sm">{config.title}</h3>
+        </div>
+
+        <div className="px-5 py-5">
+          <p className="text-sm text-gray-600 mb-4">
+            Tim Freshstart telah meninjau akun Anda dan mengambil tindakan
+          </p>
+          <div className="flex flex-col gap-3 text-sm">
+            <div className="flex justify-between gap-4">
+              <span className="text-gray-400 shrink-0">Tindakan</span>
+              <span className="font-semibold text-gray-800 text-right">
+                {config.tindakanFallback}
+              </span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-gray-400 shrink-0">Alasan</span>
+              <span className="font-semibold text-gray-800 text-right">
+                {report?.alasanPelaporan ?? "-"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-gray-400 shrink-0">Waktu</span>
+              <span className="font-semibold text-gray-800 text-right">
+                {waktu}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 px-5 py-4 border-t border-neutral-100">
+          <Button variant="outline" onClick={onClose}>
+            Tutup
+          </Button>
+          <Button className={config.actionClass} onClick={onClose}>
+            {config.actionLabel}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProfileUmkmContent() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [violationModalOpen, setViolationModalOpen] = useState(false);
   const {
     openModal,
     namaUsaha,
@@ -135,37 +258,6 @@ function ProfileUmkmContent() {
 
   return (
     <DashboardUmkmLayout>
-      {/* {reportStatus === "warning" && (
-        <div className="w-full bg-[#FEF9C3] text-[#A16207] px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <span className="text-sm font-semibold text-center sm:text-left">
-            Akun Anda mendapat peringatan: Melanggar syarat & ketentuan (Terms of Service)
-          </span>
-          <button className="bg-[#FDE047] text-[#A16207] px-5 py-1.5 rounded text-xs font-bold hover:bg-[#FACC15] shrink-0">
-            Lihat
-          </button>
-        </div>
-      )}
-      {reportStatus === "inactive" && (
-        <div className="w-full mt-20 bg-info-100 text-info-300 px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <span className="text-sm font-semibold text-center sm:text-left">
-            Akun Anda sedang dalam peninjauan. Terdapat laporan yang masuk terhadap usaha Anda.
-          </span>
-          <button className="bg-info-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-info-200 shrink-0">
-            Lihat
-          </button>
-        </div>
-      )}
-      {reportStatus === "disabled" && (
-        <div className="w-full bg-[#FEE2E2] text-[#B91C1C] px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <span className="text-sm font-semibold text-center sm:text-left">
-            Akun Anda telah diblokir karena pelanggaran serius.
-          </span>
-          <button className="bg-[#EF4444] text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-[#DC2626] shrink-0">
-            Lihat
-          </button>
-        </div>
-      )} */}
-
       <section className="w-full pt-7 md:pt-12 bg-white">
         <div
           className="relative bg-cover bg-center h-70 w-full"
@@ -177,7 +269,10 @@ function ProfileUmkmContent() {
                 Akun Anda mendapat peringatan: Melanggar syarat & ketentuan
                 (Terms of Service)
               </span>
-              <button className="bg-warning-300 text-warning-100 px-5 py-1.5 rounded text-xs font-bold hover:bg-warning-200 shrink-0">
+              <button
+                onClick={() => setViolationModalOpen(true)}
+                className="bg-warning-300 text-warning-100 px-5 py-1.5 rounded text-xs font-bold hover:bg-warning-200 shrink-0"
+              >
                 Lihat
               </button>
             </div>
@@ -188,7 +283,10 @@ function ProfileUmkmContent() {
                 Akun Anda sedang dalam peninjauan. Terdapat laporan yang masuk
                 terhadap usaha Anda.
               </span>
-              <button className="bg-info-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-info-200 shrink-0">
+              <button
+                onClick={() => setViolationModalOpen(true)}
+                className="bg-info-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-info-200 shrink-0"
+              >
                 Lihat
               </button>
             </div>
@@ -198,7 +296,10 @@ function ProfileUmkmContent() {
               <span className="text-sm font-semibold text-center sm:text-left">
                 Akun Anda telah diblokir karena pelanggaran serius.
               </span>
-              <button className="bg-error-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-error-200 shrink-0">
+              <button
+                onClick={() => setViolationModalOpen(true)}
+                className="bg-error-300 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-error-200 shrink-0"
+              >
                 Lihat
               </button>
             </div>
@@ -246,7 +347,7 @@ function ProfileUmkmContent() {
 
                 <div className="flex items-center gap-2 shrink-0">
                   {reportStatus === "warning" && (
-                    <span className="bg-warning-200 text-warning-300 px-3 py-1 rounded-full text-xs font-bold">
+                    <span className="bg-warning-100 text-warning-300 px-3 py-1 rounded-full text-xs font-bold">
                       Peringatan
                     </span>
                   )}
@@ -468,6 +569,7 @@ function ProfileUmkmContent() {
       </div>
 
       <ProfileUmkmModals />
+
       {deleteId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-md">
@@ -491,6 +593,14 @@ function ProfileUmkmContent() {
             </div>
           </div>
         </div>
+      )}
+
+      {violationModalOpen && reportStatus !== "normal" && (
+        <ViolationDetailModal
+          status={reportStatus as ViolationStatus}
+          report={getRelevantReport(reports, reportStatus)}
+          onClose={() => setViolationModalOpen(false)}
+        />
       )}
     </DashboardUmkmLayout>
   );
