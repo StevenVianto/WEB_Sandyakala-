@@ -7,13 +7,12 @@ import pool from "../../config/db.js";
 import JobRepository from "./job.repository.js";
 import type { CreateJobInput } from "./job.schema.js";
 
-// helper function
 const getVerifiedUmkmId = async (
   userId: string | number,
   requireApproved: boolean = false,
 ): Promise<number> => {
   const [umkmRows]: any = await pool.execute(
-    "SELECT id_umkm AS id, status FROM umkm_profiles WHERE user_id = ?",
+    "SELECT id_umkm AS id, status FROM umkm_profiles WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
     [userId],
   );
 

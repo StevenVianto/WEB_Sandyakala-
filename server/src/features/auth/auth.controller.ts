@@ -28,9 +28,6 @@ export const AuthController = {
       data: result,
     });
   },
-<<<<<<< HEAD
-};
-=======
 
   updateAccount: async (req: Request, res: Response) => {
   const userId = Number(req.user!.id);
@@ -54,5 +51,9 @@ export const AuthController = {
       data: user,
     });
   },
+
+  refreshToken: async (req: Request, res: Response) => {
+  const result = await AuthService.refreshToken(req.user.id);
+  res.json({ success: true, data: result });
+},
 };
->>>>>>> 28ba8fd211518570253587f0d305f7fd3cfcd065

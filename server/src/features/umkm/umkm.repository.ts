@@ -60,13 +60,64 @@ const UmkmRepository = {
     }
   },
 
-  checkNibExists: async (nib: string): Promise<boolean> => {
+  checkNibExists: async (nib: string, excludeUserId?: number): Promise<boolean> => {
+  if (excludeUserId !== undefined) {
     const [rows]: any = await pool.execute(
-      "SELECT id_umkm FROM umkm_profiles WHERE nib = ?",
-      [nib],
+      "SELECT id_umkm FROM umkm_profiles WHERE nib = ? AND user_id != ?",
+      [nib, excludeUserId],
     );
     return rows.length > 0;
-  },
+  }
+  const [rows]: any = await pool.execute(
+    "SELECT id_umkm FROM umkm_profiles WHERE nib = ?",
+    [nib],
+  );
+  return rows.length > 0;
+},
+
+updateUmkmProfileAndDocs: async (
+  umkmId: number,
+  data: RegisterUmkmInput,
+  files: { logo_url: string; ktp_url: string; nib_file_url: string },
+) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    await connection.execute(
+      `UPDATE umkm_profiles SET
+        owner_name = ?, nib = ?, business_name = ?, business_category = ?,
+        employee_count = ?, established_at = ?, province = ?, regency = ?,
+        district = ?, subdistrict = ?, website_sosmed = ?, business_email = ?,
+        business_phone = ?, status = 'PENDING', rejection_reason = NULL
+      WHERE id_umkm = ?`,
+      [
+        data.owner_name, data.nib, data.business_name, data.business_category,
+        data.employee_count, data.established_at, data.province, data.regency,
+        data.district, data.subdistrict, data.website_sosmed || null,
+        data.business_email, data.business_phone, umkmId,
+      ],
+    );
+
+    await connection.execute(
+      `INSERT INTO umkm_documents (umkm_id, logo_url, ktp_url, nib_file_url, created_at)
+       VALUES (?, ?, ?, ?, NOW())
+       ON DUPLICATE KEY UPDATE
+         logo_url = VALUES(logo_url),
+         ktp_url = VALUES(ktp_url),
+         nib_file_url = VALUES(nib_file_url)`,
+      [umkmId, files.logo_url, files.ktp_url, files.nib_file_url],
+    );
+
+    await connection.commit();
+    return umkmId;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+},
 
   findAllUmkm: async () => {
     const query = `

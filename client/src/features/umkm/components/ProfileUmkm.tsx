@@ -225,7 +225,7 @@ function ProfileUmkmContent() {
                           <h3 className="font-semibold text-gray-900 text-sm mb-1">
                             {benefit.title}
                           </h3>
-                          <p className="text-xs text-gray-500 leading-relaxed pr-4">
+                          <p className="text-xs text-gray-500 leading-relaxed pr-10 break-all">
                             {benefit.description}
                           </p>
                         </div>
@@ -259,7 +259,7 @@ function ProfileUmkmContent() {
                 />
                 <div className="space-y-3">
                   {[
-                    { label: "Website/Sosial Media", value: website },
+                    { label: "Website/Sosial Media",  value: website?.replace(/^https?:\/\//, "") },
                     { label: "Email Usaha", value: emailHrd },
                     { label: "Telepon", value: telepon },
                     { label: "Alamat", value: alamat },
@@ -268,7 +268,7 @@ function ProfileUmkmContent() {
                       <span className="block text-xs font-medium text-info-300 mb-1">
                         {label}
                       </span>
-                      <span className="block text-sm font-medium text-gray-800 wrap-break-word">
+                      <span className="block text-sm font-medium text-gray-800 break-all">
                         {value || (
                           <span className="text-gray-400 italic">
                             Belum diisi

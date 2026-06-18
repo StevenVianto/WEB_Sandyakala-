@@ -17,8 +17,8 @@ const TaskService = {
       throw new Error("Tugas tidak ditemukan!");
     }
 
-    if (task.status === STATUS.SELESAI) {
-      throw new Error("Tugas sudah selesai dan tidak bisa diubah lagi.");
+    if (task.status === STATUS.SELESAI || task.status === STATUS.REVIEW) {
+      throw new Error("Tugas sudah selesai atau sedang dalam review.");
     }
 
     const application = await TaskRepository.checkUserApplication(
@@ -49,7 +49,7 @@ const TaskService = {
       throw new Error("Tugas tidak ditemukan!");
     }
 
-    if (task.status !== STATUS.REVIEW || STATUS.REVISI) {
+    if (task.status !== STATUS.REVIEW && task.status !== STATUS.REVISI) {
       throw new Error("Tugas ini tidak dalam status menunggu tinjauan.");
     }
 

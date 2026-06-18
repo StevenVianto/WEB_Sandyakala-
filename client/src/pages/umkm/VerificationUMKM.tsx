@@ -17,6 +17,9 @@ import {
 } from "react-icons/fi";
 import { HiOutlineBadgeCheck } from "react-icons/hi";
 import { useAppSelector } from "@/shared/stores/hook";
+import { authLogout } from "@/features/auth/authSlice";
+import { useAppDispatch } from "@/shared/stores/hook";
+
 
 type VerificationStatus =
   | "step1"
@@ -45,6 +48,7 @@ export default function VerificationUMKM() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [ktpFile, setKtpFile] = useState<File | null>(null);
@@ -111,10 +115,14 @@ export default function VerificationUMKM() {
     setError(null);
     setSubmitting(true);
 
-    const selectedProvinsiName = provinsi.find((p) => p.id === selectedProvinsi)?.name || "";
-    const selectedKabupatenName = kabupaten.find((k) => k.id === selectedKabupaten)?.name || "";
-    const selectedKecamatanName = kecamatan.find((kc) => kc.id === selectedKecamatan)?.name || "";
-    const selectedDesaName = desa.find((d) => d.id === selectedDesa)?.name || "";
+    const selectedProvinsiName =
+      provinsi.find((p) => p.id === selectedProvinsi)?.name || "";
+    const selectedKabupatenName =
+      kabupaten.find((k) => k.id === selectedKabupaten)?.name || "";
+    const selectedKecamatanName =
+      kecamatan.find((kc) => kc.id === selectedKecamatan)?.name || "";
+    const selectedDesaName =
+      desa.find((d) => d.id === selectedDesa)?.name || "";
 
     // Extract maximum number of employees (e.g. "11 - 50" -> 50) to satisfy z.coerce.number()
     let count = 1;
@@ -129,9 +137,15 @@ export default function VerificationUMKM() {
     formData.append("owner_name", ownerName);
     formData.append("nib", nib);
     formData.append("business_name", businessName);
-    formData.append("business_category", kategori === "Lainnya" ? customKategori : kategori);
+    formData.append(
+      "business_category",
+      kategori === "Lainnya" ? customKategori : kategori,
+    );
     formData.append("employee_count", String(count));
-    formData.append("established_at", String(parseInt(establishedAt) || new Date().getFullYear()));
+    formData.append(
+      "established_at",
+      String(parseInt(establishedAt) || new Date().getFullYear()),
+    );
     formData.append("province", selectedProvinsiName);
     formData.append("regency", selectedKabupatenName);
     formData.append("district", selectedKecamatanName);
@@ -201,10 +215,13 @@ export default function VerificationUMKM() {
     };
 
     try {
-      const response = await apiRequest<{ umkm_id: number; status: string }>("/umkm/register", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await apiRequest<{ umkm_id: number; status: string }>(
+        "/umkm/register",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       if (!response.success) {
         if (response.errors && response.errors.length > 0) {
@@ -212,7 +229,10 @@ export default function VerificationUMKM() {
           const errDetail = response.errors[0];
           setError(`Kesalahan pada ${errDetail.field}: ${errDetail.message}`);
         } else {
-          setError(response.message || "Pendaftaran gagal. Silakan periksa kembali data Anda.");
+          setError(
+            response.message ||
+              "Pendaftaran gagal. Silakan periksa kembali data Anda.",
+          );
         }
         setSubmitting(false);
         return;
@@ -284,7 +304,9 @@ export default function VerificationUMKM() {
     const year = parseInt(establishedAt);
     const currentYear = new Date().getFullYear();
     if (isNaN(year) || year < 1886 || year > currentYear + 1) {
-      setError(`Tahun berdiri harus berupa angka antara 1886 dan ${currentYear + 1}`);
+      setError(
+        `Tahun berdiri harus berupa angka antara 1886 dan ${currentYear + 1}`,
+      );
       return;
     }
 
@@ -332,7 +354,9 @@ export default function VerificationUMKM() {
         new URL(url);
         setWebsiteSosmed(url);
       } catch (e) {
-        setError("Format URL Website/Sosial Media tidak valid (contoh: https://instagram.com/akun atau instagram.com)");
+        setError(
+          "Format URL Website/Sosial Media tidak valid (contoh: https://instagram.com/akun atau instagram.com)",
+        );
         return;
       }
     }
@@ -343,10 +367,11 @@ export default function VerificationUMKM() {
   // Cek jika status di local storage sudah approved, langsung redirect tanpa nunggu API call
   useEffect(() => {
     const savedStatus = localStorage.getItem(statusKey);
-    if (savedStatus === "approved") {
-      navigate("/umkm/home");
+
+    if (savedStatus) {
+      setStatus(savedStatus as VerificationStatus);
     }
-  }, [statusKey, navigate]);
+  }, [statusKey]);
 
   // Integrasi status dari Backend & Local Storage
   useEffect(() => {
@@ -370,37 +395,56 @@ export default function VerificationUMKM() {
             businessEmail: response.data.business_email,
             businessPhone: response.data.business_phone,
             websiteSosmed: response.data.website_sosmed,
-            address: [response.data.subdistrict, response.data.district, response.data.regency, response.data.province].filter(Boolean).join(", ") || "Jakarta",
-            createdAt: response.data.created_at ? new Date(response.data.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "29 Maret 2026",
+            address:
+              [
+                response.data.subdistrict,
+                response.data.district,
+                response.data.regency,
+                response.data.province,
+              ]
+                .filter(Boolean)
+                .join(", ") || "Jakarta",
+            createdAt: response.data.created_at
+              ? new Date(response.data.created_at).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+              : "29 Maret 2026",
             businessLogo: response.data.logo_url || "",
-            rejectionReason: response.data.rejection_reason || localStorage.getItem(response.data.business_email ? `umkm_rejection_reason_${response.data.business_email}` : "umkm_rejection_reason") || ""
+            rejectionReason:
+              response.data.rejection_reason ||
+              localStorage.getItem(
+                response.data.business_email
+                  ? `umkm_rejection_reason_${response.data.business_email}`
+                  : "umkm_rejection_reason",
+              ) ||
+              "",
           };
           setProfileData(updatedProfile);
           localStorage.setItem(profileKey, JSON.stringify(updatedProfile));
 
-          // Also, if the status is approved, we should update the local "user" item's role to "UMKM"
-          // so that route guards and navbar links sync instantly
           if (mappedStatus === "approved") {
-            const userStr = localStorage.getItem("user");
-            if (userStr) {
-              const userObj = JSON.parse(userStr);
-              if (userObj.role !== "UMKM") {
-                userObj.role = "UMKM";
-                localStorage.setItem("user", JSON.stringify(userObj));
-              }
-            }
-            // Pengalihan langsung ke halaman Home UMKM
-            navigate("/umkm/home");
+            localStorage.setItem(
+              "verification_success",
+              "Akun UMKM Anda telah diverifikasi. Silakan login kembali.",
+            );
+
+            dispatch(authLogout());
+
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("user");
+
+            navigate("/auth/login", { replace: true });
+
+            return;
           }
         }
       } else {
-        // Fallback to local storage if API fails or returns no profile
         const savedStatus = localStorage.getItem(statusKey);
+
         if (savedStatus) {
           setStatus(savedStatus as VerificationStatus);
-          if (savedStatus === "approved") {
-            navigate("/umkm/home");
-          }
         }
       }
     };
@@ -609,7 +653,11 @@ export default function VerificationUMKM() {
               </h2>
 
               <p className="text-[#166534] text-[13px] leading-relaxed max-w-3xl mb-4">
-                Akun <strong>{profileData?.businessName || "Sambal Bakar Nusantara"}</strong> milik <strong>{profileData?.ownerName || "Jane Doe"}</strong>{" "}
+                Akun{" "}
+                <strong>
+                  {profileData?.businessName || "Sambal Bakar Nusantara"}
+                </strong>{" "}
+                milik <strong>{profileData?.ownerName || "Jane Doe"}</strong>{" "}
                 telah resmi terverifikasi oleh tim FreshStart. Kini Anda dapat
                 mengakses seluruh fitur platform secara penuh, mulai dari
                 membuka lowongan kerja, mengelola profil usaha, hingga
@@ -620,7 +668,10 @@ export default function VerificationUMKM() {
                 <div className="flex items-center gap-2">
                   <FiClock className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    Diverifikasi pada: <strong>{profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB</strong>
+                    Diverifikasi pada:{" "}
+                    <strong>
+                      {profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB
+                    </strong>
                   </span>
                 </div>
                 <span>
@@ -657,17 +708,23 @@ export default function VerificationUMKM() {
               </h2>
 
               <p className="text-[#991B1B] text-[13px] leading-relaxed max-w-3xl mb-4">
-                Maaf, akun UMKM <strong>{profileData?.businessName || "Sambal Bakar Nusantara"}</strong> Anda
-                tidak dapat diverifikasi pada saat ini. Admin telah meninjau
-                pengajuan Anda dan menemukan beberapa hal yang perlu diperbaiki.
-                Silakan baca keterangan di bawah dan ajukan kembali setelah
-                melengkapi persyaratan.
+                Maaf, akun UMKM{" "}
+                <strong>
+                  {profileData?.businessName || "Sambal Bakar Nusantara"}
+                </strong>{" "}
+                Anda tidak dapat diverifikasi pada saat ini. Admin telah
+                meninjau pengajuan Anda dan menemukan beberapa hal yang perlu
+                diperbaiki. Silakan baca keterangan di bawah dan ajukan kembali
+                setelah melengkapi persyaratan.
               </p>
 
               <div className="flex items-center gap-2 text-[#991B1B] text-[12px]">
                 <FiClock className="w-3.5 h-3.5 shrink-0" />
                 <span>
-                  Ditolak pada: <strong>{profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB</strong>
+                  Ditolak pada:{" "}
+                  <strong>
+                    {profileData?.createdAt || "31 Maret 2025"}, 12.30 WIB
+                  </strong>
                 </span>
               </div>
             </div>
@@ -932,7 +989,7 @@ export default function VerificationUMKM() {
                 </div>
               </div>
             </Card>
-             <Button
+            <Button
               onClick={handleProceedToStep2}
               className="w-full max-w-2xl bg-[#3B5998] hover:bg-[#2d4373] text-white py-5 rounded-xl font-bold text-[15px]"
             >
@@ -1358,7 +1415,8 @@ export default function VerificationUMKM() {
                   </span>
                 </div>
                 <p className="text-[#334155] text-[13px] leading-relaxed whitespace-pre-wrap">
-                  {profileData?.rejectionReason || "Pengajuan verifikasi akun UMKM Anda ditolak. Silakan perbaiki dokumen Anda dan ajukan kembali."}
+                  {profileData?.rejectionReason ||
+                    "Pengajuan verifikasi akun UMKM Anda ditolak. Silakan perbaiki dokumen Anda dan ajukan kembali."}
                 </p>
               </div>
 

@@ -6,63 +6,53 @@ import type { RegisterUmkmInput } from "./umkm.schema.js";
 
 const UmkmService = {
   registerUmkm: async (userId: number, data: RegisterUmkmInput, files: any) => {
-    if (!files || !files.logo || !files.ktp || !files.nib_document) {
-      throw new BadRequestError("Documents (logo, ktp, nib) wajib diunggah");
+  if (!files || !files.logo || !files.ktp || !files.nib_document) {
+    throw new BadRequestError("Documents (logo, ktp, nib) wajib diunggah");
+  }
+
+  const existingProfile = await UmkmRepository.findUmkmByUserId(userId);
+
+  const logoUrl = await CloudinaryUtil.uploadFile(files.logo[0], AppConfig.CLOUDINARY_FOLDER);
+  const ktpUrl = await CloudinaryUtil.uploadFile(files.ktp[0], AppConfig.CLOUDINARY_FOLDER);
+  const nibUrl = await CloudinaryUtil.uploadFile(files.nib_document[0], AppConfig.CLOUDINARY_FOLDER);
+
+  const documentUrls = { logo_url: logoUrl, ktp_url: ktpUrl, nib_file_url: nibUrl };
+
+  try {
+    if (data.nib) {
+      const isNibExists = await UmkmRepository.checkNibExists(data.nib, userId);
+      if (isNibExists) {
+        throw new BadRequestError(
+          "NIB ini sudah terdaftar. Silakan periksa kembali atau gunakan NIB lain.",
+        );
+      }
     }
 
-    const logoUrl = await CloudinaryUtil.uploadFile(
-      files.logo[0],
-      AppConfig.CLOUDINARY_FOLDER,
-    );
-    const ktpUrl = await CloudinaryUtil.uploadFile(
-      files.ktp[0],
-      AppConfig.CLOUDINARY_FOLDER,
-    );
-    const nibUrl = await CloudinaryUtil.uploadFile(
-      files.nib_document[0],
-      AppConfig.CLOUDINARY_FOLDER,
-    );
+    let umkmId: number;
 
-    const documentUrls = {
-      logo_url: logoUrl,
-      ktp_url: ktpUrl,
-      nib_file_url: nibUrl,
-    };
-
-    try {
-      if (data.nib) {
-        const isNibExists = await UmkmRepository.checkNibExists(data.nib);
-        if (isNibExists) {
-          throw new BadRequestError(
-            "NIB ini sudah terdaftar. Silakan periksa kembali atau gunakan NIB lain.",
-          );
-        }
-      }
-
-      const umkmId = await UmkmRepository.createUmkmProfileAndDocs(
-        userId,
+    if (existingProfile) {
+      await UmkmRepository.updateUmkmProfileAndDocs(
+        existingProfile.id_umkm,
         data,
         documentUrls,
       );
-
-      return {
-        umkm_id: umkmId,
-        status: "PENDING",
-      };
-    } catch (error) {
-      console.log(
-        "Terjadi kegagalan di Database. Memulai proses Rollback Cloudinary...",
-      );
-
-      await Promise.all([
-        CloudinaryUtil.deleteFile(logoUrl, AppConfig.CLOUDINARY_FOLDER),
-        CloudinaryUtil.deleteFile(ktpUrl, AppConfig.CLOUDINARY_FOLDER),
-        CloudinaryUtil.deleteFile(nibUrl, AppConfig.CLOUDINARY_FOLDER),
-      ]);
-
-      throw error;
+      umkmId = existingProfile.id_umkm;
+    } else {
+      umkmId = await UmkmRepository.createUmkmProfileAndDocs(userId, data, documentUrls);
     }
-  },
+
+    return { umkm_id: umkmId, status: "PENDING" };
+
+  } catch (error) {
+    console.log("Terjadi kegagalan di Database. Memulai proses Rollback Cloudinary...");
+    await Promise.all([
+      CloudinaryUtil.deleteFile(logoUrl, AppConfig.CLOUDINARY_FOLDER),
+      CloudinaryUtil.deleteFile(ktpUrl, AppConfig.CLOUDINARY_FOLDER),
+      CloudinaryUtil.deleteFile(nibUrl, AppConfig.CLOUDINARY_FOLDER),
+    ]);
+    throw error;
+  }
+},
 
   getAllUmkm: async () => {
     const umkms = (await UmkmRepository.findAllUmkm()) as any[];

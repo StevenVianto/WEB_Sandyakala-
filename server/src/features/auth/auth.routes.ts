@@ -31,4 +31,9 @@ router.patch(
   asyncHandler(AuthController.updateAccount)
 );
 
+router.post(
+  "/refresh-token",
+  safeGuard(["USER", "UMKM", "ADMIN"]),
+  asyncHandler(AuthController.refreshToken),
+);
 export default router;

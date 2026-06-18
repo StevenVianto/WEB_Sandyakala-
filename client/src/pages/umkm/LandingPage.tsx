@@ -405,7 +405,7 @@ function TestimoniSection() {
           {testimoni.map((t, i) => (
             <div
               key={i}
-              className="min-w-280px max-w-280px bg-teal-50 rounded-xl p-5 shrink-0"
+              className="w-72 shrink-0 bg-teal-50 rounded-xl p-5"
             >
               <div className="flex gap-0.5 mb-3">
                 {Array.from({ length: 5 }).map((_, j) => (
